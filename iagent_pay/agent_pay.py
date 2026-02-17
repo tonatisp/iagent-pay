@@ -225,6 +225,7 @@ class AgentPay:
             8453: "BASE",
             137: "POLYGON",
             42161: "ARBITRUM",
+            56: "BNB",
             11155111: "SEPOLIA"
         }
         
