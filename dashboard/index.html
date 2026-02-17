@@ -7,8 +7,20 @@
     <title>iAgentPay | Dashboard</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Ethers.js -->
-    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+    <!-- Scripts (Moved to bottom for performance) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script src="app.js"></script>
+
+    <script>
+        // Simple Debugger
+        window.onload = function () {
+            if (typeof ethers === 'undefined') {
+                alert("⚠️ Error: Ethers.js failed to load even locally. Check file presence.");
+            } else {
+                console.log("Dashboard Loaded Successfully (Local Mode)");
+            }
+        };
+    </script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
@@ -59,6 +71,13 @@
                     Search
                 </button>
             </div>
+
+            <div class="mt-4">
+                <button onclick="loadTreasury()"
+                    class="text-xs text-gray-500 hover:text-blue-400 underline decoration-dotted">
+                    👮‍♂️ Admin: Audit Treasury
+                </button>
+            </div>
         </div>
 
         <!-- Dashboard Grid (Hidden by default) -->
@@ -77,7 +96,7 @@
                     class="chain-btn px-4 py-2 rounded-full bg-gray-800 text-gray-400 border border-gray-700 hover:border-gray-500">Ethereum</button>
             </div>
 
-            <!-- Stats Row -->
+            <!-- ... (Stats Row omitted for brevity) ... -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- License Status -->
                 <div class="glass-panel p-6 rounded-xl">
@@ -91,7 +110,7 @@
 
                 <!-- Native Balance -->
                 <div class="glass-panel p-6 rounded-xl">
-                    <h3 class="text-gray-400 text-sm font-medium uppercase tracking-wider">Navite Balance</h3>
+                    <h3 class="text-gray-400 text-sm font-medium uppercase tracking-wider">Native Balance</h3>
                     <div class="mt-2 text-2xl font-bold font-mono">
                         <span id="nativeBalance">0.000</span> <span id="nativeSymbol"
                             class="text-sm text-gray-500">ETH</span>
@@ -112,6 +131,7 @@
                 <div class="px-6 py-4 border-b border-gray-800">
                     <h3 class="font-semibold">Recent Transactions</h3>
                 </div>
+                <!-- ... table ... -->
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
                         <thead class="bg-gray-800/50 text-xs text-gray-400 uppercase">
@@ -140,6 +160,8 @@
         </div>
     </main>
 
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <script src="app.js"></script>
 </body>
 
