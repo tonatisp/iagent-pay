@@ -184,7 +184,11 @@
                 iAgent<span>Pay</span>
             </div>
             <div style="display: flex; gap: 15px; align-items: center;">
-                <span style="color: var(--text-dim); font-size: 0.9rem;" id="version-text">v1.0.0 Public Beta</span>
+                <a href="dashboard/index.html" class="btn-secondary"
+                    style="padding: 5px 15px; font-size: 0.9rem; border-color: var(--primary); color: var(--primary); text-decoration: none; border-radius: 6px;">
+                    📊 Dashboard
+                </a>
+                <span style="color: var(--text-dim); font-size: 0.9rem;" id="version-text">v1.2.0</span>
                 <select class="lang-select" id="languageSelector" onchange="changeLanguage(this.value)">
                     <option value="en">🇺🇸 English</option>
                     <option value="es">🇪🇸 Español</option>
@@ -214,6 +218,10 @@
             <br><br>
 
             <div class="cta-buttons">
+                <a href="dashboard/index.html" class="btn btn-primary" id="btn-dashboard"
+                    style="background: transparent; border: 1px solid var(--primary); color: var(--primary);">
+                    🚀 Launch App
+                </a>
                 <a href="#docs" class="btn btn-primary" id="btn-start">Start Building (Docs)</a>
                 <a href="https://github.com/agent-pay/sdk" class="btn btn-secondary" id="btn-github">View on GitHub</a>
             </div>

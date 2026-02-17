@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iAgentPay | Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Ethers.js -->
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-white min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="border-b border-gray-800 bg-gray-900/50 backdrop-blur fixed w-full z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span
+                        class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+                        iAgentPay <span class="text-xs text-gray-400 font-mono">DASHBOARD</span>
+                    </span>
+                </div>
+                <div>
+                    <a href="../index.html" class="text-gray-400 hover:text-white text-sm">Back to Home</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+
+        <!-- Search Agent -->
+        <div class="text-center mb-12">
+            <h1 class="text-3xl font-bold mb-4">Agent Inspector 🕵️‍♂️</h1>
+            <p class="text-gray-400 mb-6">Enter your Agent's Wallet Address to audit spending and license status.</p>
+
+            <div class="max-w-xl mx-auto flex gap-2">
+                <input type="text" id="agentAddress" placeholder="0x..."
+                    class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 font-mono">
+                <button onclick="inspectAgent()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                    Search
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid (Hidden by default) -->
+        <div id="dashboardView" class="hidden space-y-6">
+
+            <!-- Network Selector -->
+            <div class="flex justify-center gap-4 mb-8">
+                <button onclick="switchChain('BASE')"
+                    class="chain-btn px-4 py-2 rounded-full bg-blue-900/30 text-blue-400 border border-blue-500/50">Base</button>
+                <button onclick="switchChain('POLYGON')"
+                    class="chain-btn px-4 py-2 rounded-full bg-gray-800 text-gray-400 border border-gray-700 hover:border-gray-500">Polygon</button>
+                <button onclick="switchChain('BNB')"
+                    class="chain-btn px-4 py-2 rounded-full bg-gray-800 text-gray-400 border border-gray-700 hover:border-gray-500">BNB
+                    Chain</button>
+                <button onclick="switchChain('ETH')"
+                    class="chain-btn px-4 py-2 rounded-full bg-gray-800 text-gray-400 border border-gray-700 hover:border-gray-500">Ethereum</button>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- License Status -->
+                <div class="glass-panel p-6 rounded-xl">
+                    <h3 class="text-gray-400 text-sm font-medium uppercase tracking-wider">License Status</h3>
+                    <div class="mt-2 flex items-center">
+                        <div id="licenseIndicator" class="h-3 w-3 rounded-full bg-green-500 mr-2"></div>
+                        <span id="licenseText" class="text-2xl font-bold">Active (Trial)</span>
+                    </div>
+                    <p id="licenseSub" class="text-xs text-gray-500 mt-1">Next payment due in 12 days</p>
+                </div>
+
+                <!-- Native Balance -->
+                <div class="glass-panel p-6 rounded-xl">
+                    <h3 class="text-gray-400 text-sm font-medium uppercase tracking-wider">Navite Balance</h3>
+                    <div class="mt-2 text-2xl font-bold font-mono">
+                        <span id="nativeBalance">0.000</span> <span id="nativeSymbol"
+                            class="text-sm text-gray-500">ETH</span>
+                    </div>
+                </div>
+
+                <!-- Stablecoin Balance -->
+                <div class="glass-panel p-6 rounded-xl">
+                    <h3 class="text-gray-400 text-sm font-medium uppercase tracking-wider">USDC Balance</h3>
+                    <div class="mt-2 text-2xl font-bold font-mono text-green-400">
+                        $<span id="usdcBalance">0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transaction History -->
+            <div class="glass-panel rounded-xl overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-800">
+                    <h3 class="font-semibold">Recent Transactions</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-800/50 text-xs text-gray-400 uppercase">
+                            <tr>
+                                <th class="px-6 py-3">Hash</th>
+                                <th class="px-6 py-3">Type</th>
+                                <th class="px-6 py-3">Amount</th>
+                                <th class="px-6 py-3">Date</th>
+                                <th class="px-6 py-3">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="txTableBody" class="divide-y divide-gray-800 text-sm text-gray-300">
+                            <!-- Rows injected by JS -->
+                            <tr>
+                                <td class="px-6 py-4 font-mono text-blue-400">0x12..ef</td>
+                                <td class="px-6 py-4">Subscription</td>
+                                <td class="px-6 py-4">0.008 ETH</td>
+                                <td class="px-6 py-4">2 mins ago</td>
+                                <td class="px-6 py-4 text-green-400">Confirmed</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
