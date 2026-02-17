@@ -1,8 +1,10 @@
+from setuptools import setup, find_packages
+
 setup(
     name="iagent-pay",
-    version="1.0.0",
+    version="1.0.1",
     description="The First Payment SDK for Autonomous AI Agents.",
-    long_description=open("README.md").read() if open("README.md") else "",
+    long_description=open("README.md", encoding="utf-8").read() if open("README.md") else "",
     long_description_content_type="text/markdown",
     author="AgentPay Inc.",
     author_email="hello@agentpay.ai",
