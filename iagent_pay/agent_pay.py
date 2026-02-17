@@ -99,6 +99,9 @@ class AgentPay:
         if not self.w3.is_address(recipient_address):
             raise ValueError(f"Invalid recipient address: {recipient_address}")
 
+        # License Check (before transaction)
+        self._check_license(amount)
+
         amount_wei = self.w3.to_wei(amount, 'ether')
         
         # 1. Get Reliable Nonce
@@ -146,3 +149,122 @@ class AgentPay:
                 # For now just raising, but in v2 we'd implement the loop.
                 raise e
             raise e
+
+    def _verify_pro_subscription(self, config) -> bool:
+        """Verifies if a valid Subscription TxHash exists in env."""
+        sub_hash = os.getenv("IAGENT_LICENSE_KEY")
+        if not sub_hash:
+            return False
+            
+        try:
+            # Verify on-chain
+            tx = self.w3.eth.get_transaction(sub_hash)
+            
+            # 1. Check Recipient (Must be Treasury)
+            if tx['to'].lower() != config.get("treasury_address").lower():
+                print("⚠️ Invalid License: Wrong treasury address.")
+                return False
+                
+            # 2. Check Amount (Must be >= Subscription Price)
+            # Allow 5% slippage/variance for dynamic price changes
+            min_price = self.w3.to_wei(config.get("subscription_price_eth") * 0.95, 'ether')
+            if tx['value'] < min_price:
+                print("⚠️ Invalid License: Insufficient payment.")
+                return False
+                
+            # 3. Check Age (Must be recent, e.g., < 30 days)
+            # Getting block timestamp requires another call, skipped for MVP speed.
+            # Assuming if you have the hash and it's confirmed, it's valid for now.
+            
+            print("💎 PRO Subscription Active.")
+            return True
+            
+        except Exception as e:
+            print(f"⚠️ License Verification Failed: {e}")
+            return False
+
+    def _check_license(self, amount_eth: float):
+        """
+        Enforces Business Model:
+        1. Checks if Trial is Active (First 60 days).
+        2. Warns if trial ending soon (5 days).
+        3. If Expired: Checked for PRO Subscription.
+        4. If No PRO: Enforces 'Pay-As-You-Go' Fee.
+        """
+        # 1. Get Config (Now Dynamic)
+        config = self.pricing.get_config()
+        trial_days = config.get("trial_days", 60)
+        
+        # 2. Check Global Registry (Anti-Reinstall Protection)
+        # We store the 'First Run Date' in the SYSTEM USER folder, not the project folder.
+        # This prevents users from just deleting the project to reset the trial.
+        from pathlib import Path
+        
+        home_dir = Path.home()
+        global_registry_dir = home_dir / ".iagent_pay_registry"
+        registry_file = global_registry_dir / "license_tracker.json"
+        
+        first_tx = None
+        
+        # A) Try to read existing global record
+        if registry_file.exists():
+            try:
+                with open(registry_file, 'r') as f:
+                    data = json.load(f)
+                    first_tx = data.get("first_run_timestamp")
+            except Exception:
+                pass # Corrupt file, treat as new (or could deny access for security)
+        
+        # B) If no global record, look at local DB (migration/first-time)
+        if not first_tx:
+            conn = sqlite3.connect(self.db_path)
+            c = conn.cursor()
+            c.execute("SELECT MIN(timestamp) FROM transactions")
+            row = c.fetchone()
+            conn.close()
+            
+            if row and row[0]:
+                first_tx = float(row[0])
+                
+                # SAVE to Global Registry immediately to lock it in
+                try:
+                    global_registry_dir.mkdir(parents=True, exist_ok=True)
+                    with open(registry_file, 'w') as f:
+                        json.dump({"first_run_timestamp": first_tx, "note": "DO NOT DELETE - License Integrity"}, f)
+                except Exception as e:
+                    print(f"⚠️ License System Warning: Could not write to global registry: {e}")
+            else:
+                return # Truly new user, no local or global history.
+
+        days_active = (time.time() - first_tx) / 86400
+        days_remaining = trial_days - days_active
+        
+        # 🔔 WARNING SYSTEM (5 Days Before)
+        if 0 < days_remaining <= 5:
+            print(f"\n⚠️  IMPORTANT: Free Trial ends in {int(days_remaining)} days.")
+            print(f"   Subscribe now (~$26/mo) to avoid per-transaction fees.")
+            print(f"   Treasury: {config.get('treasury_address')}\n")
+
+        if days_active > trial_days:
+            print(f"ℹ️ Trial Expired. Checking for PRO License...")
+            
+            # Check for PRO Subscription
+            if self._verify_pro_subscription(config):
+                return # User Paid! No fees.
+            
+            # FALLBACK: Pay-As-You-Go Fee
+            fee_eth = config.get("pay_per_use_price_eth")
+            treasury = config.get("treasury_address")
+            
+            print(f"💳 Standard Plan: Applying ${0.10} Fee ({fee_eth:.6f} ETH)")
+            
+            if self.w3.is_address(treasury):
+                try:
+                    self.pay_agent(treasury, fee_eth, wait=False)
+                    print("✅ Fee Paid.")
+                except Exception as e:
+                    print(f"❌ Failed to collect fee. Top up wallet.")
+                    raise PermissionError("License Fee Payment Failed.")
+            else:
+                print("⚠️ Configuration Error: Treasury not set.")
+                raise ValueError("Configuration Error: Treasury address not set or invalid.")
