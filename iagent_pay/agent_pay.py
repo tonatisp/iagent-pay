@@ -6,6 +6,7 @@ from typing import Optional
 from decimal import Decimal
 from .config import ChainConfig
 from .pricing import PricingManager
+from .tokens import TOKEN_ADDRESSES, ERC20_ABI
 
 class AgentPay:
     """
@@ -148,7 +149,92 @@ class AgentPay:
                 # Recursively retry with forced higher gas? 
                 # For now just raising, but in v2 we'd implement the loop.
                 raise e
+
+    def pay_token(self, recipient_address: str, amount: float, token: str = "USDC", wait: bool = True) -> str:
+        """
+        Sends an ERC-20 Token payment (e.g., USDC, USDT).
+        Automatically handles decimals (6 for USDC, 18 for others).
+        """
+        if not self.w3.is_address(recipient_address):
+            raise ValueError(f"Invalid recipient address: {recipient_address}")
+
+        # 1. Resolve Token Address
+        chain_id = self.w3.eth.chain_id
+        # We need to simpler way to map chainID back to name or store name in class
+        # For MVP, we'll try to deduce from config or rely on what was passed in __init__
+        # Improving __init__ to store chain_name would be best, but for now let's try a heuristic
+        # based on the TOKEN_ADDRESSES keys.
+        
+        # ACTUALLY: Let's assume the user MUST pass the correct chain definition in __init__
+        # We will use a helper to find the token address.
+        
+        token_address = self._resolve_token_address(token)
+        if not token_address:
+            raise ValueError(f"Token {token} not supported on this chain.")
+
+        # 2. Create Contract
+        contract = self.w3.eth.contract(address=token_address, abi=ERC20_ABI)
+        
+        # 3. Get Decimals (Crucial! USDC has 6, ETH has 18)
+        decimals = contract.functions.decimals().call()
+        amount_units = int(amount * (10 ** decimals))
+        
+        # 4. Prepare Transaction
+        current_nonce = self._get_nonce()
+        gas_price = self._get_smart_gas_price()
+        
+        # Build transaction logic
+        tx = contract.functions.transfer(recipient_address, amount_units).build_transaction({
+            'chainId': chain_id,
+            'gas': 100000, # Initial check, will be estimated usually
+            'gasPrice': gas_price,
+            'nonce': current_nonce,
+        })
+
+        # 5. Sign & Send
+        signed_tx = self.w3.eth.account.sign_transaction(tx, self.wallet.key)
+        
+        try:
+            tx_hash_bytes = self.w3.eth.send_raw_transaction(signed_tx.raw_transaction)
+            tx_hash = self.w3.to_hex(tx_hash_bytes)
+            
+            self.nonce += 1
+            
+            print(f"💵 Stablecoin Sent: {amount} {token} -> {tx_hash}")
+            self._log_transaction(tx_hash, recipient_address, amount, f"SENT_{token}")
+            
+            if wait:
+                print("⏳ Waiting for stablecoin confirmation...")
+                self.w3.eth.wait_for_transaction_receipt(tx_hash)
+                print("✅ Confirmed!")
+                self._log_transaction(tx_hash, recipient_address, amount, f"CONFIRMED_{token}")
+                
+            return tx_hash
+
+        except Exception as e:
+            print(f"❌ Token Transfer Failed: {e}")
             raise e
+
+    def _resolve_token_address(self, token_symbol: str) -> Optional[str]:
+        """Finds the token address for the current connected chain."""
+        chain_id = self.w3.eth.chain_id
+        
+        # Map Chain IDs to Names (Simple lookup)
+        chain_map = {
+            1: "ETH",
+            8453: "BASE",
+            137: "POLYGON",
+            42161: "ARBITRUM",
+            11155111: "SEPOLIA"
+        }
+        
+        chain_name = chain_map.get(chain_id)
+        if not chain_name:
+            # Fallback checks (e.g. Local)
+            return None
+            
+        return TOKEN_ADDRESSES.get(chain_name, {}).get(token_symbol)
+
 
     def _verify_pro_subscription(self, config) -> bool:
         """Verifies if a valid Subscription TxHash exists in env."""

@@ -31,16 +31,57 @@ class PricingManager:
         self.local_override_path = "pricing_config.json"
 
     def get_eth_price(self) -> float:
-        """Fetches current ETH price in USD from public APIs (CoinGecko/Coinbase)."""
+        """
+        Fetches ETH price from 3 sources and returns the MEDIAN to avoid outliers/downtime.
+        Sources: CoinGecko, Coinbase, Binance.
+        """
+        prices = []
+        
+        # 1. CoinGecko
         try:
-            # Simple, no-key API for MVP
             url = "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
-            with urllib.request.urlopen(url, timeout=3) as response:
+            with urllib.request.urlopen(url, timeout=2) as response:
                 data = json.loads(response.read().decode())
-                return float(data['ethereum']['usd'])
+                price = float(data['ethereum']['usd'])
+                prices.append(price)
         except Exception:
-            # Fallback if API fails (approx conservative price)
-            return 3000.0
+            pass # Fail silently, try next
+
+        # 2. Coinbase
+        try:
+            url = "https://api.coinbase.com/v2/prices/ETH-USD/spot"
+            with urllib.request.urlopen(url, timeout=2) as response:
+                data = json.loads(response.read().decode())
+                price = float(data['data']['amount'])
+                prices.append(price)
+        except Exception:
+            pass
+
+        # 3. Binance (US)
+        try:
+            url = "https://api.binance.us/api/v3/ticker/price?symbol=ETHUSD"
+            with urllib.request.urlopen(url, timeout=2) as response:
+                data = json.loads(response.read().decode())
+                price = float(data['price'])
+                prices.append(price)
+        except Exception:
+            pass
+            
+        # Logic: Robust Aggregation
+        if not prices:
+            print("⚠️ All Pricing APIs failed. Using Fallback.")
+            return 3000.0 # Conservative fallback
+            
+        prices.sort()
+        count = len(prices)
+        
+        if count == 1:
+            return prices[0]
+        elif count == 2:
+            return sum(prices) / 2 # Average
+        else:
+            # Return Median (filters out 1 extreme outlier)
+            return prices[1]
 
     def get_config(self) -> Dict[str, Any]:
         """Returns config with dynamic ETH prices based on USD targets."""
