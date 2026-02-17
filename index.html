@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iAgentPay | The Payment Layer for AI Agents</title>
+    <style>
+        :root {
+            --primary: #00FF94;
+            --bg: #0a0a0a;
+            --surface: #1a1a1a;
+            --text: #ffffff;
+            --text-dim: #888888;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            padding: 40px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        /* Language Selector */
+        .lang-select {
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid #333;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .lang-select:hover {
+            border-color: var(--primary);
+        }
+
+        .hero {
+            padding: 100px 0;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #fff, #888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tagline {
+            font-size: 1.5rem;
+            color: var(--text-dim);
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 60px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 20px rgba(0, 255, 148, 0.4);
+        }
+
+        .btn-secondary {
+            border: 1px solid #333;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+        }
+
+        .code-block {
+            background-color: var(--surface);
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            display: inline-block;
+            border: 1px solid #333;
+            color: var(--primary);
+            overflow-x: auto;
+            max-width: 100%;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            padding: 80px 0;
+        }
+
+        .feature-card {
+            background: var(--surface);
+            padding: 40px;
+            border-radius: 16px;
+            border: 1px solid #333;
+            transition: transform 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-card h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            border-top: 1px solid #333;
+            color: var(--text-dim);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero {
+                padding: 60px 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <div class="logo">
+                <img src="logo.svg" alt="iAgentPay Logo" style="height: 50px; filter: drop-shadow(0 0 10px #00FF94);">
+                iAgent<span>Pay</span>
+            </div>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <span style="color: var(--text-dim); font-size: 0.9rem;" id="version-text">v1.0.0 Public Beta</span>
+                <select class="lang-select" id="languageSelector" onchange="changeLanguage(this.value)">
+                    <option value="en">🇺🇸 English</option>
+                    <option value="es">🇪🇸 Español</option>
+                    <option value="zh">🇨🇳 中文 (Chinese)</option>
+                    <option value="hi">🇮🇳 हिन्दी (Hindi)</option>
+                    <option value="ar">🇦🇪 العربية (Arabic)</option>
+                    <option value="pt">🇧🇷 Português</option>
+                    <option value="ru">🇷🇺 Русский</option>
+                    <option value="ja">🇯🇵 日本語 (Japanese)</option>
+                    <option value="de">🇩🇪 Deutsch</option>
+                    <option value="fr">🇫🇷 Français</option>
+                </select>
+            </div>
+        </header>
+
+        <section class="hero">
+            <h1 id="hero-title">The Payment Layer for<br>Autonomous Agents</h1>
+            <p class="tagline" id="hero-subtitle">
+                Allow your AI to send and receive crypto micropayments securely.
+                No banks. No KYC. Just code.
+            </p>
+
+            <div class="code-block">
+                pip install iagent-pay
+            </div>
+
+            <br><br>
+
+            <div class="cta-buttons">
+                <a href="#docs" class="btn btn-primary" id="btn-start">Start Building (Docs)</a>
+                <a href="https://github.com/agent-pay/sdk" class="btn btn-secondary" id="btn-github">View on GitHub</a>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="feature-card">
+                <h3 id="feat1-title">⚡ Instant Micropayments</h3>
+                <p id="feat1-desc">Designed for High-Frequency Trading agents. Capable of 750+ transactions per minute
+                    on L2 networks.</p>
+            </div>
+            <div class="feature-card">
+                <h3 id="feat2-title">🔐 Military-Grade Security</h3>
+                <p id="feat2-desc">AES-128 Encrypted Keystores locally managed. Your keys never leave your server.</p>
+            </div>
+            <div class="feature-card">
+                <h3 id="feat3-title">🌍 Multi-Chain Ready</h3>
+                <p id="feat3-desc">Support for Ethereum, Base, Polygon and Arbitrum. Solana support coming in v2.0.</p>
+            </div>
+        </section>
+
+        <section id="docs" style="padding: 80px 0; border-top: 1px solid #333;">
+            <h2 id="docs-title" style="text-align: center; margin-bottom: 60px; font-size: 2.5rem;">Documentation</h2>
+
+            <div
+                style="background: var(--surface); padding: 40px; border-radius: 16px; border: 1px solid #333; max-width: 800px; margin: 0 auto;">
+                <h3 id="install-title" style="color: var(--primary);">1. Installation</h3>
+                <div class="code-block" style="width: 100%; box-sizing: border-box; margin-bottom: 40px;">
+                    pip install iagent-pay
+                </div>
+
+                <h3 id="quickstart-title" style="color: var(--primary);">2. Quick Start</h3>
+                <p id="quickstart-desc" style="color: var(--text-dim); margin-bottom: 20px;">Send your first transaction
+                    in 3 lines of code:</p>
+                <div class="code-block" style="width: 100%; box-sizing: border-box; white-space: pre;">
+                    from iagent_pay import AgentPay, WalletManager
+
+                    # 1. Load your wallet securely
+                    wallet = WalletManager().get_or_create_wallet("MySecurePassword")
+
+                    # 2. Connect to Base, Polygon, or Sepolia
+                    agent = AgentPay(wallet, chain_name="BASE")
+
+                    # 3. Pay another agent instantly
+                    tx = agent.pay_agent("0x123...", amount=0.001)
+                    print(f"Payment Sent! Hash: {tx}")
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 iAgentPay Inc. Built for the Agentic Future.</p>
+        </footer>
+    </div>
+
+    <script>
+        const translations = {
+            en: {
+                heroTitle: "The Payment Layer for<br>Autonomous Agents",
+                heroSubtitle: "Allow your AI to send and receive crypto micropayments securely. No banks. No KYC. Just code.",
+                btnStart: "Start Building (Docs)",
+                btnGithub: "View on GitHub",
+                feat1Title: "⚡ Instant Micropayments",
+                feat1Desc: "Designed for High-Frequency Trading agents. Capable of 750+ transactions per minute on L2 networks.",
+                feat2Title: "🔐 Military-Grade Security",
+                feat2Desc: "AES-128 Encrypted Keystores locally managed. Your keys never leave your server.",
+                feat3Title: "🌍 Multi-Chain Ready",
+                feat3Desc: "Support for Ethereum, Base, Polygon and Arbitrum. Solana support coming in v2.0.",
+                docsTitle: "Documentation",
+                installTitle: "1. Installation",
+                quickstartTitle: "2. Quick Start",
+                quickstartDesc: "Send your first transaction in 3 lines of code:"
+            },
+            es: {
+                heroTitle: "La Capa de Pagos para<br>Agentes Autónomos",
+                heroSubtitle: "Permite a tu IA enviar y recibir micropagos cripto de forma segura. Sin bancos. Sin KYC. Solo código.",
+                btnStart: "Empezar a Construir",
+                btnGithub: "Ver en GitHub",
+                feat1Title: "⚡ Micropagos Instantáneos",
+                feat1Desc: "Diseñado para agentes de Trading de Alta Frecuencia. Capaz de 750+ transacciones por minuto en redes L2.",
+                feat2Title: "🔐 Seguridad Militar",
+                feat2Desc: "Billeteras encriptadas con AES-128 gestionadas localmente. Tus llaves nunca salen de tu servidor.",
+                feat3Title: "🌍 Multi-Chain Nativo",
+                feat3Desc: "Soporte para Ethereum, Base, Polygon y Arbitrum. Soporte para Solana en v2.0.",
+                docsTitle: "Documentación",
+                installTitle: "1. Instalación",
+                quickstartTitle: "2. Inicio Rápido",
+                quickstartDesc: "Envía tu primera transacción en 3 líneas de código:"
+            },
+            zh: {
+                heroTitle: "AI代理的支付层",
+                heroSubtitle: "允许您的AI安全地发送和接收加密微支付。无银行。无KYC。只有代码。",
+                btnStart: "开始构建 (文档)",
+                btnGithub: "在 GitHub 上查看",
+                feat1Title: "⚡ 即时微支付",
+                feat1Desc: "专为高频交易代理设计。在L2网络上每分钟可处理750+笔交易。",
+                feat2Title: "🔐 军用级安全",
+                feat2Desc: "AES-128 加密密钥库本地管理。您的私钥永远不会离开服务器。",
+                feat3Title: "🌍 多链支持",
+                feat3Desc: "支持 Ethereum, Base, Polygon 和 Arbitrum。Solana 支持将在 v2.0 推出。",
+                docsTitle: "文档",
+                installTitle: "1. 安装",
+                quickstartTitle: "2. 快速入门",
+                quickstartDesc: "用3行代码发送您的第一笔交易："
+            },
+            hi: {
+                heroTitle: "AI एजेंट्स के लिए भुगतान परत (Payment Layer)",
+                heroSubtitle: "अपने AI को सुरक्षित रूप से क्रिप्टो माइक्रोपेमेंट भेजने और प्राप्त करने दें। कोई बैंक नहीं। कोई KYC नहीं। बस कोड।",
+                btnStart: "निर्माण शुरू करें (Docs)",
+                btnGithub: "GitHub पर देखें",
+                feat1Title: "⚡ तत्काल माइक्रोपेमेंट्स",
+                feat1Desc: "हाई-फ़्रीक्वेंसी ट्रेडिंग एजेंट्स के लिए डिज़ाइन किया गया। L2 नेटवर्क पर प्रति मिनट 750+ लेनदेन।",
+                feat2Title: "🔐 मिलिट्री-ग्रेड सुरक्षा",
+                feat2Desc: "AES-128 एन्क्रिप्टेड कीस्टोर्स स्थानीय रूप से प्रबंधित। आपकी चाबियां कभी भी आपके सर्वर को नहीं छोड़ती हैं।",
+                feat3Title: "🌍 मल्टी-चेन तैयार",
+                feat3Desc: "Ethereum, Base, Polygon और Arbitrum का समर्थन। Solana का समर्थन v2.0 में आ रहा है।",
+                docsTitle: "दस्तावेज़ीकरण (Documentation)",
+                installTitle: "1. इंस्टॉलेशन",
+                quickstartTitle: "2. त्वरित शुरुआत",
+                quickstartDesc: "3 लाइनों के कोड में अपना पहला लेनदेन भेजें:"
+            },
+            ar: {
+                heroTitle: "طبقة المدفوعات للوكلاء المستقلين",
+                heroSubtitle: "اسمح للذكاء الاصطناعي الخاص بك بإرسال واستلام المدفوعات المشفرة بأمان. لا بنوك. لا تحقق من الهوية. مجرد كود.",
+                btnStart: "ابدأ البناء (وثائق)",
+                btnGithub: "عرض على GitHub",
+                feat1Title: "⚡ مدفوعات فورية",
+                feat1Desc: "مصمم لوكلاء التداول عالي التردد. قادر على 750+ معاملة في الدقيقة على شبكات L2.",
+                feat2Title: "🔐 أمان عسكري",
+                feat2Desc: "مخازن مفاتيح مشفرة AES-128 تودع محليًا. مفاتيحك لا تترك خادمك أبدًا.",
+                feat3Title: "🌍 جاهز لتعدد السلاسل",
+                feat3Desc: "دعم لـ Ethereum و Base و Polygon و Arbitrum. دعم Solana قادم في v2.0.",
+                docsTitle: "الوثائق",
+                installTitle: "1. التثبيت",
+                quickstartTitle: "2. البداية السريعة",
+                quickstartDesc: "أرسل معاملتك الأولى في 3 أسطر من الكود:"
+            },
+            pt: {
+                heroTitle: "A Camada de Pagamento para Agentes Autônomos",
+                heroSubtitle: "Permita que sua IA envie e receba micropagamentos cripto com segurança. Sem bancos. Sem KYC. Apenas código.",
+                btnStart: "Começar a Construir",
+                btnGithub: "Ver no GitHub",
+                feat1Title: "⚡ Micropagamentos Instantâneos",
+                feat1Desc: "Projetado para agentes de High-Frequency Trading. Capaz de 750+ transações por minuto em redes L2.",
+                feat2Title: "🔐 Segurança Militar",
+                feat2Desc: "Keystores criptografados em AES-128 gerenciados localmente. Suas chaves nunca saem do servidor.",
+                feat3Title: "🌍 Multi-Chain Pronto",
+                feat3Desc: "Suporte para Ethereum, Base, Polygon e Arbitrum. Suporte Solana chegando na v2.0.",
+                docsTitle: "Documentação",
+                installTitle: "1. Instalação",
+                quickstartTitle: "2. Início Rápido",
+                quickstartDesc: "Envie sua primeira transação em 3 linhas de código:"
+            },
+            ru: {
+                heroTitle: "Платежный уровень для автономных агентов",
+                heroSubtitle: "Позвольте вашему ИИ отправлять и получать крипто-микроплатежи безопасно. Без банков. Без KYC. Только код.",
+                btnStart: "Начать сборку (Docs)",
+                btnGithub: "Смотреть на GitHub",
+                feat1Title: "⚡ Мгновенные микроплатежи",
+                feat1Desc: "Разработано для высокочастотных торговых агентов. 750+ транзакций в минуту в сетях L2.",
+                feat2Title: "🔐 Безопасность военного уровня",
+                feat2Desc: "Хранилища ключей, зашифрованные AES-128. Ваши ключи никогда не покидают сервер.",
+                feat3Title: "🌍 Мультичейн",
+                feat3Desc: "Поддержка Ethereum, Base, Polygon и Arbitrum. Поддержка Solana в v2.0.",
+                docsTitle: "Документация",
+                installTitle: "1. Установка",
+                quickstartTitle: "2. Быстрый старт",
+                quickstartDesc: "Отправьте свою первую транзакцию в 3 строки кода:"
+            },
+            ja: {
+                heroTitle: "自律エージェントのための決済レイヤー",
+                heroSubtitle: "AIが暗号通貨のマイクロペイメントを安全に送受信できるようにします。銀行不要。KYC不要。コードのみ。",
+                btnStart: "構築を開始 (ドキュメント)",
+                btnGithub: "GitHubで見る",
+                feat1Title: "⚡ インスタント・マイクロペイメント",
+                feat1Desc: "高頻度取引エージェント向けに設計。L2ネットワークで毎分750以上のトランザクションが可能。",
+                feat2Title: "🔐 ミリタリーグレードのセキュリティ",
+                feat2Desc: "AES-128で暗号化されたキーストアをローカルで管理。鍵はサーバー外に出ません。",
+                feat3Title: "🌍 マルチチェーン対応",
+                feat3Desc: "Ethereum, Base, Polygon, Arbitrumに対応。Solanaサポートはv2.0で登場予定。",
+                docsTitle: "ドキュメント",
+                installTitle: "1. インストール",
+                quickstartTitle: "2. クイックスタート",
+                quickstartDesc: "たった3行のコードで最初の取引を送信："
+            },
+            de: {
+                heroTitle: "Die Zahlungsebene für Autonome Agenten",
+                heroSubtitle: "Ermöglicht Ihrer KI, Krypto-Mikrozahlungen sicher zu senden und zu empfangen. Keine Banken. Kein KYC. Nur Code.",
+                btnStart: "Loslegen (Docs)",
+                btnGithub: "Auf GitHub ansehen",
+                feat1Title: "⚡ Sofortige Mikrozahlungen",
+                feat1Desc: "Entwickelt für Hochfrequenz-Handelsagenten. Über 750 Transaktionen pro Minute in L2-Netzwerken.",
+                feat2Title: "🔐 Sicherheit auf Militärniveau",
+                feat2Desc: "AES-128 verschlüsselte Keystores lokal verwaltet. Ihre Schlüssel verlassen niemals Ihren Server.",
+                feat3Title: "🌍 Multi-Chain Bereit",
+                feat3Desc: "Unterstützung für Ethereum, Base, Polygon und Arbitrum. Solana-Support kommt in v2.0.",
+                docsTitle: "Dokumentation",
+                installTitle: "1. Installation",
+                quickstartTitle: "2. Schnellstart",
+                quickstartDesc: "Senden Sie Ihre erste Transaktion mit 3 Zeilen Code:"
+            },
+            fr: {
+                heroTitle: "La Couche de Paiement pour Agents Autonomes",
+                heroSubtitle: "Permettez à votre IA d'envoyer/recevoir des micro-paiements crypto en toute sécurité. Pas de banques. Pas de KYC. Juste du code.",
+                btnStart: "Commencer (Docs)",
+                btnGithub: "Voir sur GitHub",
+                feat1Title: "⚡ Micro-paiements Instantanés",
+                feat1Desc: "Conçu pour les agents de Trading Haute Fréquence. Capable de 750+ transactions/minute sur les réseaux L2.",
+                feat2Title: "🔐 Sécurité Militaire",
+                feat2Desc: "Keystores chiffrés AES-128 gérés localement. Vos clés ne quittent jamais votre serveur.",
+                feat3Title: "🌍 Prêt pour le Multi-Chain",
+                feat3Desc: "Support pour Ethereum, Base, Polygon et Arbitrum. Support Solana à venir en v2.0.",
+                docsTitle: "Documentation",
+                installTitle: "1. Installation",
+                quickstartTitle: "2. Démarrage Rapide",
+                quickstartDesc: "Envoyez votre première transaction en 3 lignes de code :"
+            }
+        };
+
+        function changeLanguage(lang) {
+            const t = translations[lang] || translations['en'];
+
+            document.getElementById('hero-title').innerHTML = t.heroTitle;
+            document.getElementById('hero-subtitle').innerText = t.heroSubtitle;
+            document.getElementById('btn-start').innerText = t.btnStart;
+            document.getElementById('btn-github').innerText = t.btnGithub;
+
+            document.getElementById('feat1-title').innerText = t.feat1Title;
+            document.getElementById('feat1-desc').innerText = t.feat1Desc;
+            document.getElementById('feat2-title').innerText = t.feat2Title;
+            document.getElementById('feat2-desc').innerText = t.feat2Desc;
+            document.getElementById('feat3-title').innerText = t.feat3Title;
+            document.getElementById('feat3-desc').innerText = t.feat3Desc;
+
+            document.getElementById('docs-title').innerText = t.docsTitle;
+            document.getElementById('install-title').innerText = t.installTitle;
+            document.getElementById('quickstart-title').innerText = t.quickstartTitle;
+            document.getElementById('quickstart-desc').innerText = t.quickstartDesc;
+
+            // RTL support for Arabic
+            if (lang === 'ar') {
+                document.body.style.direction = 'rtl';
+                document.body.style.textAlign = 'right';
+            } else {
+                document.body.style.direction = 'ltr';
+                document.body.style.textAlign = 'left';
+            }
+        }
+    </script>
+</body>
+
+</html>

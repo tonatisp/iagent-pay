@@ -1,0 +1,24 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="neon-text" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Stylized 'i' -->
+  <rect x="236" y="160" width="40" height="200" rx="10" fill="#00FF94" filter="url(#neon-text)"/>
+  <circle cx="256" cy="100" r="30" fill="#00FF94" filter="url(#neon-text)"/>
+
+  <!-- Orbit/Pay Swoosh -->
+  <path d="M100 400 Q 256 550 412 400 T 256 256" 
+        stroke="#00FF94" stroke-width="12" stroke-linecap="round" fill="none" opacity="0.8"/>
+  
+  <!-- Digital Bits -->
+  <rect x="150" y="200" width="20" height="20" fill="#00FF94" opacity="0.5"/>
+  <rect x="350" y="150" width="15" height="15" fill="#00FF94" opacity="0.3"/>
+  <rect x="380" y="300" width="25" height="25" fill="#00FF94" opacity="0.6"/>
+</svg>

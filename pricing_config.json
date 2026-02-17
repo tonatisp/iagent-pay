@@ -1,0 +1,6 @@
+{
+    "trial_days": 60,
+    "subscription_price_eth": 0.05,
+    "pay_per_use_price_eth": 0.001,
+    "active": true
+}
