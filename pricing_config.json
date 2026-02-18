@@ -3,5 +3,8 @@
     "subscription_price_eth": 0.01,
     "pay_per_use_price_eth": 0.00004,
     "active": true,
-    "treasury_address": "0xF29E7b5BC7fdd6C4d9B4DE9f68De31739FBB1526"
+    "treasury": {
+        "EVM": "0xF29E7b5BC7fdd6C4d9B4DE9f68De31739FBB1526",
+        "SOLANA": "4jjCQEbrLgthZ9Q8yGrvK7EKq8bydGuefPP7nzQGg12j"
+    }
 }

@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  agent-alpha:
+    build: .
+    container_name: agent-alpha
+    environment:
+      - AGENT_NAME=Alpha
+      - CHAIN=BASE
+    volumes:
+      - ./data:/app/data
+
+  agent-beta:
+    build: .
+    container_name: agent-beta
+    environment:
+      - AGENT_NAME=Beta
+      - CHAIN=SOLANA
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - agent-alpha

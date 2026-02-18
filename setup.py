@@ -2,11 +2,11 @@ from setuptools import setup, find_packages
 
 setup(
     name="iagent-pay",
-    version="1.2.0",
-    description="The First Payment SDK for Autonomous AI Agents.",
-    long_description=open("README.md", encoding="utf-8").read() if open("README.md") else "",
+    version="2.1.0",
+    description="The Universal Payment Standard for AI Agents (EVM + Solana)",
+    long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
-    author="AgentPay Inc.",
+    author="iAgent Team",
     author_email="hello@agentpay.ai",
     url="https://github.com/agent-pay/sdk",
     packages=find_packages(),
@@ -15,7 +15,10 @@ setup(
     install_requires=[
         "web3>=6.0.0",
         "eth-account>=0.8.0",
-        "python-dotenv>=1.0.0"
+        "python-dotenv>=1.0.0",
+        "solana>=0.30.0",
+        "solders>=0.18.0",
+        "requests>=2.28.0"
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

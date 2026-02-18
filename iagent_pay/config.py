@@ -8,6 +8,13 @@ class ChainConfig:
         "chain_id": 1337,
         "symbol": "ETH"
     }
+
+    ETH = {
+        "name": "Ethereum Mainnet",
+        "rpc": "https://eth.llamarpc.com",
+        "chain_id": 1,
+        "symbol": "ETH"
+    }
     
     SEPOLIA = {
         "name": "Sepolia Testnet",
@@ -28,6 +35,21 @@ class ChainConfig:
         "rpc": "https://polygon-rpc.com",
         "chain_id": 137,
         "symbol": "MATIC"
+    }
+
+    # Solana Configs (Handled by SolanaDriver, but added here for validator)
+    SOL_MAINNET = {
+        "name": "Solana Mainnet",
+        "rpc": "https://api.mainnet-beta.solana.com",
+        "chain_id": None, # SVM 
+        "symbol": "SOL"
+    }
+    
+    SOL_DEVNET = {
+        "name": "Solana Devnet",
+        "rpc": "https://api.devnet.solana.com",
+        "chain_id": None, 
+        "symbol": "SOL"
     }
 
     @staticmethod
