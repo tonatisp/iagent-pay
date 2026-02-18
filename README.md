@@ -8,6 +8,19 @@
 
 ---
 
+## 🌟 Key Capabilities & Advantages
+**iAgentPay** is the only payment standard designed specifically for autonomous AI agents.
+
+| Feature | Advantage |
+| :--- | :--- |
+| **Universal Identity** | Your agent works on **Ethereum, Solana, Base, and Polygon** simultaneously. One wallet, all chains. |
+| **Brain-Safe Security** | Built-in **Capital Guard** prevents wallet draining even if the AI is compromised. |
+| **Retail Ready** | Native support for **Meme Coins (BONK, PEPE)** and **Stablecoins (USDC)**. |
+| **DeFi Native** | Agents can **Auto-Swap** tokens (e.g., earn SOL, swap to USDC) without human help. |
+| **B2B Protocol** | Includes **AIP-1** for agents to send invoices and bill each other programmatically. |
+
+---
+
 ## 🚀 Why iAgentPay?
 Most crypto SDKs are too complex for AI. **iAgentPay** abstracts 1000s of lines of blockchain code into simple English commands.
 
@@ -84,6 +97,31 @@ print(f"Swapped! Hash: {result['tx_hash']}")
 
 ---
 
+## 🧾 B2B Invoicing (AIP-1)
+Standardized Agent-to-Agent billing protocol.
+
+### 1. Create Invoice (Seller)
+```python
+# Create a request for 50 USDC on Base
+invoice_json = agent.create_invoice(
+    amount=50.0,
+    currency="USDC",
+    chain="BASE",
+    description="Consulting Services - Feb 2026"
+)
+# Send this JSON string to the other agent via HTTP/WebSocket
+```
+
+### 2. Pay Invoice (Buyer)
+```python
+# The buyer agent receives the JSON and pays it
+tx_hash = agent.pay_invoice(invoice_json)
+print(f"Paid! Tx: {tx_hash}")
+```
+*> Helper: Checks if invoice was already paid to prevent double-spending.*
+
+---
+
 ## 🛡️ Business Features
 
 ### Dynamic Pricing
@@ -103,6 +141,30 @@ try:
 except ValueError:
     print("Gas too high, sleeping...")
 ```
+
+---
+
+## 🛡️ Security & Capital Control (New!)
+Prevent your AI from draining your wallet if it gets "hallucinated" or compromised.
+
+### Daily Spending Limit (Circuit Breaker)
+By default, sending native tokens (ETH/SOL) is capped at **10.0 units** per 24 hours.
+
+**Configure at start:**
+```python
+# Limit to 5.0 ETH per day
+agent = AgentPay(wallet, chain_name="BASE", daily_limit=5.0)
+```
+
+**Update dynamically:**
+```python
+# Increase limit for a big purchase
+agent.set_daily_limit(50.0)
+
+# Lock wallet (Disable spending)
+agent.set_daily_limit(0)
+```
+*> If an agent tries to spend over the limit, a `SecurityAlert` error is raised.*
 
 ---
 

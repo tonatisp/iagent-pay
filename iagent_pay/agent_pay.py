@@ -16,13 +16,15 @@ class AgentPay:
     ✅ Multi-Chain: Supports Sepolia, Base, Polygon, BNB, and Solana.
     """
     
-    def __init__(self, treasury_address: str = None, chain_name: str = "BASE", private_key: str = None):
+    def __init__(self, treasury_address: str = None, chain_name: str = "BASE", private_key: str = None, daily_limit: float = 10.0):
         """
         :param treasury_address: Where subscription fees go (EVM or SOL address).
         :param chain_name: "BASE", "POLYGON", "ETH", "BNB", "SEPOLIA" or "SOLANA".
         :param private_key: Optional manual override.
+        :param daily_limit: Max amount of native tokens (ETH/SOL) to spend in 24h. Default: 10.0
         """
         self.chain_name = chain_name.upper()
+        self.daily_limit = daily_limit
         self.is_solana = self.chain_name in ["SOLANA", "SOL_DEVNET", "SOL_TESTNET", "SOL_MAINNET"]
 
         # --- DUAL DRIVER SELECTOR ---
@@ -47,7 +49,11 @@ class AgentPay:
             self.config = ChainConfig.get_network(chain_name)
             # Handle potential None or dict
             rpc_url = self.config.get("rpc") if self.config else None
-            self.w3 = Web3(Web3.HTTPProvider(rpc_url))
+            
+            if rpc_url:
+                self.w3 = Web3(Web3.HTTPProvider(rpc_url))
+            else:
+                self.w3 = Web3(Web3.EthereumTesterProvider())
             
             # Setup Wallet (Key Management)
             from .wallet_manager import WalletManager
@@ -100,17 +106,79 @@ class AgentPay:
         """Initializes the local SQLite database for audit logs."""
         conn = sqlite3.connect(self.db_path)
         c = conn.cursor()
+        # Initial Schema
         c.execute('''CREATE TABLE IF NOT EXISTS transactions
-                     (timestamp REAL, tx_hash TEXT, recipient TEXT, amount REAL, status TEXT)''')
+                     (timestamp REAL, tx_hash TEXT, recipient TEXT, amount REAL, status TEXT, symbol TEXT)''')
+        c.execute('''CREATE TABLE IF NOT EXISTS paid_invoices
+                     (invoice_id TEXT PRIMARY KEY, timestamp REAL, recipient TEXT, amount REAL)''')
+        
+        # Migration: Add 'symbol' if missing (for existing users)
+        try:
+            c.execute("ALTER TABLE transactions ADD COLUMN symbol TEXT")
+        except sqlite3.OperationalError:
+            pass # Column already exists
+            
         conn.commit()
         conn.close()
 
-    def _log_transaction(self, tx_hash, recipient, amount, status="PENDING"):
+    def _is_invoice_paid(self, invoice_id: str) -> bool:
+        """Checks if an invoice ID has already been processed."""
+        conn = sqlite3.connect(self.db_path)
+        c = conn.cursor()
+        c.execute("SELECT 1 FROM paid_invoices WHERE invoice_id = ?", (invoice_id,))
+        exists = c.fetchone() is not None
+        conn.close()
+        return exists
+
+    def _mark_invoice_paid(self, invoice_id: str, recipient: str, amount: float):
+        """Records a paid invoice to prevent replay attacks."""
+        conn = sqlite3.connect(self.db_path)
+        c = conn.cursor()
+        try:
+            c.execute("INSERT INTO paid_invoices VALUES (?, ?, ?, ?)",
+                      (invoice_id, time.time(), recipient, amount))
+            conn.commit()
+        except sqlite3.IntegrityError:
+            pass # Already exists
+        conn.close()
+
+    def _check_daily_limit(self, amount: float, symbol: str):
+        """Ensures daily spending does not exceed the limit."""
+        if not self.daily_limit or self.daily_limit <= 0:
+            return  # No limit set
+        
+        # Only enforce on native assets for now (ETH, SOL, MATIC, BNB)
+        if symbol not in ["ETH", "SOL", "MATIC", "BNB"]:
+            return 
+
+        conn = sqlite3.connect(self.db_path)
+        c = conn.cursor()
+        
+        # Rolling 24h Window
+        start_of_day = time.time() - 86400 
+        c.execute("""
+            SELECT SUM(amount) FROM transactions 
+            WHERE timestamp > ? AND symbol = ? AND status != 'FAILED'
+        """, (start_of_day, symbol))
+        
+        result = c.fetchone()
+        spent_today = result[0] if result and result[0] else 0.0
+        conn.close()
+        
+        if spent_today + amount > self.daily_limit:
+            raise ValueError(f"🚨 Security Alert: Daily Spending Limit Exceeded! Attempted: {amount} {symbol}, Spent 24h: {spent_today:.4f}, Limit: {self.daily_limit}")
+
+    def set_daily_limit(self, limit: float):
+        """Updates the daily spending limit (Native Tokens). Set to 0 to disable."""
+        self.daily_limit = limit
+        print(f"🛡️ Security Update: Daily Spending Limit set to {self.daily_limit} units.")
+
+    def _log_transaction(self, tx_hash, recipient, amount, status="PENDING", symbol="ETH"):
         """Saves transaction details to the local audit log."""
         conn = sqlite3.connect(self.db_path)
         c = conn.cursor()
-        c.execute("INSERT INTO transactions VALUES (?, ?, ?, ?, ?)",
-                  (time.time(), tx_hash, recipient, amount, status))
+        c.execute("INSERT INTO transactions VALUES (?, ?, ?, ?, ?, ?)",
+                  (time.time(), tx_hash, recipient, amount, status, symbol))
         conn.commit()
         conn.close()
 
@@ -156,11 +224,12 @@ class AgentPay:
         # --- ROUTING: SOLANA ---
         if self.is_solana:
             # Solana fees are negligible (< 0.0001 Gwei equiv), so we ignore this check
+            self._check_daily_limit(amount, "SOL")
             try:
                 print(f"☀️ Sending {amount:.6f} SOL...")
                 sig = self.solana.transfer(recipient_address, amount)
                 print(f"✅ Solana Tx Sent: {sig}")
-                self._log_transaction(sig, recipient_address, amount, "SENT_SOL")
+                self._log_transaction(sig, recipient_address, amount, "SENT_SOL", symbol="SOL")
                 return sig
             except Exception as e:
                 print(f"❌ Solana Tx Failed: {e}")
@@ -172,6 +241,13 @@ class AgentPay:
 
         # License Check (before transaction)
         self._check_license(amount)
+        
+        # Capital Control: Daily Limit Check
+        native_symbol = "ETH" # Default for EVM
+        if self.chain_name == "POLYGON": native_symbol = "MATIC"
+        if self.chain_name == "BNB": native_symbol = "BNB"
+        
+        self._check_daily_limit(amount, native_symbol)
 
         amount_wei = self.w3.to_wei(amount, 'ether')
         
@@ -205,13 +281,13 @@ class AgentPay:
             
             # 4. Audit Log
             print(f"✅ Tx Sent: {tx_hash} (Gas: {gas_price/1e9:.2f} Gwei)")
-            self._log_transaction(tx_hash, recipient_address, amount, "SENT")
+            self._log_transaction(tx_hash, recipient_address, amount, "SENT", symbol=native_symbol)
             
             if wait:
                 print("⏳ Waiting for confirmation...")
                 self.w3.eth.wait_for_transaction_receipt(tx_hash)
                 print("✅ Confirmed!")
-                self._log_transaction(tx_hash, recipient_address, amount, "CONFIRMED")
+                self._log_transaction(tx_hash, recipient_address, amount, "CONFIRMED", symbol=native_symbol)
             
             return tx_hash
             
@@ -261,7 +337,7 @@ class AgentPay:
                 
                 sig = self.solana.transfer_token(recipient_address, amount, mint_address=mint)
                 print(f"✅ Solana Token Tx: {sig}")
-                self._log_transaction(sig, recipient_address, amount, f"SENT_{token}_SOL")
+                self._log_transaction(sig, recipient_address, amount, f"SENT_{token}_SOL", symbol=token)
                 return sig
             except Exception as e:
                 print(f"❌ Solana Token Tx Failed: {e}")
@@ -463,6 +539,10 @@ class AgentPay:
         """
         inv = self.invoices.parse_invoice(invoice_json)
         
+        # Security: Prevent Replay Attacks
+        if self._is_invoice_paid(inv['invoice_id']):
+            raise ValueError(f"🚨 Security Alert: Invoice {inv['invoice_id']} has ALREADY been paid. Replay attack prevented.")
+
         print(f"🧾 Processing Invoice: {inv['description']}")
         print(f"   Pay: {inv['amount']} {inv['currency']} on {inv['chain']}")
         
@@ -478,7 +558,11 @@ class AgentPay:
         
         if token in ["ETH", "SOL", "MATIC"]:
              # Native Payment
-             return self.pay_agent(recipient, amount)
+             tx = self.pay_agent(recipient, amount)
         else:
              # Token Payment
-             return self.pay_token(recipient, amount, token=token)
+             tx = self.pay_token(recipient, amount, token=token)
+             
+        # Mark as paid ONLY if successful
+        self._mark_invoice_paid(inv['invoice_id'], recipient, amount)
+        return tx

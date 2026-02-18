@@ -33,13 +33,17 @@ class SwapEngine:
             "provider": "Jupiter (Mock)" if self.agent.is_solana else "Uniswap (Mock)"
         }
 
-    def execute_swap(self, input_token: str, output_token: str, amount: float):
+    def execute_swap(self, input_token: str, output_token: str, amount: float, min_output_amount: float = 0.0):
         """
         Executes the swap. In production, this would build and sign a Tx.
         """
         quote = self.get_quote(input_token, output_token, amount)
         
-        print(f"🔄 Swapping {amount} {input_token} -> {quote['output']} {output_token}...")
+        # Slippage Protection
+        if quote['output'] < min_output_amount:
+            raise ValueError(f"Slippage Error: Output {quote['output']} < Min {min_output_amount}")
+
+        print(f"⚠️  [MOCK] Swapping {amount} {input_token} -> {quote['output']} {output_token}...")
         print(f"   Provider: {quote['provider']}")
         time.sleep(1) # Simulate network lag
         

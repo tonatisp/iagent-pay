@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="iagent-pay",
-    version="2.1.0",
+    version="2.1.1",
     description="The Universal Payment Standard for AI Agents (EVM + Solana)",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",

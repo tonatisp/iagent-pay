@@ -1,3 +1,5 @@
+import os
+
 class ChainConfig:
     """
     Pre-configured settings for major AI-friendly blockchains.
@@ -11,7 +13,7 @@ class ChainConfig:
 
     ETH = {
         "name": "Ethereum Mainnet",
-        "rpc": "https://eth.llamarpc.com",
+        "rpc": os.getenv("ETH_RPC_URL", "https://eth.llamarpc.com"),
         "chain_id": 1,
         "symbol": "ETH"
     }
@@ -40,7 +42,7 @@ class ChainConfig:
     # Solana Configs (Handled by SolanaDriver, but added here for validator)
     SOL_MAINNET = {
         "name": "Solana Mainnet",
-        "rpc": "https://api.mainnet-beta.solana.com",
+        "rpc": os.getenv("SOLANA_RPC_URL", "https://api.mainnet-beta.solana.com"),
         "chain_id": None, # SVM 
         "symbol": "SOL"
     }

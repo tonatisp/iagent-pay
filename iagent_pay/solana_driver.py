@@ -117,7 +117,6 @@ class SolanaDriver:
             dest_ata = get_associated_token_address(recipient_pubkey, target_mint)
             
             # 3. Check if Dest ATA exists
-            print(f"DEBUG: RPC getAccountInfo {dest_ata}") # Added print before RPC call
             acc_info = self.client.get_account_info(dest_ata)
             
             # Note: Checking value property logic
