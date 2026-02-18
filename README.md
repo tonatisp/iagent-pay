@@ -177,7 +177,7 @@ Dual-Treasury support for collecting fees in both ecosystems.
       "EVM": "0xYourEthWallet...",
       "SOLANA": "YourSolanaWallet..."
   },
-  "trial_days": 60,
+  "trial_days": 100,
   "subscription_price_usd": 26.00
 }
 ```
