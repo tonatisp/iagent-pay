@@ -147,6 +147,20 @@ class SolanaDriver:
             )
             
             sig = resp.value if hasattr(resp, 'value') else resp
+            
+            print(f"⏳ Confirming Solana Token Tx: {sig}...")
+            # confirmation loop
+            max_retries = 30
+            for i in range(max_retries):
+                conf = self.client.get_signature_statuses([sig])
+                if hasattr(conf, 'value') and conf.value[0] is not None:
+                     status = conf.value[0]
+                     if status.confirmations is not None or status.confirmation_status == "finalized":
+                          print("✅ Solana Token Tx Confirmed!")
+                          return str(sig)
+                time.sleep(1)
+
+            print("⚠️ Solana Token Tx SENT but Confirmation Timed Out.")
             return str(sig)
 
         except Exception as e:
@@ -233,6 +247,20 @@ class SolanaDriver:
             tx.sign_partial(self.keypair)
             resp = self.client.send_transaction(tx, self.keypair)
             signature = resp.value if hasattr(resp, 'value') else resp
+            
+            print(f"⏳ Confirming Solana Tx: {signature}...")
+            # confirmation loop
+            max_retries = 30
+            for i in range(max_retries):
+                conf = self.client.get_signature_statuses([signature])
+                if hasattr(conf, 'value') and conf.value[0] is not None:
+                     status = conf.value[0]
+                     if status.confirmations is not None or status.confirmation_status == "finalized":
+                          print("✅ Solana Tx Confirmed!")
+                          return str(signature)
+                time.sleep(1)
+            
+            print("⚠️ Solana Tx Sent but Confirmation Timed Out. Please check explorer.")
             return str(signature)
         except Exception as e:
             raise Exception(f"[Solana] Transfer Failed: {e}")

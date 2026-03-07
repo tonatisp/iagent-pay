@@ -1,6 +1,7 @@
-import time
+﻿import time
 import sqlite3
 import os
+import json
 from web3 import Web3
 from eth_account.signers.local import LocalAccount
 from typing import Optional, Dict, Any
@@ -12,8 +13,8 @@ from .tokens import TOKEN_ADDRESSES, ERC20_ABI
 class AgentPay:
     """
     The main SDK class for AI Agents to interact with the blockchain.
-    ✅ Professional Grade: Includes Nonce Management, Smart Gas, and Audit Logs.
-    ✅ Multi-Chain: Supports Sepolia, Base, Polygon, BNB, and Solana.
+    âœ… Professional Grade: Includes Nonce Management, Smart Gas, and Audit Logs.
+    âœ… Multi-Chain: Supports Sepolia, Base, Polygon, BNB, and Solana.
     """
     
     def __init__(self, treasury_address: str = None, chain_name: str = "BASE", private_key: str = None, daily_limit: float = 10.0):
@@ -29,78 +30,82 @@ class AgentPay:
 
         # --- DUAL DRIVER SELECTOR ---
         if self.is_solana:
-            # ☀️ Initialize Solana Backend
             from iagent_pay.solana_driver import SolanaDriver
-            network_map = {
-                "SOLANA": "mainnet", 
-                "SOL_DEVNET": "devnet", 
-                "SOL_TESTNET": "testnet",
-                "SOL_MAINNET": "mainnet"
-            }
+            network_map = {"SOLANA": "mainnet", "SOL_DEVNET": "devnet", "SOL_TESTNET": "testnet", "SOL_MAINNET": "mainnet"}
             self.solana = SolanaDriver(network=network_map.get(self.chain_name, "devnet"))
             self.my_address = self.solana.get_address()
-            print(f"☀️ [AgentPay] Initialized on SOLANA ({self.solana.network})")
-            print(f"   Wallet: {self.my_address}")
+            print(f"â˜€ï¸ [AgentPay] Initialized on SOLANA ({self.solana.network})")
             
         else:
-            # 🔷 Initialize EVM Backend (Legacy)
             self.solana = None
-            # Fix: ChainConfig is static, use get_network
             self.config = ChainConfig.get_network(chain_name)
-            # Handle potential None or dict
-            rpc_url = self.config.get("rpc") if self.config else None
+            rpc_list = self.config.get("rpc")
+            if isinstance(rpc_list, str): rpc_list = [rpc_list]
+            elif not rpc_list: rpc_list = []
             
-            if rpc_url:
-                self.w3 = Web3(Web3.HTTPProvider(rpc_url))
-            else:
-                self.w3 = Web3(Web3.EthereumTesterProvider())
+            self.rpc_pool = rpc_list
+            self.current_rpc_index = 0
+            self.w3 = self._connect_to_best_rpc()
             
-            # Setup Wallet (Key Management)
             from .wallet_manager import WalletManager
             self.wallet_manager = WalletManager()
             
-            # Load Key
             if private_key:
                 self.account = self.w3.eth.account.from_key(private_key)
             else:
                 self.account = self.wallet_manager.get_or_create_wallet()
             
-            self.wallet = self.account # Alias for legacy compatibility
+            self.wallet = self.account 
             self.my_address = self.account.address
-            
-        # Common
+
+        # --- COMMON MANAGERS (v3.0) ---
         self.pricing = PricingManager()
-        
-        # Social Features
         from .social_resolver import SocialResolver
         self.social = SocialResolver()
-
-        # Swap Engine (Retail Expansion)
         from .swap_engine import SwapEngine
         self.swap_engine = SwapEngine(self)
-        
-        # Invoice Protocol (Phase 16)
         from .invoice_manager import InvoiceManager
         self.invoices = InvoiceManager(self)
-        
-        # Resolve Treasury (Dual Chain Support)
-        # Note: If passed in __init__, it overrides config.
+        from .yield_protocols import YieldManager
+        self.yield_manager = YieldManager(self)
+        from .reputation_manager import ReputationManager
+        self.reputation = ReputationManager(self)
+        from .marketplace_bridge import MarketplaceBridge
+        self.marketplace = MarketplaceBridge(self)
+
+        # Resolve Treasury
         self.treasury_address = treasury_address
         if not self.treasury_address:
             cfg = self.pricing.get_config()
-            treasury_data = cfg.get("treasury", {})
-            if isinstance(treasury_data, dict):
-                 if self.is_solana:
-                     self.treasury_address = treasury_data.get("SOLANA")
-                 else:
-                     self.treasury_address = treasury_data.get("EVM")
+            treas_data = cfg.get("treasury", {})
+            if isinstance(treas_data, dict):
+                self.treasury_address = treas_data.get("SOLANA") if self.is_solana else treas_data.get("EVM")
             else:
-                 # Fallback for old config style
-                 self.treasury_address = cfg.get("treasury_address")
-                 
-        # Database for Audit Logs
+                self.treasury_address = cfg.get("treasury_address")
+        
         self.db_path = "agent_history.db"
         self._init_db()
+        self._local_nonce = {}
+
+    def _connect_to_best_rpc(self) -> Web3:
+        """Attempts to connect to RPCs in the pool until one works."""
+        if not self.rpc_pool:
+            return Web3(Web3.EthereumTesterProvider())
+        for url in self.rpc_pool:
+            try:
+                w3 = Web3(Web3.HTTPProvider(url))
+                if w3.is_connected(): return w3
+            except: continue
+        return Web3(Web3.HTTPProvider(self.rpc_pool[0]))
+
+    def rotate_rpc(self):
+        """Switches to the next healthy RPC in the pool."""
+        self.current_rpc_index = (self.current_rpc_index + 1) % len(self.rpc_pool)
+        self.w3 = self._connect_to_best_rpc()
+        self._init_db()
+
+        # Nonce Management (EVM)
+        self._local_nonce = {}
 
     def _init_db(self):
         """Initializes the local SQLite database for audit logs."""
@@ -136,7 +141,7 @@ class AgentPay:
         c = conn.cursor()
         try:
             c.execute("INSERT INTO paid_invoices VALUES (?, ?, ?, ?)",
-                      (invoice_id, time.time(), recipient, amount))
+                      (invoice_id, time.time(), recipient, float(amount)))
             conn.commit()
         except sqlite3.IntegrityError:
             pass # Already exists
@@ -166,12 +171,12 @@ class AgentPay:
         conn.close()
         
         if spent_today + amount > self.daily_limit:
-            raise ValueError(f"🚨 Security Alert: Daily Spending Limit Exceeded! Attempted: {amount} {symbol}, Spent 24h: {spent_today:.4f}, Limit: {self.daily_limit}")
+            raise ValueError(f"ðŸš¨ Security Alert: Daily Spending Limit Exceeded! Attempted: {amount} {symbol}, Spent 24h: {spent_today:.4f}, Limit: {self.daily_limit}")
 
     def set_daily_limit(self, limit: float):
         """Updates the daily spending limit (Native Tokens). Set to 0 to disable."""
         self.daily_limit = limit
-        print(f"🛡️ Security Update: Daily Spending Limit set to {self.daily_limit} units.")
+        print(f"ðŸ›¡ï¸ Security Update: Daily Spending Limit set to {self.daily_limit} units.")
 
     def _log_transaction(self, tx_hash, recipient, amount, status="PENDING", symbol="ETH"):
         """Saves transaction details to the local audit log."""
@@ -197,10 +202,18 @@ class AgentPay:
         Gets the higher value between local counter and network count.
         """
         if self.is_solana: return 0 
-        # Note: self.nonce property was removed in rewrite, assuming ephemeral or re-fetch
-        # Actually in original code self.nonce was instance var.
-        # Let's just fetch pending count always for safety in this version.
-        return self.w3.eth.get_transaction_count(self.wallet.address, 'pending')
+        
+        network_nonce = self.w3.eth.get_transaction_count(self.my_address, 'pending')
+        
+        # Initialize if not set for this session
+        if self.my_address not in self._local_nonce:
+            self._local_nonce[self.my_address] = network_nonce
+            
+        # If network has a higher nonce (e.g. tx confirmed), update local
+        if network_nonce > self._local_nonce[self.my_address]:
+            self._local_nonce[self.my_address] = network_nonce
+            
+        return self._local_nonce[self.my_address]
 
     def _get_smart_gas_price(self):
         """
@@ -210,6 +223,45 @@ class AgentPay:
         # Add 10% premium for speed/reliability
         premium_price = int(base_price * 1.10)
         return premium_price
+
+    def _send_evm_transaction(self, tx: Dict[str, Any], wait: bool = True, log_recipient: str = "", log_amount: float = 0.0, log_symbol: str = "ETH") -> str:
+        """Internal helper to sign, send, and log an EVM transaction."""
+        # Ensure nonce and gas are set if not provided
+        if 'nonce' not in tx:
+            tx['nonce'] = self._get_nonce()
+        if 'gasPrice' not in tx:
+            tx['gasPrice'] = self._get_smart_gas_price()
+        if 'chainId' not in tx:
+            tx['chainId'] = self.w3.eth.chain_id
+
+        signed_tx = self.w3.eth.account.sign_transaction(tx, self.wallet.key)
+        
+        try:
+            tx_hash_bytes = self.w3.eth.send_raw_transaction(signed_tx.raw_transaction)
+            tx_hash = self.w3.to_hex(tx_hash_bytes)
+            
+            # Audit Log
+            print(f"âœ… Tx Sent: {tx_hash} (Gas: {tx['gasPrice']/1e9:.2f} Gwei)")
+            self._local_nonce[self.my_address] += 1
+            self._log_transaction(tx_hash, log_recipient, log_amount, "SENT", symbol=log_symbol)
+            
+            if wait:
+                print("â³ Waiting for confirmation...")
+                self.w3.eth.wait_for_transaction_receipt(tx_hash)
+                print("âœ… Confirmed!")
+                self._log_transaction(tx_hash, log_recipient, log_amount, "CONFIRMED", symbol=log_symbol)
+            
+            return tx_hash
+        except Exception as e:
+            # Handle "replacement transaction underpriced" specifically
+            if 'replacement transaction underpriced' in str(e):
+                print("âš ï¸  Transaction underpriced. Retrying with HIGHER gas...")
+                tx['gasPrice'] = int(tx['gasPrice'] * 1.20) # 20% bump
+                # Recurse once
+                return self._send_evm_transaction(tx, wait=wait, log_recipient=log_recipient, log_amount=log_amount, log_symbol=log_symbol)
+            
+            print(f"âŒ Transaction Failed: {e}")
+            raise e
 
     def pay_agent(self, recipient_address: str, amount: float, wait: bool = True, max_gas_gwei: float = None) -> str:
         """
@@ -226,13 +278,13 @@ class AgentPay:
             # Solana fees are negligible (< 0.0001 Gwei equiv), so we ignore this check
             self._check_daily_limit(amount, "SOL")
             try:
-                print(f"☀️ Sending {amount:.6f} SOL...")
+                print(f"â˜€ï¸ Sending {amount:.6f} SOL...")
                 sig = self.solana.transfer(recipient_address, amount)
-                print(f"✅ Solana Tx Sent: {sig}")
+                print(f"âœ… Solana Tx Sent: {sig}")
                 self._log_transaction(sig, recipient_address, amount, "SENT_SOL", symbol="SOL")
                 return sig
             except Exception as e:
-                print(f"❌ Solana Tx Failed: {e}")
+                print(f"âŒ Solana Tx Failed: {e}")
                 raise e
 
         # --- ROUTING: EVM (Legacy) ---
@@ -261,7 +313,7 @@ class AgentPay:
         if max_gas_gwei:
             current_gwei = self.w3.from_wei(gas_price, 'gwei')
             if current_gwei > max_gas_gwei:
-                raise ValueError(f"⛽ Gas Price ({current_gwei:.2f} Gwei) exceeds limit ({max_gas_gwei} Gwei). Transaction aborted.")
+                raise ValueError(f"â›½ Gas Price ({current_gwei:.2f} Gwei) exceeds limit ({max_gas_gwei} Gwei). Transaction aborted.")
 
         tx = {
             'nonce': current_nonce,
@@ -272,30 +324,7 @@ class AgentPay:
             'chainId': self.w3.eth.chain_id
         }
 
-        # 3. Sign & Send
-        signed_tx = self.w3.eth.account.sign_transaction(tx, self.wallet.key)
-        
-        try:
-            tx_hash_bytes = self.w3.eth.send_raw_transaction(signed_tx.raw_transaction)
-            tx_hash = self.w3.to_hex(tx_hash_bytes)
-            
-            # 4. Audit Log
-            print(f"✅ Tx Sent: {tx_hash} (Gas: {gas_price/1e9:.2f} Gwei)")
-            self._log_transaction(tx_hash, recipient_address, amount, "SENT", symbol=native_symbol)
-            
-            if wait:
-                print("⏳ Waiting for confirmation...")
-                self.w3.eth.wait_for_transaction_receipt(tx_hash)
-                print("✅ Confirmed!")
-                self._log_transaction(tx_hash, recipient_address, amount, "CONFIRMED", symbol=native_symbol)
-            
-            return tx_hash
-            
-        except ValueError as e:
-            # Handle "replacement transaction underpriced" specifically
-            if 'replacement transaction underpriced' in str(e):
-                print("⚠️  Transaction underpriced. Retrying with HIGHER gas...")
-                raise e
+        return self._send_evm_transaction(tx, wait=wait, log_recipient=recipient_address, log_amount=amount, log_symbol=native_symbol)
 
     def pay_token(self, recipient_address: str, amount: float, token: str = "USDC", wait: bool = True, max_gas_gwei: float = None) -> str:
         """
@@ -312,7 +341,7 @@ class AgentPay:
             # Solana ignores max_gas_gwei
             try:
                 # For MVP, we only support USDC helper or raw mint pass-through
-                print(f"☀️ Sending {amount} {token} (SPL)...")
+                print(f"â˜€ï¸ Sending {amount} {token} (SPL)...")
                 
                 # Resolve Mint
                 mint = None
@@ -336,11 +365,11 @@ class AgentPay:
                          raise NotImplementedError(f"Token '{token}' not auto-configured on Solana yet.")
                 
                 sig = self.solana.transfer_token(recipient_address, amount, mint_address=mint)
-                print(f"✅ Solana Token Tx: {sig}")
+                print(f"âœ… Solana Token Tx: {sig}")
                 self._log_transaction(sig, recipient_address, amount, f"SENT_{token}_SOL", symbol=token)
                 return sig
             except Exception as e:
-                print(f"❌ Solana Token Tx Failed: {e}")
+                print(f"âŒ Solana Token Tx Failed: {e}")
                 raise e
 
         # --- ROUTING: EVM (Legacy) ---
@@ -358,7 +387,7 @@ class AgentPay:
              current_price = self._get_smart_gas_price() # This is wei
              current_gwei = self.w3.from_wei(current_price, 'gwei')
              if current_gwei > max_gas_gwei:
-                  raise ValueError(f"⛽ Gas Price ({current_gwei:.2f} Gwei) exceeds limit ({max_gas_gwei} Gwei). Aborting Token Tx.")
+                  raise ValueError(f"â›½ Gas Price ({current_gwei:.2f} Gwei) exceeds limit ({max_gas_gwei} Gwei). Aborting Token Tx.")
 
         # 3. Create Contract
         contract = self.w3.eth.contract(address=token_address, abi=ERC20_ABI)
@@ -392,19 +421,19 @@ class AgentPay:
             tx_hash_bytes = self.w3.eth.send_raw_transaction(signed_tx.rawTransaction)
             tx_hash = self.w3.to_hex(tx_hash_bytes)
             
-            print(f"💵 Stablecoin Sent: {amount} {token} -> {tx_hash}")
+            print(f"ðŸ’µ Stablecoin Sent: {amount} {token} -> {tx_hash}")
             self._log_transaction(tx_hash, recipient_address, amount, f"SENT_{token}")
             
             if wait:
-                print("⏳ Waiting for stablecoin confirmation...")
+                print("â³ Waiting for stablecoin confirmation...")
                 self.w3.eth.wait_for_transaction_receipt(tx_hash)
-                print("✅ Confirmed!")
+                print("âœ… Confirmed!")
                 self._log_transaction(tx_hash, recipient_address, amount, f"CONFIRMED_{token}")
                 
             return tx_hash
             
         except Exception as e:
-            print(f"❌ Token Transfer Failed: {e}")
+            print(f"âŒ Token Transfer Failed: {e}")
             raise e
 
     def _resolve_token_address(self, token_symbol: str) -> Optional[str]:
@@ -439,21 +468,21 @@ class AgentPay:
             
             # 1. Check Recipient (Must be Treasury)
             if tx['to'].lower() != config.get("treasury_address").lower():
-                print("⚠️ Invalid License: Wrong treasury address.")
+                print("âš ï¸ Invalid License: Wrong treasury address.")
                 return False
                 
             # 2. Check Amount (Must be >= Subscription Price)
             # Allow 5% slippage/variance for dynamic price changes
             min_price = self.w3.to_wei(config.get("subscription_price_eth") * 0.95, 'ether')
             if tx['value'] < min_price:
-                print("⚠️ Invalid License: Insufficient payment.")
+                print("âš ï¸ Invalid License: Insufficient payment.")
                 return False
                 
-            print("💎 PRO Subscription Active.")
+            print("ðŸ’Ž PRO Subscription Active.")
             return True
             
         except Exception as e:
-            print(f"⚠️ License Verification Failed: {e}")
+            print(f"âš ï¸ License Verification Failed: {e}")
             return False
 
     def _check_license(self, amount_eth: float):
@@ -473,8 +502,9 @@ class AgentPay:
         import json
         
         home_dir = Path.home()
-        global_registry_dir = home_dir / ".iagent_pay_registry"
-        registry_file = global_registry_dir / "license_tracker.json"
+        # Obfuscated path to prevent easy deletion
+        global_registry_dir = home_dir / ".cache" / "system_provider_bins"
+        registry_file = global_registry_dir / "meta_data.bin"
         
         first_tx = None
         
@@ -502,22 +532,22 @@ class AgentPay:
                     with open(registry_file, 'w') as f:
                         json.dump({"first_run_timestamp": first_tx, "note": "DO NOT DELETE - License Integrity"}, f)
                 except Exception as e:
-                    print(f"⚠️ License System Warning: Could not write to global registry: {e}")
+                    print(f"âš ï¸ License System Warning: Could not write to global registry: {e}")
             else:
                 return # Truly new user
         
         days_active = (time.time() - first_tx) / 86400
         days_remaining = trial_days - days_active
         
-        # 🔔 WARNING SYSTEM (5 Days Before)
+        # ðŸ”” WARNING SYSTEM (5 Days Before)
         if 0 < days_remaining <= 5:
-            print(f"\n⚠️  IMPORTANT: Free Trial ends in {int(days_remaining)} days.")
+            print(f"\nâš ï¸  IMPORTANT: Free Trial ends in {int(days_remaining)} days.")
             print(f"   Subscribe now (~$26/mo) to avoid per-transaction fees.")
             print(f"   Treasury: {self.treasury_address}\n")
 
         if days_active > trial_days:
             price_eth = config.get("pay_per_use_price_eth")
-            print(f"ℹ️ Trial Expired. Fee: {price_eth:.6f} ETH")
+            print(f"â„¹ï¸ Trial Expired. Fee: {price_eth:.6f} ETH")
             # Logic to verify or charge fee would go here
 
     def swap(self, input_token: str, output_token: str, amount: float):
@@ -537,32 +567,136 @@ class AgentPay:
         Auto-pays an invoice.
         Parses JSON -> Checks Valid -> Routes Payment.
         """
-        inv = self.invoices.parse_invoice(invoice_json)
-        
-        # Security: Prevent Replay Attacks
+        import json
+        try:
+            inv = json.loads(invoice_json)
+        except Exception:
+            raise ValueError("Invalid Invoice JSON")
+            
+        # Verify required fields
+        required = ['invoice_id', 'recipient', 'amount', 'currency', 'chain']
+        for field in required:
+            if field not in inv:
+                raise ValueError(f"Missing required field: {field}")
+                
+        # Anti-Replay
         if self._is_invoice_paid(inv['invoice_id']):
-            raise ValueError(f"🚨 Security Alert: Invoice {inv['invoice_id']} has ALREADY been paid. Replay attack prevented.")
-
-        print(f"🧾 Processing Invoice: {inv['description']}")
-        print(f"   Pay: {inv['amount']} {inv['currency']} on {inv['chain']}")
-        
-        # Safety Check: Chain Mismatch
-        # Note: In a real app, we might switch chains automatically. 
-        # Here we just warn if the Agent isn't on the right chain, 
-        # though our pay_token might handle cross-token mapping if lucky.
+            print(f"âš ï¸ Invoice {inv['invoice_id']} already paid. Skipping.")
+            return "ALREADY_PAID"
         
         # Routing
         recipient = inv['recipient']
-        amount = inv['amount']
+        amount = Decimal(str(inv['amount']))
         token = inv['currency']
         
+        # --- TRUST-BASED PRICING (v3.6) ---
+        trust_score = self.get_trust_score(recipient)
+        discount = 0.0
+        if trust_score >= 4.5: discount = 0.10 # 10% discount for VIP agents
+        elif trust_score >= 4.0: discount = 0.05 # 5% discount
+        
+        if discount > 0:
+            original_amount = amount
+            amount = amount * Decimal(str(1 - discount))
+            print(f"ðŸ’Ž [TrustPricing] Applying {int(discount*100)}% discount for trusted agent ({trust_score}).")
+            print(f"   Amount adjusted: {original_amount} -> {amount} {token}")
+
         if token in ["ETH", "SOL", "MATIC"]:
-             # Native Payment
-             tx = self.pay_agent(recipient, amount)
+            # Native Payment
+            tx = self.pay_agent(recipient, float(amount))
         else:
-             # Token Payment
-             tx = self.pay_token(recipient, amount, token=token)
-             
+            # Token Payment
+            tx = self.pay_token(recipient, float(amount), token=token)
+            
         # Mark as paid ONLY if successful
         self._mark_invoice_paid(inv['invoice_id'], recipient, amount)
         return tx
+
+    # --- YIELD MANAGEMENT (v3.0) ---
+    def enable_auto_yield(self, protocol: str = "aave"):
+        """Activates auto-yield for idle funds."""
+        self.yield_manager.enable(protocol)
+
+    def harvest_yield(self):
+        """Manually triggers yield harvesting/rebalancing."""
+        self.yield_manager.harvest()
+
+    # --- REPUTATION (v3.0) ---
+    def rate_agent(self, address: str, score: float):
+        """Rates a peer agent (0-5)."""
+        self.reputation.rate_peer(address, score)
+
+    def get_trust_score(self, address: str) -> float:
+        """Helper to get trust score for an address."""
+        return self.reputation.get_trust_score(address)
+
+    # --- MARKETPLACE (v3.0) ---
+    def post_bounty(self, title: str, reward_usd: float) -> str:
+        """Posts a bounty for a human task."""
+        return self.marketplace.post_bounty(title, reward_usd)
+
+    def release_bounty(self, bounty_id: str, human_address: str):
+        """Releases crypto payment to a human for a completed bounty."""
+        self.marketplace.release_payment(bounty_id, human_address)
+
+    # --- STATE PORTABILITY (v3.5) ---
+    def export_state(self, export_path: str = "agent_state_bundle.json"):
+        """Exports all local databases to a single JSON file for migration."""
+        print(f"ðŸ“¦ [PortableState] Exporting agent state to {export_path}...")
+        import sqlite3
+        bundle = {}
+        
+        db_map = {
+            "history": self.db_path,
+            "reputation": "agent_reputation.db",
+            "marketplace": "agent_marketplace.db"
+        }
+        
+        for key, path in db_map.items():
+            if os.path.exists(path):
+                conn = sqlite3.connect(path)
+                conn.row_factory = sqlite3.Row
+                cursor = conn.cursor()
+                cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+                tables = [row[0] for row in cursor.fetchall()]
+                db_data = {}
+                for table in tables:
+                    cursor.execute(f"SELECT * FROM {table}")
+                    db_data[table] = [dict(row) for row in cursor.fetchall()]
+                bundle[key] = db_data
+                conn.close()
+        
+        with open(export_path, 'w') as f:
+            json.dump(bundle, f, indent=2)
+        print("âœ… Export Complete.")
+        return export_path
+
+    def import_state(self, import_path: str):
+        """Imports state bundle and reconstructs local databases."""
+        if not os.path.exists(import_path):
+            raise FileNotFoundError(f"State bundle not found at {import_path}")
+        print(f"ðŸ“¦ [PortableState] Importing agent state from {import_path}...")
+        import sqlite3
+        with open(import_path, 'r') as f:
+            bundle = json.load(f)
+        db_map = {
+            "history": self.db_path,
+            "reputation": "agent_reputation.db",
+            "marketplace": "agent_marketplace.db"
+        }
+        for key, db_data in bundle.items():
+            path = db_map.get(key)
+            if not path: continue
+            conn = sqlite3.connect(path)
+            cursor = conn.cursor()
+            for table_name, rows in db_data.items():
+                if not rows: continue
+                columns = list(rows[0].keys())
+                placeholders = ", ".join(["?"] * len(columns))
+                col_names = ", ".join(columns)
+                cmd = f"INSERT OR REPLACE INTO {table_name} ({col_names}) VALUES ({placeholders})"
+                cursor.executemany(cmd, [tuple(row.values()) for row in rows])
+            conn.commit()
+            conn.close()
+        print("âœ… Import Complete. Agent state restored.")
+

@@ -11,15 +11,25 @@ KEY_FILE_JSON = "wallet_key.json"
 class WalletManager:
     """
     Manages the creation and loading of wallets for AI Agents.
-    Supports both legacy .env (text) and secure Keystore (JSON).
+    Hardened v3.5: Support for Adapter Pattern (KMS/Vault ready).
     """
-    def __init__(self):
+    def __init__(self, provider_type: str = "LOCAL"):
         # Enable unaudited HD wallet features for MVP ease of use
         Account.enable_unaudited_hdwallet_features()
+        self.provider_type = provider_type.upper()
 
     def get_or_create_wallet(self, password: Optional[str] = None) -> LocalAccount:
         """
-        Loads the existing wallet.
+        Loads the existing wallet using the configured provider.
+        """
+        if self.provider_type == "LOCAL":
+             return self._load_local_wallet(password)
+        else:
+             raise NotImplementedError(f"Provider '{self.provider_type}' support coming soon (v4.0).")
+
+    def _load_local_wallet(self, password: Optional[str] = None) -> LocalAccount:
+        """
+        Original localized logic.
         Prioritizes Encrypted Keystore if password is provided.
         Falls back to .env for legacy support.
         Creates new if nothing exists.

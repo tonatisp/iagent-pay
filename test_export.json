@@ -1,0 +1,20 @@
+{
+  "history": {
+    "transactions": [],
+    "paid_invoices": []
+  },
+  "reputation": {
+    "peer_ratings": [
+      {
+        "address": "0xTEST",
+        "score": 4.5,
+        "reviews_count": 1,
+        "last_updated": 1772846206.7042496
+      }
+    ],
+    "global_cache": []
+  },
+  "marketplace": {
+    "bounties": []
+  }
+}

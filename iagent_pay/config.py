@@ -13,37 +13,37 @@ class ChainConfig:
 
     ETH = {
         "name": "Ethereum Mainnet",
-        "rpc": os.getenv("ETH_RPC_URL", "https://eth.llamarpc.com"),
+        "rpc": [os.getenv("ETH_RPC_URL", "https://eth.llamarpc.com"), "https://1rpc.io/eth", "https://rpc.ankr.com/eth"],
         "chain_id": 1,
         "symbol": "ETH"
     }
     
     SEPOLIA = {
         "name": "Sepolia Testnet",
-        "rpc": "https://1rpc.io/sepolia",
+        "rpc": ["https://1rpc.io/sepolia", "https://rpc.ankr.com/eth_sepolia", "https://eth-sepolia.public.blastapi.io"],
         "chain_id": 11155111,
         "symbol": "SepoliaETH"
     }
     
     BASE_MAINNET = {
         "name": "Base (Coinbase)",
-        "rpc": "https://mainnet.base.org",
+        "rpc": ["https://mainnet.base.org", "https://base.llamarpc.com", "https://1rpc.io/base"],
         "chain_id": 8453,
         "symbol": "ETH"
     }
     
     POLYGON = {
         "name": "Polygon PoS",
-        "rpc": "https://polygon-rpc.com",
+        "rpc": ["https://polygon-rpc.com", "https://polygon.llamarpc.com", "https://1rpc.io/polygon"],
         "chain_id": 137,
         "symbol": "MATIC"
     }
 
-    # Solana Configs (Handled by SolanaDriver, but added here for validator)
+    # Solana Configs (Handled by SolanaDriver)
     SOL_MAINNET = {
         "name": "Solana Mainnet",
-        "rpc": os.getenv("SOLANA_RPC_URL", "https://api.mainnet-beta.solana.com"),
-        "chain_id": None, # SVM 
+        "rpc": [os.getenv("SOLANA_RPC_URL", "https://api.mainnet-beta.solana.com"), "https://solana-mainnet.g.allthatnode.com", "https://api.tatum.io/v3/solana/node/mainnet-beta"],
+        "chain_id": None, 
         "symbol": "SOL"
     }
     
@@ -53,6 +53,10 @@ class ChainConfig:
         "chain_id": None, 
         "symbol": "SOL"
     }
+
+    # Aliases
+    BASE = BASE_MAINNET
+    SOLANA = SOL_MAINNET
 
     @staticmethod
     def get_network(name: str):
