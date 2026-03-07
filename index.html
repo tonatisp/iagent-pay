@@ -17,6 +17,10 @@
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--bg);
+            background-image: linear-gradient(rgba(10, 10, 10, 0.8), rgba(10, 10, 10, 0.9)), url('titan_banner.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             color: var(--text);
             margin: 0;
             line-height: 1.6;
@@ -27,6 +31,8 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
+            position: relative;
+            z-index: 1;
         }
 
         header {
@@ -67,23 +73,26 @@
         }
 
         .hero {
-            padding: 100px 0;
+            padding: 150px 0;
             text-align: center;
         }
 
         h1 {
-            font-size: 4rem;
+            font-size: 4.5rem;
             margin-bottom: 20px;
             background: linear-gradient(to right, #fff, #888);
+            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
         .tagline {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             color: var(--text-dim);
-            max-width: 700px;
+            max-width: 800px;
             margin: 0 auto 40px;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
         }
 
         .cta-buttons {
@@ -172,6 +181,14 @@
                 padding: 60px 0;
             }
         }
+
+        .hero img {
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .hero img:hover {
+            transform: scale(1.02);
+        }
     </style>
 </head>
 
@@ -205,10 +222,10 @@
         </header>
 
         <section class="hero">
-            <h1 id="hero-title">The Payment Layer for<br>Autonomous Agents</h1>
+            <h1 id="hero-title">The Financial Layer for<br>Autonomous Titan Agents</h1>
             <p class="tagline" id="hero-subtitle">
-                Allow your AI to send and receive crypto micropayments securely.
-                No banks. No KYC. Just code.
+                Deploy hardened, self-healing AI agents that Buy, Sell, and Hire.
+                <br>Passed Level 7 God Mode tests.
             </p>
 
             <div class="code-block">
