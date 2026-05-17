@@ -1,4 +1,4 @@
-﻿import time
+import time
 import sqlite3
 import os
 import json
@@ -27,17 +27,26 @@ class AgentPay:
         self.chain_name = chain_name.upper()
         self.daily_limit = daily_limit
         self.is_solana = self.chain_name in ["SOLANA", "SOL_DEVNET", "SOL_TESTNET", "SOL_MAINNET"]
+        self.is_xrp = self.chain_name in ["XRP", "XRP_TESTNET", "XRPL"]
 
-        # --- DUAL DRIVER SELECTOR ---
+        # --- MULTI-DRIVER SELECTOR ---
         if self.is_solana:
             from iagent_pay.solana_driver import SolanaDriver
             network_map = {"SOLANA": "mainnet", "SOL_DEVNET": "devnet", "SOL_TESTNET": "testnet", "SOL_MAINNET": "mainnet"}
             self.solana = SolanaDriver(network=network_map.get(self.chain_name, "devnet"))
             self.my_address = self.solana.get_address()
-            print(f"â˜€ï¸ [AgentPay] Initialized on SOLANA ({self.solana.network})")
+            print(f"☀️ [AgentPay] Initialized on SOLANA ({self.solana.network})")
+            
+        elif self.is_xrp:
+            from iagent_pay.xrpl_driver import XRPLDriver
+            self.xrpl = XRPLDriver()
+            # Wallet handled via WalletManager later
+            self.my_address = "Loading..."
+            print(f"🌊 [AgentPay] Initialized on XRPL")
             
         else:
             self.solana = None
+            self.xrpl = None
             self.config = ChainConfig.get_network(chain_name)
             rpc_list = self.config.get("rpc")
             if isinstance(rpc_list, str): rpc_list = [rpc_list]
@@ -188,13 +197,52 @@ class AgentPay:
         conn.close()
 
     def get_balance(self) -> float:
-        """Returns balance in ETH or SOL."""
+        """Returns balance in native token of current chain."""
         if self.is_solana:
             return self.solana.get_balance()
-            
-        # EVM Balance
+        if self.is_xrp:
+            return self.xrpl.get_balance()
+        # EVM
         wei = self.w3.eth.get_balance(self.my_address)
         return float(self.w3.from_wei(wei, 'ether'))
+
+    def get_universal_summary(self) -> dict:
+        """
+        [v4.1 Feature] Fetches balances across all supported major protocols.
+        Returns a dictionary with per-chain results and USD equivalent.
+        """
+        print("📊 Fetching Universal Balance Summary...")
+        summary = {"total_usd_approx": 0.0, "chains": {}}
+        
+        # Initialize Oracle (lazy-load)
+        from .pricing import PricingManager
+        oracle = PricingManager()
+        
+        chains_to_check = []
+        if hasattr(self, 'xrpl') and self.xrpl: chains_to_check.append(("XRP", self.xrpl))
+        if hasattr(self, 'solana') and self.solana: chains_to_check.append(("SOLANA", self.solana))
+        if not self.is_solana and not self.is_xrp: chains_to_check.append((self.chain_name, self))
+
+        for name, driver in chains_to_check:
+            try:
+                bal = driver.get_balance()
+                symbol = "XRP" if name == "XRP" else ("SOL" if name == "SOLANA" else self.config.get("symbol", "ETH"))
+                
+                # Get USD Conversion
+                price = oracle.get_price(symbol)
+                usd_val = bal * price
+                
+                summary["chains"][name] = {
+                    "balance": bal,
+                    "symbol": symbol,
+                    "price_usd": price,
+                    "value_usd": usd_val
+                }
+                summary["total_usd_approx"] += usd_val
+            except Exception as e:
+                print(f"⚠️ Error fetching {name} balance: {e}")
+            
+        return summary
 
     def _get_nonce(self):
         """
@@ -278,13 +326,26 @@ class AgentPay:
             # Solana fees are negligible (< 0.0001 Gwei equiv), so we ignore this check
             self._check_daily_limit(amount, "SOL")
             try:
-                print(f"â˜€ï¸ Sending {amount:.6f} SOL...")
+                print(f"☀️ Sending {amount:.6f} SOL...")
                 sig = self.solana.transfer(recipient_address, amount)
-                print(f"âœ… Solana Tx Sent: {sig}")
+                print(f"✅ Solana Tx Sent: {sig}")
                 self._log_transaction(sig, recipient_address, amount, "SENT_SOL", symbol="SOL")
                 return sig
             except Exception as e:
-                print(f"âŒ Solana Tx Failed: {e}")
+                print(f"❌ Solana Tx Failed: {e}")
+                raise e
+
+        # --- ROUTING: XRPL ---
+        if self.is_xrp:
+            self._check_daily_limit(amount, "XRP")
+            try:
+                print(f"🌊 Sending {amount:.2f} XRP...")
+                tx_hash = self.xrpl.transfer(recipient_address, amount)
+                print(f"✅ XRPL Tx Sent: {tx_hash}")
+                self._log_transaction(tx_hash, recipient_address, amount, "SENT_XRP", symbol="XRP")
+                return tx_hash
+            except Exception as e:
+                print(f"❌ XRPL Tx Failed: {e}")
                 raise e
 
         # --- ROUTING: EVM (Legacy) ---

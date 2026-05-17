@@ -76,11 +76,13 @@ class WalletManager:
             json.dump(encrypted, f)
         print(f"✅ Saved Encrypted Keystore to {KEY_FILE_JSON}")
 
-    def save_to_env(self, account: LocalAccount):
-        """Saves raw key to .env (Legacy/Insecure)."""
+    def save_to_env(self, account: LocalAccount, xrp_seed: str = None):
+        """Saves raw keys to .env (Legacy/Insecure)."""
         with open(KEY_FILE_ENV, "w") as f:
-            f.write(f"TESTNET_PRIVATE_KEY={account.key.hex()}")
-        print(f"⚠️  Saved raw private key to {KEY_FILE_ENV}")
+            f.write(f"TESTNET_PRIVATE_KEY={account.key.hex()}\n")
+            if xrp_seed:
+                f.write(f"XRP_TESTNET_SEED={xrp_seed}\n")
+        print(f"⚠️  Saved raw keys to {KEY_FILE_ENV}")
 
     def create_wallet(self) -> LocalAccount:
         """Generates a brand new random wallet (Ephemeral)."""

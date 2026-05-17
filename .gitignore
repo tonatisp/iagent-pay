@@ -21,3 +21,22 @@ dist/
 # OS
 .DS_Store
 Thumbs.db
+
+# Security - NEVER commit these
+wallet_key.json
+attack_bundle.json
+corrupt_state.json
+pricing_config.json
+test_export.json
+*.pem
+*.key
+
+# Large marketing assets
+*.webp
+*.png
+titan_banner.png
+capital_guard_terminal.png
+
+# Debug/temp files
+debug_*.py
+migrate_to_keystore.py

@@ -2,16 +2,20 @@ from setuptools import setup, find_packages
 
 setup(
     name="iagent-pay",
-    version="3.6.0",
-    description="The Universal Payment Standard for AI Agents (EVM + Solana)",
+    version="4.3.0",
+    description="The Universal Payment & Adoption Layer for AI Agents (EVM + Solana + XRP)",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     author="iAgent Team",
     author_email="hello@agentpay.ai",
-    url="https://github.com/agent-pay/sdk",
+    url="https://github.com/tonatisp/iagent-pay",
     packages=find_packages(),
-    # If we keep flat structure, we might need py_modules, but we will move to a package structure.
-    # py_modules=["iagent_pay", "wallet_manager", "config", "pricing"], 
+    # Entry points for the iAgentPay CLI
+    entry_points={
+        'console_scripts': [
+            'iagent-pay=iagent_pay.cli:main',
+        ],
+    },
     install_requires=[
         "web3>=6.0.0",
         "eth-account>=0.8.0",

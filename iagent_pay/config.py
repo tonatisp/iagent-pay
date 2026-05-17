@@ -54,9 +54,17 @@ class ChainConfig:
         "symbol": "SOL"
     }
 
+    XRP_TESTNET = {
+        "name": "XRP Ledger Testnet",
+        "rpc": "https://s.altnet.rippletest.net:51234",
+        "chain_id": None,
+        "symbol": "XRP"
+    }
+
     # Aliases
     BASE = BASE_MAINNET
     SOLANA = SOL_MAINNET
+    XRP = XRP_TESTNET
 
     @staticmethod
     def get_network(name: str):

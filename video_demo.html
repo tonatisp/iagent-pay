@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>iAgentPay - El Futuro de la Economía</title>
+    <style>
+        :root {
+            --primary: #00FF94;
+            --bg: #0a0a0a;
+            --terminal: rgba(0, 255, 148, 0.1);
+        }
+        body {
+            background-color: var(--bg);
+            color: white;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .window {
+            width: 800px;
+            height: 500px;
+            background: #111;
+            border: 2px solid #333;
+            border-radius: 10px;
+            box-shadow: 0 0 50px rgba(0, 255, 148, 0.2);
+            padding: 20px;
+            position: relative;
+        }
+        .header {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 30px;
+            background: #222;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            border-bottom: 1px solid #333;
+            font-size: 12px;
+            color: #888;
+        }
+        .content {
+            margin-top: 30px;
+            font-size: 18px;
+            height: 400px;
+            overflow-y: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .line {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+        }
+        .visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .prompt { color: var(--primary); font-weight: bold; }
+        .success { color: #00FF94; }
+        .warning { color: #f1c40f; }
+        .accent { color: #3498db; }
+        
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background: var(--primary);
+            animation: blink 0.8s infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div class="window">
+        <div class="header">iagent-pay-terminal -- v4.3.0 Adoption Ready</div>
+        <div class="content" id="output"></div>
+    </div>
+
+    <script>
+        const script = [
+            { text: "$ iagent-pay status --chain BASE", type: "prompt" },
+            { text: "📊 --- iAgentPay Agent Status ---", type: "info" },
+            { text: "Address: 0x71C7656EC7ab88b098defB751B7401B5f6d8976F", type: "info" },
+            { text: "Balance: 1.25 ETH (BASE)", type: "success" },
+            { text: "", type: "info" },
+            { text: "$ python examples/agent_economy.py", type: "prompt" },
+            { text: "🤖 --- iAgentPay Agent-to-Agent Economy Demo --- 🤖", type: "accent" },
+            { text: "[Agent A] Iniciando Agencia de Cliente...", type: "info" },
+            { text: "[Agent B] Iniciando Trabajador (Traductor IA)...", type: "info" },
+            { text: "🤝 Negociación: Trabajador acepta traducir 'Genesis' por 0.001 ETH.", type: "warning" },
+            { text: "💸 [Agent A] Enviando pago a [Agent B]...", type: "info" },
+            { text: "   ✅ ¡Pago Enviado! Hash: 0x9f3...e42", type: "success" },
+            { text: "⏳ [Agent B] Verificando llegada del dinero...", type: "info" },
+            { text: "   ✅ ¡Pago Confirmado! Iniciando traducción...", type: "success" },
+            { text: "📝 [Agent B] Tarea Terminada. Entrega enviada.", type: "accent" },
+            { text: "✨ Ciclo Económico Completo: Sin Bancos, Sin Esperas. Solo IA.", type: "success" }
+        ];
+
+        let index = 0;
+        const output = document.getElementById('output');
+
+        function drawLine() {
+            if (index < script.length) {
+                const item = script[index];
+                const div = document.createElement('div');
+                div.className = 'line ' + (item.type || '');
+                div.innerHTML = item.text;
+                output.appendChild(div);
+                
+                // Forzar reflow
+                div.offsetHeight;
+                div.classList.add('visible');
+                
+                index++;
+                setTimeout(drawLine, 1000); // 1 segundo entre líneas
+            }
+        }
+
+        setTimeout(drawLine, 1000);
+    </script>
+</body>
+</html>

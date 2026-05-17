@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>iAgentPay - The Ultimate Agentic Banking Layer</title>
+    <style>
+        :root {
+            --primary: #00FF94;
+            --bg: #0a0a0a;
+            --surface: #111;
+        }
+        body {
+            background-color: var(--bg);
+            color: white;
+            font-family: 'Inter', 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        #container {
+            width: 850px;
+            height: 600px;
+            position: relative;
+        }
+        .slide {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            background: var(--bg);
+            z-index: 1;
+        }
+        .active { opacity: 1; z-index: 10; }
+        
+        .intro h1 { font-size: 3.5rem; color: var(--primary); margin-bottom: 10px; }
+        .intro p { font-size: 1.6rem; color: #aaa; }
+        
+        .terminal {
+            background: var(--surface);
+            border: 2px solid #333;
+            border-radius: 12px;
+            box-shadow: 0 0 60px rgba(0, 255, 148, 0.15);
+            padding: 25px;
+            width: 95%;
+            height: 90%;
+            text-align: left;
+            justify-content: flex-start;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+        }
+        .header {
+            height: 35px;
+            background: #222;
+            margin: -25px -25px 15px -25px;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 13px;
+            color: #666;
+            border-bottom: 1px solid #333;
+        }
+        .line { opacity: 0; margin-bottom: 6px; font-size: 15px; line-height: 1.4; }
+        .visible { opacity: 1; }
+        .prompt { color: var(--primary); font-weight: bold; }
+        .success { color: #00FF94; }
+        .warning { color: #f1c40f; }
+        .info { color: #3498db; }
+        .dim { color: #555; }
+        
+        .outro h2 { font-size: 2.8rem; margin-bottom: 25px; }
+        .outro code { background: #1a1a1a; padding: 12px 25px; border-radius: 8px; color: var(--primary); font-size: 1.8rem; border: 1px solid var(--primary); box-shadow: 0 0 20px rgba(0, 255, 148, 0.2); }
+        .outro p { margin-top: 35px; color: #888; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+
+    <div id="container">
+        <!-- INTRO -->
+        <div class="slide intro" id="slide-intro">
+            <h1>iAgentPay</h1>
+            <p>Unified Multi-Chain Banking for AI Agents.</p>
+        </div>
+
+        <!-- TERMINAL -->
+        <div class="slide" id="slide-terminal">
+            <div class="terminal">
+                <div class="header">iagent-pay-cli -- universal-driver -- v4.3.0</div>
+                <div id="output"></div>
+            </div>
+        </div>
+
+        <!-- OUTRO -->
+        <div class="slide outro" id="slide-outro">
+            <h2>Start the Agent Economy.</h2>
+            <code>pip install iagent-pay</code>
+            <p>Full Multi-Chain SDK: <b>SOL • XRP • BASE • ETH</b></p>
+        </div>
+    </div>
+
+    <script>
+        const script = [
+            { text: "$ iagent-pay status --universal", type: "prompt" },
+            { text: "📊 UNIVERSAL WEALTH SUMMARY", type: "info" },
+            { text: "  BASE (ETH):   1.42 ETH  ($3,550.21)", type: "dim" },
+            { text: "  SOLANA:       45.2 SOL  ($4,972.10)", type: "dim" },
+            { text: "  XRP LEDGER:   2,500 XRP ($1,250.00)", type: "dim" },
+            { text: "  TOTAL VALUE:  $9,772.31 USD", type: "success" },
+            { text: "", type: "info" },
+            { text: "$ iagent-pay swap SOL 5.0 USDC", type: "prompt" },
+            { text: "⚡ Jupiter Route Found. Executing...", type: "info" },
+            { text: "✅ Swap Complete: 5.0 SOL -> 550.25 USDC", type: "success" },
+            { text: "", type: "info" },
+            { text: "$ python examples/agent_economy.py", type: "prompt" },
+            { text: "🤖 [Economy Demo] Inter-Agent Service", type: "info" },
+            { text: "🤝 [Agent A] Hiring Researcher via Base (L2)...", type: "warning" },
+            { text: "💸 Payment Sent: 0.005 ETH Tip Included.", type: "success" },
+            { text: "⭐ ART Score: Agent B Rep +1 (Score: 98/100)", type: "warning" },
+            { text: "✨ Multi-Chain economy loop verified.", type: "success" }
+        ];
+
+        const slides = {
+            intro: document.getElementById('slide-intro'),
+            terminal: document.getElementById('slide-terminal'),
+            outro: document.getElementById('slide-outro')
+        };
+        const output = document.getElementById('output');
+
+        function showSlide(id) {
+            Object.values(slides).forEach(s => s.classList.remove('active'));
+            slides[id].classList.add('active');
+        }
+
+        async function runDemo() {
+            while(true) {
+                // 0. Initial Wait
+                output.innerHTML = "";
+                Object.values(slides).forEach(s => s.classList.remove('active'));
+                await new Promise(r => setTimeout(r, 4000));
+
+                // 1. Intro
+                showSlide('intro');
+                await new Promise(r => setTimeout(r, 4000));
+
+                // 2. Terminal
+                showSlide('terminal');
+                await new Promise(r => setTimeout(r, 1000));
+                
+                for (let i = 0; i < script.length; i++) {
+                    const item = script[i];
+                    const div = document.createElement('div');
+                    div.className = 'line ' + (item.type || '');
+                    div.innerHTML = item.text;
+                    output.appendChild(div);
+                    div.offsetHeight;
+                    div.classList.add('visible');
+                    await new Promise(r => setTimeout(r, 900));
+                }
+
+                await new Promise(r => setTimeout(r, 4000));
+
+                // 3. Outro
+                showSlide('outro');
+                await new Promise(r => setTimeout(r, 7000));
+            }
+        }
+
+        runDemo();
+    </script>
+</body>
+</html>

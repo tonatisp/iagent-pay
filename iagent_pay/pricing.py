@@ -30,6 +30,35 @@ class PricingManager:
         # For testing purposes, we can override with a local file path
         self.local_override_path = "pricing_config.json"
 
+    def get_price(self, symbol: str) -> float:
+        """
+        Generic price fetcher for ETH, SOL, and XRP.
+        """
+        symbol = symbol.upper()
+        if symbol == "ETH":
+            return self.get_eth_price()
+        
+        # Simple fetch for SOL and XRP (can be expanded later)
+        if symbol == "SOL":
+            try:
+                url = "https://api.coinbase.com/v2/prices/SOL-USD/spot"
+                with urllib.request.urlopen(url, timeout=2) as response:
+                    data = json.loads(response.read().decode())
+                    return float(data['data']['amount'])
+            except:
+                return self._fetch_onchain_fallback("SOL")
+
+        if symbol == "XRP":
+            try:
+                url = "https://api.coinbase.com/v2/prices/XRP-USD/spot"
+                with urllib.request.urlopen(url, timeout=2) as response:
+                    data = json.loads(response.read().decode())
+                    return float(data['data']['amount'])
+            except:
+                return self._fetch_onchain_fallback("XRP")
+                
+        return 1.0 # Default fallback
+
     def get_eth_price(self) -> float:
         """
         Fetches ETH price from 3 REST sources. 
