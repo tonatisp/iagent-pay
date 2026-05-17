@@ -2,15 +2,14 @@ from setuptools import setup, find_packages
 
 setup(
     name="iagent-pay",
-    version="4.3.0",
-    description="The Universal Payment & Adoption Layer for AI Agents (EVM + Solana + XRP)",
+    version="5.0.0",
+    description="The Universal AI Agent Banking Layer: x402, USDC, Safety Kernel, MCP, Multi-Chain",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     author="iAgent Team",
     author_email="hello@agentpay.ai",
     url="https://github.com/tonatisp/iagent-pay",
     packages=find_packages(),
-    # Entry points for the iAgentPay CLI
     entry_points={
         'console_scripts': [
             'iagent-pay=iagent_pay.cli:main',
@@ -22,8 +21,20 @@ setup(
         "python-dotenv>=1.0.0",
         "solana>=0.30.0",
         "solders>=0.18.0",
-        "requests>=2.28.0"
+        "requests>=2.28.0",
+        "httpx>=0.24.0",
     ],
+    extras_require={
+        "fastapi":   ["fastapi>=0.100.0", "starlette>=0.27.0", "uvicorn>=0.22.0"],
+        "flask":     ["flask>=2.3.0"],
+        "crewai":    ["crewai>=0.1.0"],
+        "langchain": ["langchain>=0.1.0"],
+        "fiat":      ["stripe>=5.0.0"],
+        "all": [
+            "fastapi>=0.100.0", "starlette>=0.27.0", "uvicorn>=0.22.0",
+            "flask>=2.3.0", "httpx>=0.24.0", "stripe>=5.0.0",
+        ],
+    },
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
@@ -33,5 +44,6 @@ setup(
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
         "Topic :: Office/Business :: Financial",
     ],
-    python_requires='>=3.7',
+    python_requires='>=3.9',
+    keywords="ai agents payments x402 usdc solana xrp langchain crewai mcp blockchain",
 )
