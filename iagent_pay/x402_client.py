@@ -16,12 +16,15 @@ import time
 import hashlib
 import hmac
 import logging
-from typing import Optional, Dict, Any
+import os
+import httpx
+from typing import Optional, Dict, Any, List
 from decimal import Decimal
 
 import requests
 
 from .usdc_driver import USDCDriver
+from .data_marketplace import get_marketplace
 
 logger = logging.getLogger("iagentpay.x402")
 
@@ -237,3 +240,26 @@ class X402Client:
     def get_balance(self, address: str) -> Decimal:
         """Returns current USDC balance for the given address."""
         return self._usdc.balance(address)
+
+    def fetch_data(self, data_type: str, max_price_usd: float = 1.0) -> Dict[str, Any]:
+        """
+        Autonomous API fetching using the Data Marketplace.
+        The client searches for the best provider of 'data_type' and pays them automatically.
+        
+        Args:
+            data_type: The type of data to search for (e.g., "weather", "crypto").
+            max_price_usd: Maximum acceptable price.
+            
+        Returns:
+            JSON response from the chosen API provider.
+        """
+        marketplace = get_marketplace()
+        provider = marketplace.find_best_provider(data_type, max_price_usd)
+        
+        if not provider:
+            raise Exception(f"No suitable provider found in marketplace for '{data_type}' under ${max_price_usd}")
+            
+        logger.info(f"[x402] Found provider {provider.name} for {data_type}. Requesting data...")
+        response = self.get(provider.url)
+        response.raise_for_status()
+        return response.json()

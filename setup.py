@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="iagent-pay",
-    version="5.0.0",
+    version="6.0.0",
     description="The Universal AI Agent Banking Layer: x402, USDC, Safety Kernel, MCP, Multi-Chain",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",

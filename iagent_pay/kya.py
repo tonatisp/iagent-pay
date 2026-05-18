@@ -244,7 +244,30 @@ class KYARegistry:
         old_level = self._trust.get(did)
         if old_level != level:
             logger.info(f"[KYA] Trust upgrade: {did[:20]}... → {level.name} (ART:{art:.1f})")
+            if level == TrustLevel.ELITE:
+                self._mint_soulbound_token(did)
+                
         self._trust[did] = level
+
+    def _mint_soulbound_token(self, did: str):
+        """
+        Simulates minting an On-Chain Soulbound Token (NFT) to immortalize the agent's identity.
+        In production, this would call a Smart Contract on Base or Solana.
+        """
+        agent = self._agents.get(did)
+        if not agent:
+            return
+            
+        tx_hash = f"0x_sbt_mint_{secrets.token_hex(16)}"
+        logger.info(f"[KYA-OnChain] 🏆 Minting Soulbound Identity NFT for {agent.name}")
+        logger.info(f"[KYA-OnChain] Transaction Hash: {tx_hash}")
+        
+        # We attach the claim to their credentials
+        self.issue_credential(
+            did, 
+            credential_type="OnChainIdentitySBT", 
+            claims={"tx_hash": tx_hash, "network": "BASE_MAINNET"}
+        )
 
     def blacklist(self, did: str, reason: str = ""):
         """Blacklist an agent (blocks all future payments)."""
