@@ -204,6 +204,49 @@
         .hero img:hover {
             transform: scale(1.02);
         }
+
+        /* Competitor Table Styles */
+        .comparison-section {
+            padding: 80px 0;
+            border-top: 1px solid #333;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--surface);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin: 0 auto;
+            max-width: 1000px;
+        }
+
+        .comparison-table th, .comparison-table td {
+            padding: 20px;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+
+        .comparison-table th {
+            background-color: #222;
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table td {
+            color: var(--text-dim);
+        }
+
+        .highlight-col {
+            background-color: rgba(0, 255, 148, 0.05);
+            color: var(--primary) !important;
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -220,7 +263,7 @@
                     style="padding: 5px 15px; font-size: 0.9rem; border-color: var(--primary); color: var(--primary); text-decoration: none; border-radius: 6px;">
                     📊 Dashboard
                 </a>
-                <span style="color: var(--text-dim); font-size: 0.9rem;" id="version-text">v3.6.0 Titan</span>
+                <span style="color: var(--text-dim); font-size: 0.9rem;" id="version-text">v6.0.0 Market Domination</span>
                 <select class="lang-select" id="languageSelector" onchange="changeLanguage(this.value)">
                     <option value="en">🇺🇸 English</option>
                     <option value="es">🇪🇸 Español</option>
@@ -240,7 +283,7 @@
             <h1 id="hero-title">The Financial Layer for<br>Autonomous AI Agents</h1>
             <p class="tagline" id="hero-subtitle">
                 Deploy hardened, self-healing AI agents that Buy, Sell, and Hire.
-                <br><b>Now with LangChain & CrewAI Support!</b>
+                <br><b>Now with Autonomous Data Marketplace & Gasless Paymasters!</b>
             </p>
 
             <div class="code-block">
@@ -262,19 +305,77 @@
 
         <section class="features">
             <div class="feature-card">
-                <h3 id="feat1-title">⚡ Titan Resilience</h3>
-                <p id="feat1-desc">Passed Level 7 "God Mode" tests. Multi-RPC fallback ensures 100% uptime even under
-                    attack.</p>
+                <h3 id="feat1-title">🌐 Autonomous x402 Marketplace</h3>
+                <p id="feat1-desc">Agents find the best APIs, negotiate prices, and pay automatically using the HTTP 402 protocol.</p>
             </div>
             <div class="feature-card">
-                <h3 id="feat2-title">🔐 Self-Healing Finance</h3>
-                <p id="feat2-desc">Fetches prices directly On-Chain from Uniswap pools when REST APIs are offline.
-                    Unstoppable.</p>
+                <h3 id="feat2-title">⛽ Gasless Paymasters</h3>
+                <p id="feat2-desc">Enterprises can sponsor agent transactions. AI agents no longer need native ETH or SOL to operate.</p>
             </div>
             <div class="feature-card">
-                <h3 id="feat3-title">🌍 Trust-Based Economy</h3>
-                <p id="feat3-desc">Native Reputation System (ART). Trusted agents get 10% transaction discounts
-                    automatically.</p>
+                <h3 id="feat3-title">🏅 On-Chain KYA Identity</h3>
+                <p id="feat3-desc">Top-tier agents are minted Soulbound Identity NFTs to prove their reputation to any protocol in Web3.</p>
+            </div>
+        </section>
+
+        <section class="comparison-section">
+            <h2 style="text-align: center; margin-bottom: 40px; font-size: 2.5rem;" id="compare-title">Why iAgentPay?</h2>
+            <div style="overflow-x: auto;">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th class="highlight-col">iAgentPay v6.0</th>
+                            <th>Coinbase Agentic</th>
+                            <th>Stripe Identity</th>
+                            <th>Paypal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Autonomous x402</strong></td>
+                            <td class="highlight-col">✅ Native Marketplace</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Gasless Transacting</strong></td>
+                            <td class="highlight-col">✅ Paymasters Built-in</td>
+                            <td>⚠️ External setup</td>
+                            <td>N/A</td>
+                            <td>N/A</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Agent Identity (KYA)</strong></td>
+                            <td class="highlight-col">✅ On-Chain SBTs</td>
+                            <td>✅ MPC Wallets</td>
+                            <td>❌ Humans only</td>
+                            <td>❌ Humans only</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cross-Chain Routing</strong></td>
+                            <td class="highlight-col">✅ Automated</td>
+                            <td>⚠️ Base-focused</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Fiat Bridge (ACH/CC)</strong></td>
+                            <td class="highlight-col">✅ Stripe Integration</td>
+                            <td>✅ Coinbase Ramp</td>
+                            <td>✅ Native</td>
+                            <td>✅ Native</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sub-Agent Fleet Mgt</strong></td>
+                            <td class="highlight-col">✅ Built-in Dashboard</td>
+                            <td>❌ Developer handles</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </section>
 
@@ -315,36 +416,36 @@
     <script>
         const translations = {
             en: {
-                heroTitle: "The Financial Layer for<br>Autonomous Titan Agents",
-                heroSubtitle: "Deploy hardened, self-healing AI agents that Buy, Sell, and Hire. Passed Level 7 God Mode tests.",
-                btnStart: "Start Building (Titan v3.6)",
+                heroTitle: "The Financial Layer for<br>Autonomous AI Agents",
+                heroSubtitle: "Deploy hardened, self-healing AI agents that Buy, Sell, and Hire. Now with Autonomous Data Marketplace!",
+                btnStart: "Start Building (v6.0)",
                 btnGithub: "View on GitHub",
-                feat1Title: "⚡ Titan Resilience",
-                feat1Desc: "Multi-RPC fallback and Sybil resistance. Built to survive global network failures.",
-                feat2Title: "🔐 Self-Healing Finance",
-                feat2Desc: "On-chain price discovery handles API outages automatically. Zero downtime finance.",
-                feat3Title: "🌍 Trust-Based Economy",
-                feat3Desc: "Integrated Autonomous Reputation System. High trust agents pay 10% less in fees.",
-                docsTitle: "Titan Documentation",
+                feat1Title: "🌐 Autonomous x402 Marketplace",
+                feat1Desc: "Agents find the best APIs, negotiate prices, and pay automatically using the HTTP 402 protocol.",
+                feat2Title: "⛽ Gasless Paymasters",
+                feat2Desc: "Enterprises can sponsor agent transactions. AI agents no longer need native ETH or SOL to operate.",
+                feat3Title: "🏅 On-Chain KYA Identity",
+                feat3Desc: "Top-tier agents are minted Soulbound Identity NFTs to prove their reputation to any protocol in Web3.",
+                docsTitle: "Documentation",
                 installTitle: "1. Installation",
                 quickstartTitle: "2. Quick Start",
                 quickstartDesc: "Deploy a Titan agent in 3 lines of code:"
             },
             es: {
-                heroTitle: "La Capa Financiera para<br>Agentes Autónomos Titan",
-                heroSubtitle: "Despliega agentes IA blindados y autosanables. Superó las pruebas Nivel 7 God Mode.",
-                btnStart: "Empezar a Construir (v3.6)",
+                heroTitle: "La Capa Financiera para<br>Agentes Autónomos",
+                heroSubtitle: "Despliega agentes IA que compran, venden y contratan. ¡Ahora con Mercado de Datos Autónomo y Paymasters sin Gas!",
+                btnStart: "Empezar a Construir (v6.0)",
                 btnGithub: "Ver en GitHub",
-                feat1Title: "⚡ Resiliencia Titan",
-                feat1Desc: "Resiliencia Multi-RPC y anti-Sybil. Diseñado para sobrevivir fallos globales de red.",
-                feat2Title: "🔐 Finanzas Autosanables",
-                feat2Desc: "Descubrimiento de precios on-chain automático ante fallos de API. Finanzas sin pausa.",
-                feat3Title: "🌍 Economía de Confianza",
-                feat3Desc: "Sistema de Reputación Autónoma integrado. Agentes confiables pagan 10% menos fees.",
-                docsTitle: "Documentación Titan",
+                feat1Title: "🌐 Mercado Autónomo x402",
+                feat1Desc: "Los agentes encuentran las mejores APIs, negocian precios y pagan automáticamente usando el protocolo HTTP 402.",
+                feat2Title: "⛽ Paymasters (Sin Gas)",
+                feat2Desc: "Las empresas pueden patrocinar las transacciones. Los agentes ya no necesitan ETH o SOL nativo para operar.",
+                feat3Title: "🏅 Identidad KYA On-Chain",
+                feat3Desc: "A los agentes de alto nivel se les acuña un NFT Soulbound de Identidad para probar su reputación en Web3.",
+                docsTitle: "Documentación",
                 installTitle: "1. Instalación",
                 quickstartTitle: "2. Inicio Rápido",
-                quickstartDesc: "Despliega un agente Titan en 3 líneas de código:"
+                quickstartDesc: "Despliega un agente en 3 líneas de código:"
             },
             zh: {
                 heroTitle: "AI代理的支付层",
