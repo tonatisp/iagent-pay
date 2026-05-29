@@ -5,8 +5,19 @@ from iagent_pay.agent_pay import AgentPay
 class TestLevel3High(unittest.TestCase):
     def setUp(self):
         import os
+        import sqlite3
         if os.path.exists("agent_reputation.db"):
-            os.remove("agent_reputation.db")
+            try:
+                os.remove("agent_reputation.db")
+            except PermissionError:
+                try:
+                    conn = sqlite3.connect("agent_reputation.db")
+                    conn.execute("DELETE FROM peer_ratings")
+                    conn.execute("DELETE FROM rating_log")
+                    conn.commit()
+                    conn.close()
+                except Exception:
+                    pass
 
     def test_reputation_spam_protection(self):
         print("\n[Level 3] Testing Reputation Spam Resilience...")

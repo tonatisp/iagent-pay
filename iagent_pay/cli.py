@@ -71,6 +71,56 @@ def faucet_finder(args):
         print(f"{chain}: {url}")
     print("\n💡 Get some gas to start your agentic economy!")
 
+def backup_key(args):
+    """Encrypts and exports the local keystore to a backup file."""
+    from iagent_pay.wallet_manager import WalletManager
+    import getpass
+    
+    password = args.password
+    if not password:
+        password = getpass.getpass("🔑 Enter encryption password for the backup: ")
+        if not password:
+            print("❌ Error: Password cannot be empty.")
+            return
+
+    try:
+        wm = WalletManager()
+        if os.path.exists("wallet_keystore.json"):
+            wp = getpass.getpass("🔑 Enter password of current active local wallet (wallet_keystore.json): ")
+            wallet = wm.get_or_create_wallet(password=wp)
+        else:
+            wallet = wm.get_or_create_wallet()
+            
+        if not wallet:
+            print("❌ Error: No active wallet found to backup. Ensure ETH_PRIVATE_KEY env var is set or wallet_keystore.json exists.")
+            return
+            
+        wm.export_wallet_backup(wallet, args.filepath, password)
+        print(f"✅ Encrypted backup of address {wallet.address} saved to {args.filepath}")
+    except Exception as e:
+        print(f"❌ Backup failed: {e}")
+
+def restore_key(args):
+    """Decrypts and imports a backup file to standard wallet_key.json."""
+    from iagent_pay.wallet_manager import WalletManager
+    import getpass
+    
+    password = args.password
+    if not password:
+        password = getpass.getpass("🔑 Enter decryption password for restore: ")
+        if not password:
+            print("❌ Error: Password cannot be empty.")
+            return
+
+    try:
+        wm = WalletManager()
+        wallet = wm.import_wallet_backup(args.filepath, password, save_locally=True)
+        print(f"✅ Wallet restored successfully!")
+        print(f"   Address: {wallet.address}")
+        print(f"   Saved locally as standard active keystore: wallet_key.json")
+    except Exception as e:
+        print(f"❌ Restore failed: {e}")
+
 def main():
     parser = argparse.ArgumentParser(prog="iagent-pay", description="iAgentPay CLI Tool")
     subparsers = parser.add_subparsers(dest="command")
@@ -86,6 +136,16 @@ def main():
     # Faucet command
     faucet_parser = subparsers.add_parser("faucet", help="Get links to testnet faucets")
 
+    # Backup command
+    backup_parser = subparsers.add_parser("backup", help="Create an encrypted backup of the agent's key")
+    backup_parser.add_argument("filepath", help="Path to write the backup file (e.g. backup.enc)")
+    backup_parser.add_argument("--password", help="Encryption password (prompts securely if omitted)")
+
+    # Restore command
+    restore_parser = subparsers.add_parser("restore", help="Restore an agent's key from an encrypted backup")
+    restore_parser.add_argument("filepath", help="Path to read the backup file")
+    restore_parser.add_argument("--password", help="Decryption password (prompts securely if omitted)")
+
     args = parser.parse_args()
 
     if args.command == "init":
@@ -94,6 +154,10 @@ def main():
         show_status(args)
     elif args.command == "faucet":
         faucet_finder(args)
+    elif args.command == "backup":
+        backup_key(args)
+    elif args.command == "restore":
+        restore_key(args)
     else:
         parser.print_help()
 

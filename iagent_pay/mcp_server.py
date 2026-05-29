@@ -158,7 +158,7 @@ class MCPToolHandler:
         currency = args.get("currency", "ALL")
         agent    = self._get_agent()
         if not agent:
-            return {"balances": {"USDC": "N/A", "note": "Configure ETH_PRIVATE_KEY"}}
+            return {"balances": {"USDC": "N/A", "note": "Configure Wallet Keystore"}}
         if currency == "ALL":
             return {"balances": {"USDC": "0.00", "ETH": "0.00",
                                  "SOL": "0.00", "XRP": "0.00",
@@ -193,10 +193,10 @@ class MCPToolHandler:
         url            = args["url"]
         method         = args.get("method", "GET")
         max_amount_usd = args.get("max_amount_usd", 1.0)
-        private_key    = os.getenv("ETH_PRIVATE_KEY", "")
-        if not private_key:
-            return {"error": "ETH_PRIVATE_KEY not configured"}
         try:
+            from iagent_pay.wallet_manager import WalletManager
+            account = WalletManager().get_or_create_wallet()
+            private_key = account.key.hex() if hasattr(account.key, 'hex') else account.key
             from .x402_client import X402Client
             client   = X402Client(private_key=private_key, max_amount_usdc=max_amount_usd)
             response = client.request(method, url)

@@ -52,6 +52,13 @@ class TransactionCapExceeded(SafetyViolation):
     pass
 
 
+from enum import Enum
+
+class MultisigMode(Enum):
+    ALLOWANCE_ONLY = "ALLOWANCE_ONLY"  # Auto-executes under limits, fails above
+    PROPOSAL_ONLY  = "PROPOSAL_ONLY"   # Everything requires human signing
+    HYBRID         = "HYBRID"          # Auto-executes under limits, proposes above
+
 class RecipientNotAllowed(SafetyViolation):
     pass
 
@@ -80,11 +87,16 @@ class SafetyConfig:
     # Human-in-the-loop threshold
     human_approval_threshold_usd: float = 20.0  # Require human above this amount
 
+    # Multisig security mode selection
+    multisig_mode: MultisigMode = MultisigMode.HYBRID
+
     # Enabled flags
     enable_budget_guard: bool = True
     enable_rate_limit: bool = True
     enable_tx_cap: bool = True
     enable_whitelist: bool = False      # Disabled by default (opt-in)
+    enable_auto_swap: bool = True       # Dynamic liquidity fallback
+
 
 
 class SafetyKernel:
@@ -139,6 +151,7 @@ class SafetyKernel:
         recipient: str,
         currency: str = "USDC",
         usd_price: float = 1.0,  # For non-stablecoin: pass current USD price
+        bypass_limits: bool = False,
     ) -> bool:
         """
         Atomically checks all safety rules before a payment.
@@ -148,6 +161,7 @@ class SafetyKernel:
             recipient: Destination address
             currency:  Token symbol (USDC, SOL, ETH, XRP)
             usd_price: USD value of 1 unit of currency (1.0 for USDC)
+            bypass_limits: If True, bypasses budget, whitelist and tx cap limits (used by pre-approved session keys).
 
         Returns:
             True if all checks pass.
@@ -163,14 +177,14 @@ class SafetyKernel:
             now = time.time()
 
             # 1. Transaction Cap
-            if self.config.enable_tx_cap:
+            if self.config.enable_tx_cap and not bypass_limits:
                 if amount_usd > self.config.max_tx_usd:
                     raise TransactionCapExceeded(
                         f"Transaction of ${amount_usd:.2f} exceeds max_tx_usd=${self.config.max_tx_usd:.2f}"
                     )
 
             # 2. Budget Guards
-            if self.config.enable_budget_guard:
+            if self.config.enable_budget_guard and not bypass_limits:
                 if self._session_spent + amount_usd > self.config.session_limit_usd:
                     raise BudgetExceeded(
                         f"Session budget exceeded: ${self._session_spent:.2f} + ${amount_usd:.2f} "
@@ -199,7 +213,7 @@ class SafetyKernel:
                     )
 
             # 4. Recipient Whitelist
-            if self.config.enable_whitelist and self.config.allowed_recipients:
+            if self.config.enable_whitelist and self.config.allowed_recipients and not bypass_limits:
                 norm_recipient = recipient.lower().strip()
                 allowed = [r.lower().strip() for r in self.config.allowed_recipients]
                 if norm_recipient not in allowed:
@@ -229,9 +243,47 @@ class SafetyKernel:
             )
             return True
 
+    def check_vcc_limit(self, agent_address: str, amount_usd: float) -> bool:
+        """
+        Enforces a hard daily limit on Virtual Credit Card minting to prevent fraud.
+        """
+        MAX_VCC_DAILY_USD = 500.0  # Enterprise safe VCC limit
+        with self._lock:
+            # We track VCC spend independently of standard daily spend
+            if not hasattr(self, "_vcc_daily_spent"):
+                self._vcc_daily_spent = 0.0
+                self._vcc_daily_reset = time.time() + 86400
+                
+            now = time.time()
+            if now > self._vcc_daily_reset:
+                self._vcc_daily_spent = 0.0
+                self._vcc_daily_reset = now + 86400
+                
+            if self._vcc_daily_spent + amount_usd > MAX_VCC_DAILY_USD:
+                logger.error(f"[SafetyKernel] VCC fraud limit exceeded for {agent_address}.")
+                raise BudgetExceeded(
+                    f"VCC Minting Limit Exceeded. Cannot mint card for ${amount_usd:.2f}. "
+                    f"Daily VCC cap is ${MAX_VCC_DAILY_USD:.2f}."
+                )
+                
+            self._vcc_daily_spent += amount_usd
+            logger.info(f"[SafetyKernel] VCC Limit Check passed: {amount_usd} USD authorized.")
+            return True
+
     def needs_human_approval(self, amount_usd: float) -> bool:
         """Returns True if this amount requires human approval."""
-        return amount_usd >= self.config.human_approval_threshold_usd
+        needs_approval = amount_usd >= self.config.human_approval_threshold_usd
+        if needs_approval:
+            try:
+                from .alert_manager import AlertManager
+                AlertManager.warning(
+                    "Human Approval Required",
+                    f"A transaction of **${amount_usd:.2f} USD** has exceeded the human threshold limit.\n"
+                    "The transaction is paused in the `Multisig / Human-in-the-Loop` queue waiting for manual review."
+                )
+            except ImportError:
+                pass
+        return needs_approval
 
     def get_status(self) -> dict:
         """Returns current spending status across all windows."""

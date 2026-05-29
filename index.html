@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iAgentPay | The Payment Layer for AI Agents</title>
+    <title>iAgent-Pay | The Payment Layer for AI Agents</title>
     <style>
         :root {
             --primary: #00FF94;
@@ -20,8 +20,7 @@
             margin: 0;
             line-height: 1.6;
             transition: all 0.3s ease;
-            background-color: #000;
-            /* Deep black fall-back */
+            background-color: #0a0a0a;
             overflow-x: hidden;
         }
 
@@ -32,12 +31,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url('titan_banner_v6.png');
+            background-image: linear-gradient(rgba(10, 10, 10, 0.75), rgba(10, 10, 10, 0.85)), url('bg_crypto_flow.png');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
-            filter: brightness(1.5) contrast(1.2) saturate(1.1);
-            /* CRITICAL: Brightness boost */
+            filter: brightness(1.2) contrast(1.1);
             z-index: -1;
             opacity: 1;
         }
@@ -255,15 +253,15 @@
     <div class="container">
         <header>
             <div class="logo">
-                <img src="logo.svg" alt="iAgentPay Logo" style="height: 50px; filter: drop-shadow(0 0 10px #00FF94);">
-                iAgent<span>Pay</span>
+                <img src="logo.svg" alt="iAgent-Pay Logo" style="height: 50px; filter: drop-shadow(0 0 10px #00FF94);">
+                iAgent<span>-Pay</span>
             </div>
             <div style="display: flex; gap: 15px; align-items: center;">
-                <a href="dashboard/index.html" class="btn-secondary"
+                <a href="dashboard/index.html" class="btn-secondary" id="header-dashboard"
                     style="padding: 5px 15px; font-size: 0.9rem; border-color: var(--primary); color: var(--primary); text-decoration: none; border-radius: 6px;">
                     📊 Dashboard
                 </a>
-                <span style="color: var(--text-dim); font-size: 0.9rem;" id="version-text">v6.0.0 Market Domination</span>
+                <span style="color: var(--text-dim); font-size: 0.9rem;" id="version-text">v8.5.0 Market Domination</span>
                 <select class="lang-select" id="languageSelector" onchange="changeLanguage(this.value)">
                     <option value="en">🇺🇸 English</option>
                     <option value="es">🇪🇸 Español</option>
@@ -275,6 +273,9 @@
                     <option value="ja">🇯🇵 日本語 (Japanese)</option>
                     <option value="de">🇩🇪 Deutsch</option>
                     <option value="fr">🇫🇷 Français</option>
+                    <option value="tr">🇹🇷 Türkçe (Turkish)</option>
+                    <option value="fil">🇵🇭 Filipino</option>
+                    <option value="ng">🇳🇬 Nigerian (English)</option>
                 </select>
             </div>
         </header>
@@ -293,13 +294,16 @@
             <br><br>
 
             <div class="cta-buttons">
-                <a href="dashboard/index.html" class="btn btn-primary" id="btn-dashboard"
-                    style="background: transparent; border: 1px solid var(--primary); color: var(--primary);">
-                    🚀 Launch App
+                <a href="dashboard/client_portal.html" class="btn btn-primary" id="btn-nocode" style="background: linear-gradient(90deg, #00FF94 0%, #00B8FF 100%); border: none; box-shadow: 0 0 30px rgba(0, 255, 148, 0.4);">
+                    ✨ Deploy No-Code Agent
                 </a>
-                <a href="#docs" class="btn btn-primary" id="btn-start">Start Building (Docs)</a>
-                <a href="https://github.com/tonatisp/iagent-pay" class="btn btn-secondary" id="btn-github">View on
-                    GitHub</a>
+                <a href="dashboard/index.html" class="btn btn-secondary" id="btn-dashboard">
+                    📊 Control Panel
+                </a>
+                <a href="manual.html" class="btn btn-secondary" id="btn-start">Start Building (Docs)</a>
+                <a href="docs/MANUAL_iAgentPay_v8.pdf" class="btn btn-secondary" id="btn-download-pdf" download>📥 Download Manual (PDF)</a>
+                <a href="https://github.com/tonatisp/iagent-pay" class="btn btn-secondary" id="btn-github">View on GitHub</a>
+                <a href="https://pypi.org/project/iagent-pay/" class="btn btn-secondary" id="btn-pypi">📦 View on PyPI</a>
             </div>
         </section>
 
@@ -316,16 +320,52 @@
                 <h3 id="feat3-title">🏅 On-Chain KYA Identity</h3>
                 <p id="feat3-desc">Top-tier agents are minted Soulbound Identity NFTs to prove their reputation to any protocol in Web3.</p>
             </div>
+            <div class="feature-card">
+                <h3 id="feat4-title">🛡️ Zero-Custody AI Swaps</h3>
+                <p id="feat4-desc">Secure, intent-based cross-chain routing protected by strict session keys and anti-MEV private mempools.</p>
+            </div>
+            <div class="feature-card">
+                <h3 id="feat5-title">💰 iAgent-Yield (Auto-Yield)</h3>
+                <p id="feat5-desc">Idle agent funds are autonomously invested in DeFi (Aave) to generate ~5% APY, effectively making the protocol pay for itself.</p>
+            </div>
+            <div class="feature-card">
+                <h3 id="feat6-title">⚡ 54k+ TPS Enterprise Engine</h3>
+                <p id="feat6-desc">PostgreSQL Connection Pooling and optimized batch insertion architecture, battle-tested for 1,000,000+ concurrent AI transactions.</p>
+            </div>
+            <div class="feature-card">
+                <h3 id="feat7-title">🌍 10-Language No-Code Portal</h3>
+                <p id="feat7-desc">A beautiful, zero-code UI for non-technical users to set financial boundaries, whitelists, and generate Session Keys.</p>
+            </div>
+            <div class="feature-card">
+                <h3 id="feat8-title">🔐 AES-256 Disaster Recovery</h3>
+                <p id="feat8-desc">Institutional-grade automated database backups, encrypted in cold storage with OpenSSL and backed by Telegram external alerts.</p>
+            </div>
+            <div class="feature-card">
+                <h3 id="feat9-title">🔑 Zero-Custody Session Keys</h3>
+                <p id="feat9-desc">Delegate ephemeral transaction signing power to agents with strict limits, durations, and whitelists.</p>
+            </div>
+            <div class="feature-card">
+                <h3 id="feat10-title">🌉 Multi-Chain Routing & Swaps</h3>
+                <p id="feat10-desc">AP2 engine dynamically routes across chains, with Jupiter/Uniswap slippage protection.</p>
+            </div>
+            <div class="feature-card">
+                <h3 id="feat11-title">🏦 Fiat & ACH Banking Bridge</h3>
+                <p id="feat11-desc">Bridge traditional finance via Stripe. Generate credit card payment links or trigger ACH transfers.</p>
+            </div>
+            <div class="feature-card">
+                <h3 id="feat12-title">🤖 LLM & Framework Integrations</h3>
+                <p id="feat12-desc">Natively compatible with Claude, Cursor, CrewAI, LangChain, and Model Context Protocol (MCP).</p>
+            </div>
         </section>
 
         <section class="comparison-section">
-            <h2 style="text-align: center; margin-bottom: 40px; font-size: 2.5rem;" id="compare-title">Why iAgentPay?</h2>
+            <h2 style="text-align: center; margin-bottom: 40px; font-size: 2.5rem;" id="compare-title">Why iAgent-Pay?</h2>
             <div style="overflow-x: auto;">
                 <table class="comparison-table">
                     <thead>
                         <tr>
                             <th>Feature</th>
-                            <th class="highlight-col">iAgentPay v6.0</th>
+                            <th class="highlight-col">iAgent-Pay v8.5</th>
                             <th>Coinbase Agentic</th>
                             <th>Stripe Identity</th>
                             <th>Paypal</th>
@@ -336,6 +376,13 @@
                             <td><strong>Autonomous x402</strong></td>
                             <td class="highlight-col">✅ Native Marketplace</td>
                             <td>❌ No</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Zero-Custody Swaps</strong></td>
+                            <td class="highlight-col">✅ Session Keys & Anti-MEV</td>
+                            <td>⚠️ Basic swaps</td>
                             <td>❌ No</td>
                             <td>❌ No</td>
                         </tr>
@@ -368,11 +415,228 @@
                             <td>✅ Native</td>
                         </tr>
                         <tr>
+                            <td><strong>Idle Auto-Yield</strong></td>
+                            <td class="highlight-col">✅ DeFi Integration</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>No-Code Client Portal</strong></td>
+                            <td class="highlight-col">✅ Multi-Language</td>
+                            <td>❌ Developer Only</td>
+                            <td>✅ Human Only</td>
+                            <td>✅ Human Only</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Enterprise TPS</strong></td>
+                            <td class="highlight-col">✅ 54,000+ TPS</td>
+                            <td>⚠️ Limited</td>
+                            <td>✅ High</td>
+                            <td>✅ High</td>
+                        </tr>
+                        <tr>
                             <td><strong>Sub-Agent Fleet Mgt</strong></td>
                             <td class="highlight-col">✅ Built-in Dashboard</td>
                             <td>❌ Developer handles</td>
                             <td>❌ No</td>
                             <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Multi-Chain Core</strong></td>
+                            <td class="highlight-col">✅ 6 Blockchains</td>
+                            <td>⚠️ EVM Only</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Atomic Safety Kernel</strong></td>
+                            <td class="highlight-col">✅ 4-Layer Security</td>
+                            <td>⚠️ Basic</td>
+                            <td>❌ No</td>
+                            <td>✅ High</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Smart Invoicing</strong></td>
+                            <td class="highlight-col">✅ Built-in</td>
+                            <td>❌ No</td>
+                            <td>✅ Yes</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Corporate Visual Dashboard</strong></td>
+                            <td class="highlight-col">✅ Read-Only & Secure</td>
+                            <td>❌ No</td>
+                            <td>✅ Yes</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>AI Hallucination Guard</strong></td>
+                            <td class="highlight-col">✅ Mathematical Checks</td>
+                            <td>❌ No</td>
+                            <td>N/A</td>
+                            <td>N/A</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Proof of Reasoning</strong></td>
+                            <td class="highlight-col">✅ Forensic Receipts</td>
+                            <td>❌ No</td>
+                            <td>N/A</td>
+                            <td>N/A</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Real-Time Pricing Engine</strong></td>
+                            <td class="highlight-col">✅ Live Oracle Quotes</td>
+                            <td>⚠️ Exchange based</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Social Name Resolver</strong></td>
+                            <td class="highlight-col">✅ ENS & SNS Native</td>
+                            <td>✅ ENS</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Real-Time Webhooks</strong></td>
+                            <td class="highlight-col">✅ HMAC-SHA256</td>
+                            <td>❌ No</td>
+                            <td>✅ Yes</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Human-in-the-Loop</strong></td>
+                            <td class="highlight-col">✅ Telegram / Console</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Bounty Marketplace</strong></td>
+                            <td class="highlight-col">✅ Native Contracts</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>XRP Ledger Support</strong></td>
+                            <td class="highlight-col">✅ 3s Finality</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Model Context Protocol (MCP)</strong></td>
+                            <td class="highlight-col">✅ Claude / Cursor</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Command Line Interface (CLI)</strong></td>
+                            <td class="highlight-col">✅ iagent-pay init</td>
+                            <td>❌ No</td>
+                            <td>✅ Yes</td>
+                            <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>x402 Server Middleware</strong></td>
+                            <td class="highlight-col">✅ Sell Data via API</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Observability & Telemetry</strong></td>
+                            <td class="highlight-col">✅ Prometheus/Grafana</td>
+                            <td>❌ No</td>
+                            <td>✅ Yes</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CrewAI Integration</strong></td>
+                            <td class="highlight-col">✅ Native Plugin</td>
+                            <td>⚠️ Partial</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>LangChain Integration</strong></td>
+                            <td class="highlight-col">✅ Native Tool</td>
+                            <td>⚠️ Partial</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Volume Fee Model</strong></td>
+                            <td class="highlight-col">✅ Flat $1 per $1K</td>
+                            <td>⚠️ % based</td>
+                            <td>⚠️ 2.9% + 30¢</td>
+                            <td>⚠️ 3.49% + 49¢</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Multisig Security Modes</strong></td>
+                            <td class="highlight-col">✅ Hybrid & Proposal</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Auto-Liquidity Balancing</strong></td>
+                            <td class="highlight-col">✅ Auto-Swap Fallback</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Encrypted Key Backup</strong></td>
+                            <td class="highlight-col">✅ AES-256 CLI Backup</td>
+                            <td>❌ No</td>
+                            <td>N/A</td>
+                            <td>N/A</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Batch Transactions</strong></td>
+                            <td class="highlight-col">✅ Pipelined Multicall</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RPC Auto-Rotation</strong></td>
+                            <td class="highlight-col">✅ Exponential Failover</td>
+                            <td>❌ No</td>
+                            <td>N/A</td>
+                            <td>N/A</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Interactive Sandbox</strong></td>
+                            <td class="highlight-col">✅ Simulated UI Console</td>
+                            <td>❌ No</td>
+                            <td>✅ Sandbox Mode</td>
+                            <td>✅ Sandbox Mode</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Ephemeral Session Keys</strong></td>
+                            <td class="highlight-col">✅ Zero-Custody Limits</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                            <td>❌ No</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Advanced Reports & PDF</strong></td>
+                            <td class="highlight-col">✅ Built-in Dashboard</td>
+                            <td>❌ No</td>
+                            <td>✅ Yes</td>
+                            <td>✅ Yes</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Disaster Recovery</strong></td>
+                            <td class="highlight-col">✅ Cold Storage Backups</td>
+                            <td>❌ No</td>
+                            <td>✅ Yes</td>
+                            <td>✅ Yes</td>
                         </tr>
                     </tbody>
                 </table>
@@ -386,7 +650,7 @@
                 style="background: var(--surface); padding: 40px; border-radius: 16px; border: 1px solid #333; max-width: 800px; margin: 0 auto;">
                 <h3 id="install-title" style="color: var(--primary);">1. Installation</h3>
                 <div class="code-block" style="width: 100%; box-sizing: border-box; margin-bottom: 40px;">
-                    pip install iagent-pay==6.0.0
+                    pip install iagent-pay==8.5.0
                 </div>
 
                 <h3 id="quickstart-title" style="color: var(--primary);">2. Quick Start</h3>
@@ -409,7 +673,8 @@
         </section>
 
         <footer>
-            <p>&copy; 2026 iAgentPay Inc. Built for the Agentic Future.</p>
+            <p>&copy; 2026 iAgent-Pay Inc. Built for the Agentic Future.</p>
+            <p style="margin-top: 15px;"><a href="dashboard/terms.html" style="color: var(--primary); text-decoration: underline; font-size: 0.9rem;">Aviso de Privacidad y Términos de Uso</a></p>
         </footer>
     </div>
 
@@ -417,15 +682,36 @@
         const translations = {
             en: {
                 heroTitle: "The Financial Layer for<br>Autonomous AI Agents",
-                heroSubtitle: "Deploy hardened, self-healing AI agents that Buy, Sell, and Hire. Now with Autonomous Data Marketplace!",
-                btnStart: "Start Building (v6.0)",
+                heroSubtitle: "Deploy hardened, self-healing AI agents that Buy, Sell, and Hire. Now with Autonomous Data Marketplace & Gasless Paymasters!",
+                btnStart: "Start Building (v8.5)",
                 btnGithub: "View on GitHub",
+                btnPypi: "📦 View on PyPI",
+                btnDashboard: "📊 Launch Dashboard",
+                headerDashboard: "📊 Dashboard",
                 feat1Title: "🌐 Autonomous x402 Marketplace",
                 feat1Desc: "Agents find the best APIs, negotiate prices, and pay automatically using the HTTP 402 protocol.",
                 feat2Title: "⛽ Gasless Paymasters",
-                feat2Desc: "Enterprises can sponsor agent transactions. AI agents no longer need native ETH or SOL to operate.",
+                feat2Desc: "Enterprises sponsor gas fees. AI agents no longer need native ETH or SOL to operate.",
                 feat3Title: "🏅 On-Chain KYA Identity",
-                feat3Desc: "Top-tier agents are minted Soulbound Identity NFTs to prove their reputation to any protocol in Web3.",
+                feat3Desc: "Top-tier agents are minted Soulbound Identity NFTs to prove reputation to any Web3 protocol.",
+                feat4Title: "🛡️ Zero-Custody AI Swaps",
+                feat4Desc: "Secure intent-based cross-chain routing protected by strict anti-MEV private mempools.",
+                feat5Title: "💰 iAgent-Yield (Auto-Yield)",
+                feat5Desc: "Idle agent funds are autonomously invested in DeFi (Aave) to generate ~5% APY, effectively making the protocol pay for itself.",
+                feat6Title: "⚡ 54k+ TPS Enterprise Engine",
+                feat6Desc: "PostgreSQL Connection Pooling and optimized batch insertion architecture, battle-tested for 1,000,000+ concurrent AI transactions.",
+                feat7Title: "🌍 10-Language No-Code Portal",
+                feat7Desc: "A beautiful, zero-code UI for non-technical users to set financial boundaries, whitelists, and generate Session Keys.",
+                feat8Title: "🔐 AES-256 Disaster Recovery",
+                feat8Desc: "Institutional-grade automated database backups, encrypted in cold storage with OpenSSL and backed by Telegram external alerts.",
+                feat9Title: "🔑 Zero-Custody Session Keys",
+                feat9Desc: "Delegate ephemeral transaction signing power to agents with strict limits, durations, and whitelists.",
+                feat10Title: "🌉 Multi-Chain Routing & Swaps",
+                feat10Desc: "AP2 engine dynamically routes across chains, with Jupiter/Uniswap slippage protection.",
+                feat11Title: "🏦 Fiat & ACH Banking Bridge",
+                feat11Desc: "Bridge traditional finance via Stripe. Generate credit card payment links or trigger ACH transfers.",
+                feat12Title: "🤖 LLM & Framework Integrations",
+                feat12Desc: "Natively compatible with Claude, Cursor, CrewAI, LangChain, and Model Context Protocol (MCP).",
                 docsTitle: "Documentation",
                 installTitle: "1. Installation",
                 quickstartTitle: "2. Quick Start",
@@ -434,78 +720,151 @@
             es: {
                 heroTitle: "La Capa Financiera para<br>Agentes Autónomos",
                 heroSubtitle: "Despliega agentes IA que compran, venden y contratan. ¡Ahora con Mercado de Datos Autónomo y Paymasters sin Gas!",
-                btnStart: "Empezar a Construir (v6.0)",
+                btnStart: "Empezar a Construir (v8.5)",
                 btnGithub: "Ver en GitHub",
+                btnPypi: "📦 Ver en PyPI",
+                btnDashboard: "📊 Panel de Control",
+                headerDashboard: "📊 Panel",
                 feat1Title: "🌐 Mercado Autónomo x402",
                 feat1Desc: "Los agentes encuentran las mejores APIs, negocian precios y pagan automáticamente usando el protocolo HTTP 402.",
                 feat2Title: "⛽ Paymasters (Sin Gas)",
-                feat2Desc: "Las empresas pueden patrocinar las transacciones. Los agentes ya no necesitan ETH o SOL nativo para operar.",
+                feat2Desc: "Las empresas patrocinan transacciones. Los agentes ya no necesitan ETH o SOL nativo para operar.",
                 feat3Title: "🏅 Identidad KYA On-Chain",
                 feat3Desc: "A los agentes de alto nivel se les acuña un NFT Soulbound de Identidad para probar su reputación en Web3.",
+                feat4Title: "🛡️ Swaps Sin Custodia de IA",
+                feat4Desc: "Rutas cruzadas seguras basadas en intenciones, protegidas por mempools privadas anti-MEV.",
+                feat5Title: "💰 iAgent-Yield (Rendimiento Automático)",
+                feat5Desc: "Los fondos inactivos se invierten de forma autónoma en DeFi (Aave v3) generando ~5% APY, haciendo que el protocolo se pague solo.",
+                feat6Title: "⚡ Motor Enterprise 54k+ TPS",
+                feat6Desc: "PostgreSQL Connection Pooling optimizado para manejar oleadas de peticiones. Probado con más de 1,000,000 transacciones simultáneas.",
+                feat7Title: "🌍 Portal No-Code Multi-Idiomas",
+                feat7Desc: "Una interfaz limpia de cero código para que usuarios no técnicos establezcan límites, whitelists y generen Llaves de Sesión en 10 idiomas.",
+                feat8Title: "🔐 Disaster Recovery (AES-256)",
+                feat8Desc: "Copias de seguridad automatizadas de nivel institucional, encriptadas en frío y conectadas con alertas externas de Telegram.",
+                feat9Title: "🔑 Claves de Sesión Sin Custodia",
+                feat9Desc: "Delega poder de firma efímero con límites estrictos, duraciones y listas blancas pre-aprobadas.",
+                feat10Title: "🌉 Enrutamiento y Swaps Multi-Chain",
+                feat10Desc: "El Motor AP2 enruta dinámicamente entre cadenas con auto-balanceo de liquidez en DEXs.",
+                feat11Title: "🏦 Puente Fiat y ACH Bancario",
+                feat11Desc: "Conecta con Stripe para generar links de pago con tarjeta o liquidar transferencias ACH directamente.",
+                feat12Title: "🤖 Integraciones de LLM y Frameworks",
+                feat12Desc: "Compatible nativamente con Claude, Cursor, CrewAI, LangChain y Model Context Protocol (MCP).",
                 docsTitle: "Documentación",
                 installTitle: "1. Instalación",
                 quickstartTitle: "2. Inicio Rápido",
                 quickstartDesc: "Despliega un agente en 3 líneas de código:"
             },
             zh: {
-                heroTitle: "AI代理的支付层",
-                heroSubtitle: "允许您的AI安全地发送和接收加密微支付。无银行。无KYC。只有代码。",
+                heroTitle: "AI 代理的支付层",
+                heroSubtitle: "部署经过硬化的自愈 AI 代理，用于购买、销售和雇佣。现在配备自主数据市场和无 Gas 支付管理器！",
                 btnStart: "开始构建 (文档)",
                 btnGithub: "在 GitHub 上查看",
-                feat1Title: "⚡ 即时微支付",
-                feat1Desc: "专为高频交易代理设计。在L2网络上每分钟可处理750+笔交易。",
-                feat2Title: "🔐 军用级安全",
-                feat2Desc: "AES-128 加密密钥库本地管理。您的私钥永远不会离开服务器。",
-                feat3Title: "🌍 多链支持",
-                feat3Desc: "支持 Ethereum, Base, Polygon 和 Arbitrum。Solana 支持将在 v2.0 推出。",
+                btnPypi: "📦 在 PyPI 上查看",
+                btnDashboard: "📊 启动控制面板",
+                headerDashboard: "📊 批示",
+                feat1Title: "🌐 自主 x402 市场",
+                feat1Desc: "代理可以通过 HTTP 402 协议自动寻找最佳 API、协商价格并进行支付。",
+                feat2Title: "⛽ 无 Gas 支付管理器",
+                feat2Desc: "企业可以赞助交易费用。人工智能代理不再需要原生 ETH 或 SOL 即可运行。",
+                feat3Title: "🏅 链上 KYA 身份",
+                feat3Desc: "为顶级代理铸造灵魂绑定身份 NFT (SBT)，向 Web3 协议证明其信誉。",
+                feat4Title: "🛡️ 零托管人工智能兑换",
+                feat4Desc: "受反 MEV 私有内存池保护的安全、基于意图的跨链路由。",
+                feat5Title: "🔑 零托管会话密钥",
+                feat5Desc: "在严格的限制、有效期和白名单参数内，向代理委派临时交易签名权限。",
+                feat6Title: "🌉 多链路由与兑换",
+                feat6Desc: "AP2 引擎动态在链间路由，提供 Jupiter/Uniswap 滑点保护和自动余额平衡。",
+                feat7Title: "🏦 法币与 ACH 银行桥接",
+                feat7Desc: "通过 Stripe 桥接传统金融。生成信用卡付款链接或触发 ACH 银行转账。",
+                feat8Title: "🤖 LLM 与框架集成",
+                feat8Desc: "原生兼容 Claude、Cursor、CrewAI、LangChain 以及模型上下文协议 (MCP)。",
                 docsTitle: "文档",
                 installTitle: "1. 安装",
                 quickstartTitle: "2. 快速入门",
-                quickstartDesc: "用3行代码发送您的第一笔交易："
+                quickstartDesc: "用 3 行代码发送您的第一笔交易："
             },
             hi: {
-                heroTitle: "AI एजेंट्स के लिए भुगतान परत (Payment Layer)",
-                heroSubtitle: "अपने AI को सुरक्षित रूप से क्रिप्टो माइक्रोपेमेंट भेजने और प्राप्त करने दें। कोई बैंक नहीं। कोई KYC नहीं। बस कोड।",
+                heroTitle: "AI एजेंट्स के लिए भुगतान परत",
+                heroSubtitle: "सख्त, स्व-उपचार AI एजेंट्स तैनात करें जो खरीदें, बेचें और किराए पर लें। अब स्वायत्त डेटा मार्केटप्लेस और गैसलेस पेमास्टर्स के साथ!",
                 btnStart: "निर्माण शुरू करें (Docs)",
                 btnGithub: "GitHub पर देखें",
-                feat1Title: "⚡ तत्काल माइक्रोपेमेंट्स",
-                feat1Desc: "हाई-फ़्रीक्वेंसी ट्रेडिंग एजेंट्स के लिए डिज़ाइन किया गया। L2 नेटवर्क पर प्रति मिनट 750+ लेनदेन।",
-                feat2Title: "🔐 मिलिट्री-ग्रेड सुरक्षा",
-                feat2Desc: "AES-128 एन्क्रिप्टेड कीस्टोर्स स्थानीय रूप से प्रबंधित। आपकी चाबियां कभी भी आपके सर्वर को नहीं छोड़ती हैं।",
-                feat3Title: "🌍 मल्टी-चेन तैयार",
-                feat3Desc: "Ethereum, Base, Polygon और Arbitrum का समर्थन। Solana का समर्थन v2.0 में आ रहा है।",
-                docsTitle: "दस्तावेज़ीकरण (Documentation)",
+                btnPypi: "📦 PyPI पर देखें",
+                btnDashboard: "📊 नियंत्रण कक्ष लॉन्च करें",
+                headerDashboard: "📊 डैशबोर्ड",
+                feat1Title: "🌐 स्वायत्त x402 मार्केटप्लेस",
+                feat1Desc: "एजेंट HTTP 402 प्रोटोकॉल का उपयोग करके सर्वोत्तम API ढूंढते हैं, कीमतों पर बातचीत करते हैं और भुगतान करते हैं।",
+                feat2Title: "⛽ गैसलेस पेमास्टर्स",
+                feat2Desc: "उद्यम गैस शुल्क प्रायोजित करते हैं। AI एजेंट्स को काम करने के लिए अब नेटिव ETH या SOL की आवश्यकता नहीं है।",
+                feat3Title: "🏅 ऑन-चेन KYA पहचान",
+                feat3Desc: "वेब3 प्रोटोकॉल में प्रतिष्ठा साबित करने के लिए शीर्ष एजेंट्स को सोलबाउंड आइडेंटिटी NFTs (SBT) मिंट किए जाते हैं।",
+                feat4Title: "🛡️ शून्य-हिरासत एआई स्वैप",
+                feat4Desc: "सख्त एंटी-MEV निजी मेमपूल द्वारा संरक्षित सुरक्षित, इरादा-आधारित क्रॉस-चेन रूटिंग।",
+                feat5Title: "🔑 शून्य-हिरासत सत्र कुंजियाँ",
+                feat5Desc: "सख्त सीमाओं, समय सीमा और श्वेतसूची के भीतर एजेंट्स को अस्थायी लेनदेन हस्ताक्षर शक्ति सौंपें।",
+                feat6Title: "🌉 मल्टी-चेन रूटिंग और स्वैप",
+                feat6Desc: "AP2 इंजन गतिशील रूप से चेन में रूट करता है, जिसमें जुपिटर/यूनिस्वैप स्लिपेज सुरक्षा शामिल है।",
+                feat7Title: "🏦 फिएट और ACH बैंकिंग ब्रिज",
+                feat7Desc: "स्ट्राइप के माध्यम से पारंपरिक वित्त को जोड़ें। क्रेडिट कार्ड भुगतान लिंक बनाएं या ACH स्थानान्तरण ट्रिगर करें।",
+                feat8Title: "🤖 LLM और फ्रेमवर्क एकीकरण",
+                feat8Desc: "क्लॉड, कर्सर, क्रूएआई, लैंगचेन और मॉडल कॉन्टेंट प्रोटोकॉल (MCP) के साथ मूल रूप से संगत।",
+                docsTitle: "दस्तावेज़ीकरण",
                 installTitle: "1. इंस्टॉलेशन",
                 quickstartTitle: "2. त्वरित शुरुआत",
                 quickstartDesc: "3 लाइनों के कोड में अपना पहला लेनदेन भेजें:"
             },
             ar: {
                 heroTitle: "طبقة المدفوعات للوكلاء المستقلين",
-                heroSubtitle: "اسمح للذكاء الاصطناعي الخاص بك بإرسال واستلام المدفوعات المشفرة بأمان. لا بنوك. لا تحقق من الهوية. مجرد كود.",
+                heroSubtitle: "انشر وكلاء ذكاء اصطناعي مستقلين وقادرين على الشراء والبيع والتوظيف. الآن مع سوق البيانات المستقل و Paymasters بدون غاز!",
                 btnStart: "ابدأ البناء (وثائق)",
                 btnGithub: "عرض على GitHub",
-                feat1Title: "⚡ مدفوعات فورية",
-                feat1Desc: "مصمم لوكلاء التداول عالي التردد. قادر على 750+ معاملة في الدقيقة على شبكات L2.",
-                feat2Title: "🔐 أمان عسكري",
-                feat2Desc: "مخازن مفاتيح مشفرة AES-128 تودع محليًا. مفاتيحك لا تترك خادمك أبدًا.",
-                feat3Title: "🌍 جاهز لتعدد السلاسل",
-                feat3Desc: "دعم لـ Ethereum و Base و Polygon و Arbitrum. دعم Solana قادم في v2.0.",
+                btnPypi: "📦 عرض على PyPI",
+                btnDashboard: "📊 لوحة التحكم",
+                headerDashboard: "📊 اللوحة",
+                feat1Title: "🌐 سوق x402 المستقل",
+                feat1Desc: "يعثر الوكلاء على أفضل واجهات برمجة التطبيقات، ويتفاوضون على الأسعار، ويدفعون تلقائيًا باستخدام بروتوكول HTTP 402.",
+                feat2Title: "⛽ مدفوعات بدون غاز",
+                feat2Desc: "ترعى المؤسسات رسوم الغاز. لم يعد وكلاء الذكاء الاصطناعي بحاجة إلى ETH أو SOL للعمل.",
+                feat3Title: "🏅 هوية KYA على السلسلة",
+                feat3Desc: "يتم صك رموز الهوية غير القابلة للتحويل (Soulbound) للوكلاء المتميزين لإثبات سمعتهم لأي بروتوكول Web3.",
+                feat4Title: "🛡️ مقايضات الذكاء الاصطناعي بدون حضانة",
+                feat4Desc: "توجيه آمن عبر السلاسل يعتمد على النوايا ومحمي بمجمعات ذاكرة خاصة مضادة للـ MEV.",
+                feat5Title: "🔑 مفاتيح الجلسة بدون حضانة",
+                feat5Desc: "تفويض قوة توقيع المعاملات المؤقتة للوكلاء ضمن حدود وفترات وقوائم سماح صارمة.",
+                feat6Title: "🌉 التوجيه والمقايضة عبر السلاسل",
+                feat6Desc: "يقوم محرك AP2 بالتوجيه ديناميكيًا عبر السلاسل، مع حماية الانزلاق من Jupiter/Uniswap.",
+                feat7Title: "🏦 جسر الخدمات المصرفية فود وفيات",
+                feat7Desc: "جسر التمويل التقليدي عبر Stripe. إنشاء روابط الدفع بالبطاقات أو تشغيل تحويلات ACH المصعة.",
+                feat8Title: "🤖 تكاملات LLM والإطارات",
+                feat8Desc: "متوافق محليًا مع Claude و Cursor و CrewAI و LangChain وبروتول سياق النموذج (MCP).",
                 docsTitle: "الوثائق",
                 installTitle: "1. التثبيت",
                 quickstartTitle: "2. البداية السريعة",
                 quickstartDesc: "أرسل معاملتك الأولى في 3 أسطر من الكود:"
             },
             pt: {
-                heroTitle: "A Camada de Pagamento para Agentes Autônomos",
-                heroSubtitle: "Permita que sua IA envie e receba micropagamentos cripto com segurança. Sem bancos. Sem KYC. Apenas código.",
+                heroTitle: "A Camada Financeira para Agentes Autônomos",
+                heroSubtitle: "Despliegue agentes de IA auto-regenerativos que compram, vendem e contratam. Agora com Data Marketplace Autónomo e Paymasters sem Gás!",
                 btnStart: "Começar a Construir",
                 btnGithub: "Ver no GitHub",
-                feat1Title: "⚡ Micropagamentos Instantâneos",
-                feat1Desc: "Projetado para agentes de High-Frequency Trading. Capaz de 750+ transações por minuto em redes L2.",
-                feat2Title: "🔐 Segurança Militar",
-                feat2Desc: "Keystores criptografados em AES-128 gerenciados localmente. Suas chaves nunca saem do servidor.",
-                feat3Title: "🌍 Multi-Chain Pronto",
-                feat3Desc: "Suporte para Ethereum, Base, Polygon e Arbitrum. Suporte Solana chegando na v2.0.",
+                btnPypi: "📦 Ver no PyPI",
+                btnDashboard: "📊 Painel de Controle",
+                headerDashboard: "📊 Painel",
+                feat1Title: "🌐 Mercado Autônomo x402",
+                feat1Desc: "Agentes encontram as melhores APIs, negociam preços e pagam automaticamente usando o protocolo HTTP 402.",
+                feat2Title: "⛽ Paymasters Sem Gás",
+                feat2Desc: "Empresas patrocinam taxas de gás. Os agentes de IA não precisam mais de ETH ou SOL nativo para operar.",
+                feat3Title: "🏅 Identidade KYA On-Chain",
+                feat3Desc: "Aos agentes de elite é cunhado um NFT Soulbound de Identidade para provar reputação a qualquer protocolo Web3.",
+                feat4Title: "🛡️ Swaps de IA Sem Custódia",
+                feat4Desc: "Roteamento cross-chain seguro baseado em intenções, protegido por mempools privadas anti-MEV.",
+                feat5Title: "🔑 Chaves de Sessão Sem Custódia",
+                feat5Desc: "Delegue poder de assinatura de transação temporária a agentes com limites, durações e whitelists estritas.",
+                feat6Title: "🌉 Roteamento & Swaps Multi-Chain",
+                feat6Desc: "O mecanismo AP2 roteia dinamicamente entre redes, com proteção de slippage no Jupiter/Uniswap.",
+                feat7Title: "🏦 Ponte de Banco Fiat e ACH",
+                feat7Desc: "Conecte finanças tradicionais via Stripe. Gere links de pagamento por cartão ou inicie transferências ACH.",
+                feat8Title: "🤖 Integrações LLM e Frameworks",
+                feat8Desc: "Nativamente compatível com Claude, Cursor, CrewAI, LangChain e Model Context Protocol (MCP).",
                 docsTitle: "Documentação",
                 installTitle: "1. Instalação",
                 quickstartTitle: "2. Início Rápido",
@@ -513,15 +872,28 @@
             },
             ru: {
                 heroTitle: "Платежный уровень для автономных агентов",
-                heroSubtitle: "Позвольте вашему ИИ отправлять и получать крипто-микроплатежи безопасно. Без банков. Без KYC. Только код.",
+                heroSubtitle: "Развертывайте надежных ИИ-агентов, которые покупают, продают и нанимают. Теперь с автономным рынком данных и транзакциями без газа!",
                 btnStart: "Начать сборку (Docs)",
                 btnGithub: "Смотреть на GitHub",
-                feat1Title: "⚡ Мгновенные микроплатежи",
-                feat1Desc: "Разработано для высокочастотных торговых агентов. 750+ транзакций в минуту в сетях L2.",
-                feat2Title: "🔐 Безопасность военного уровня",
-                feat2Desc: "Хранилища ключей, зашифрованные AES-128. Ваши ключи никогда не покидают сервер.",
-                feat3Title: "🌍 Мультичейн",
-                feat3Desc: "Поддержка Ethereum, Base, Polygon и Arbitrum. Поддержка Solana в v2.0.",
+                btnPypi: "📦 Смотреть на PyPI",
+                btnDashboard: "📊 Панель управления",
+                headerDashboard: "📊 Панель",
+                feat1Title: "🌐 Автономный рынок x402",
+                feat1Desc: "Агенты находят лучшие API, договариваются о ценах и платят автоматически по протоколу HTTP 402.",
+                feat2Title: "⛽ Транзакции без газа",
+                feat2Desc: "Предприятия спонсируют оплату газа. ИИ-агентам больше не нужен нативный ETH или SOL для работы.",
+                feat3Title: "🏅 Идентификация KYA на цепи",
+                feat3Desc: "Лучшим агентам выпускаются Soulbound Identity NFTs для подтверждения репутации перед любыми протоколами Web3.",
+                feat4Title: "🛡️ Некастодиальные свопы ИИ",
+                feat4Desc: "Безопасная маршрутизация между сетями на основе намерений, защищенная приватными пулами памяти от MEV.",
+                feat5Title: "🔑 Некастодиальные сессионные ключи",
+                feat5Desc: "Делегируйте временные права на подписание транзакций агентам со строгими лимитами, сроками действия и белыми списками.",
+                feat6Title: "🌉 Межсетевая маршрутизация и свопы",
+                feat6Desc: "Движок AP2 динамически распределяет маршруты между сетями с защитой от проскальзывания в Jupiter/Uniswap.",
+                feat7Title: "🏦 Фиатный и ACH банковский мост",
+                feat7Desc: "Связывайте традиционные финансы через Stripe. Создавайте ссылки для оплаты картами или инициируйте переводы ACH.",
+                feat8Title: "🤖 Интеграция LLM и фреймворков",
+                feat8Desc: "Нативная совместимость с Claude, Cursor, CrewAI, LangChain и Model Context Protocol (MCP).",
                 docsTitle: "Документация",
                 installTitle: "1. Установка",
                 quickstartTitle: "2. Быстрый старт",
@@ -529,31 +901,57 @@
             },
             ja: {
                 heroTitle: "自律エージェントのための決済レイヤー",
-                heroSubtitle: "AIが暗号通貨のマイクロペイメントを安全に送受信できるようにします。銀行不要。KYC不要。コードのみ。",
+                heroSubtitle: "自律的に購入、販売、雇用を行う耐久性の高い自己修復型 AI エージェントを展開。自律的なデータ市場とガスレス・ペイマスターを搭載！",
                 btnStart: "構築を開始 (ドキュメント)",
                 btnGithub: "GitHubで見る",
-                feat1Title: "⚡ インスタント・マイクロペイメント",
-                feat1Desc: "高頻度取引エージェント向けに設計。L2ネットワークで毎分750以上のトランザクションが可能。",
-                feat2Title: "🔐 ミリタリーグレードのセキュリティ",
-                feat2Desc: "AES-128で暗号化されたキーストアをローカルで管理。鍵はサーバー外に出ません。",
-                feat3Title: "🌍 マルチチェーン対応",
-                feat3Desc: "Ethereum, Base, Polygon, Arbitrumに対応。Solanaサポートはv2.0で登場予定。",
+                btnPypi: "📦 PyPIで見る",
+                btnDashboard: "📊 コントロールパネルを起動",
+                headerDashboard: "📊 パネル",
+                feat1Title: "🌐 自律的 x402 マーケット",
+                feat1Desc: "エージェントは最適な API を見つけ、価格を交渉し、HTTP 402 プロトコルを使用して自動的に支払います。",
+                feat2Title: "⛽ ガスレス・ペイマスター",
+                feat2Desc: "企業がガス代を後援。AI エージェントは動作にネイティブな ETH や SOL を必要としません。",
+                feat3Title: "🏅 オンチェーン KYA ID",
+                feat3Desc: "優良エージェントにはソウルバウンド ID NFT (SBT) がミントされ、Web3 プロトコルへ信頼性を証明します。",
+                feat4Title: "🛡️ ノンカストディアルAIスワップ",
+                feat4Desc: "対 MEV プライベートメモリプールによって保護された、安全なインテントベース of クロスチェーンルート。",
+                feat5Title: "🔑 ノンカストディアル・セッションキー",
+                feat5Desc: "厳格な上限、有効期限、ホワイトリストの範囲内で、エージェントに一時的な署名権限を委任します。",
+                feat6Title: "🌉 マルチチェーンルート & スワップ",
+                feat6Desc: "AP2 エンジンがチェーン間を動的にルーティングし、Jupiter/Uniswap スリッページ保護を提供。",
+                feat7Title: "🏦 フィアット & ACH 銀行ブリッジ",
+                feat7Desc: "Stripe 経由で伝統的金融と接続。カード決済リンクの生成や ACH 送金をトリガーします。",
+                feat8Title: "🤖 LLM & フレームワーク統合",
+                feat8Desc: "Claude、Cursor、CrewAI、LangChain、Model Context Protocol (MCP) にネイティブ対応。",
                 docsTitle: "ドキュメント",
                 installTitle: "1. インストール",
                 quickstartTitle: "2. クイックスタート",
-                quickstartDesc: "たった3行のコードで最初の取引を送信："
+                quickstartDesc: "たった 3 行のコードで最初の取引を送信："
             },
             de: {
                 heroTitle: "Die Zahlungsebene für Autonome Agenten",
-                heroSubtitle: "Ermöglicht Ihrer KI, Krypto-Mikrozahlungen sicher zu senden und zu empfangen. Keine Banken. Kein KYC. Nur Code.",
+                heroSubtitle: "Stellen Sie robuste, selbstheilende KI-Agenten bereit, die kaufen, verkaufen und anstellen. Jetzt mit autonomem Datenmarktplatz & gaslosen Paymastern!",
                 btnStart: "Loslegen (Docs)",
                 btnGithub: "Auf GitHub ansehen",
-                feat1Title: "⚡ Sofortige Mikrozahlungen",
-                feat1Desc: "Entwickelt für Hochfrequenz-Handelsagenten. Über 750 Transaktionen pro Minute in L2-Netzwerken.",
-                feat2Title: "🔐 Sicherheit auf Militärniveau",
-                feat2Desc: "AES-128 verschlüsselte Keystores lokal verwaltet. Ihre Schlüssel verlassen niemals Ihren Server.",
-                feat3Title: "🌍 Multi-Chain Bereit",
-                feat3Desc: "Unterstützung für Ethereum, Base, Polygon und Arbitrum. Solana-Support kommt in v2.0.",
+                btnPypi: "📦 Auf PyPI ansehen",
+                btnDashboard: "📊 Kontrollzentrum starten",
+                headerDashboard: "📊 Dashboard",
+                feat1Title: "🌐 Autonomer x402-Marktplatz",
+                feat1Desc: "Agenten finden die besten APIs, verhandeln Preise und zahlen automatisch über das HTTP-402-Protokoll.",
+                feat2Title: "⛽ Gaslose Paymaster",
+                feat2Desc: "Unternehmen sponsern Gasgebühren. KI-Agenten benötigen kein natives ETH oder SOL mehr für den Betrieb.",
+                feat3Title: "🏅 On-Chain-KYA-Identität",
+                feat3Desc: "Top-Agenten erhalten Soulbound-Identitäts-NFTs (SBTs), um ihre Reputation gegenüber Web3-Protokollen zu belegen.",
+                feat4Title: "🛡️ Non-Custodial KI-Swaps",
+                feat4Desc: "Sicheres absichtsdefiniertes Cross-Chain-Routing, geschützt durch private Mempools gegen MEV.",
+                feat5Title: "🔑 Non-Custodial Session-Keys",
+                feat5Desc: "Delegieren Sie temporäre Signaturrechte mit strikten Limits, Laufzeiten und Whitelists an Agenten.",
+                feat6Title: "🌉 Cross-Chain-Routing & Swaps",
+                feat6Desc: "Die AP2-Engine routet dynamisch über Ketten hinweg, mit Slippage-Schutz via Jupiter/Uniswap.",
+                feat7Title: "🏦 Fiat- & ACH-Bankenbrücke",
+                feat7Desc: "Verbinden Sie traditionelle Finanzen via Stripe. Erstellen Sie Kreditkarten-Links oder ACH-Transfers.",
+                feat8Title: "🤖 LLM- & Framework-Integrationen",
+                feat8Desc: "Nativ kompatibel mit Claude, Cursor, CrewAI, LangChain und dem Model Context Protocol (MCP).",
                 docsTitle: "Dokumentation",
                 installTitle: "1. Installation",
                 quickstartTitle: "2. Schnellstart",
@@ -561,19 +959,119 @@
             },
             fr: {
                 heroTitle: "La Couche de Paiement pour Agents Autonomes",
-                heroSubtitle: "Permettez à votre IA d'envoyer/recevoir des micro-paiements crypto en toute sécurité. Pas de banques. Pas de KYC. Juste du code.",
+                heroSubtitle: "Déployez des agents IA durcis et auto-gérants qui achètent, vendent et embauchent. Maintenant avec un marché de données autonome et des Paymasters sans gaz !",
                 btnStart: "Commencer (Docs)",
                 btnGithub: "Voir sur GitHub",
-                feat1Title: "⚡ Micro-paiements Instantanés",
-                feat1Desc: "Conçu pour les agents de Trading Haute Fréquence. Capable de 750+ transactions/minute sur les réseaux L2.",
-                feat2Title: "🔐 Sécurité Militaire",
-                feat2Desc: "Keystores chiffrés AES-128 gérés localement. Vos clés ne quittent jamais votre serveur.",
-                feat3Title: "🌍 Prêt pour le Multi-Chain",
-                feat3Desc: "Support pour Ethereum, Base, Polygon et Arbitrum. Support Solana à venir en v2.0.",
+                btnPypi: "📦 Voir sur PyPI",
+                btnDashboard: "📊 Lancer le Tableau de Bord",
+                headerDashboard: "📊 Tableau",
+                feat1Title: "🌐 Marché Autonome x402",
+                feat1Desc: "Les agents trouvent les meilleures API, négocient les prix et paient via le protocole HTTP 402.",
+                feat2Title: "⛽ Paymasters sans frais de Gaz",
+                feat2Desc: "Les entreprises sponsorisent les frais. Les agents n'ont plus besoin d'ETH ou de SOL natifs pour opérer.",
+                feat3Title: "🏅 Identité KYA On-Chain",
+                feat3Desc: "Les meilleurs agents reçoivent des NFT d'identité Soulbound pour prouver leur réputation sur Web3.",
+                feat4Title: "🛡️ Swaps IA sans garde",
+                feat4Desc: "Routage inter-chaînes basé sur l'intention, protégé par des pools de mémoire privés anti-MEV.",
+                feat5Title: "🔑 Clés de Session sans garde",
+                feat5Desc: "Déléguez un pouvoir de signature temporaire avec des limites, durées et listes d'autorisation strictes.",
+                feat6Title: "🌉 Routage & Swaps Multi-Chaînes",
+                feat6Desc: "Le moteur AP2 route dynamiquement sur les chaînes, avec protection contre le slippage via Jupiter/Uniswap.",
+                feat7Title: "🏦 Pont Bancaire Fiat & ACH",
+                feat7Desc: "Liez la finance traditionnelle via Stripe. Créez des liens de paiement par carte ou virement ACH.",
+                feat8Title: "🤖 Intégrations LLM & Frameworks",
+                feat8Desc: "Nativement compatible avec Claude, Cursor, CrewAI, LangChain, et le Model Context Protocol (MCP).",
                 docsTitle: "Documentation",
                 installTitle: "1. Installation",
                 quickstartTitle: "2. Démarrage Rapide",
                 quickstartDesc: "Envoyez votre première transaction en 3 lignes de code :"
+            },
+            tr: {
+                heroTitle: "Otonom Yapay Zeka Ajanları için<br>Finansal Katman",
+                heroSubtitle: "Satın alan, satan ve kiralayan dayanıklı yapay zeka ajanları dağıtın. Şimdi Otonom Veri Pazaryeri ve Gasless Paymasters ile!",
+                btnStart: "İnşa Etmeye Başla (v8.5)",
+                btnGithub: "GitHub'da Görüntüle",
+                btnPypi: "📦 PyPI'da Görüntüle",
+                btnDashboard: "📊 Kontrol Panelini Başlat",
+                headerDashboard: "📊 Panel",
+                feat1Title: "🌐 Otonom x402 Pazaryeri",
+                feat1Desc: "Ajanlar en iyi API'leri bulur, fiyatları müzakere eder ve HTTP 402 protokolüyle otomatik öder.",
+                feat2Title: "⛽ Gasless Paymasters",
+                feat2Desc: "Kuruluşlar işlem ücretlerini karşılar. Yapay zeka ajanları işlem yapmak için artık yerel ETH veya SOL'a ihtiyaç duymaz.",
+                feat3Title: "🏅 On-Chain KYA Kimliği",
+                feat3Desc: "Web3 protokollerine itibar kanıtlamak için elit ajanlara Soulbound Kimlik NFT'leri (SBT) basılır.",
+                feat4Title: "🛡️ Emanetsiz Yapay Zeka Swaps",
+                feat4Desc: "Gelişmiş anti-MEV özel mempool'ları ile korunan, niyet tabanlı güvenli zincirler arası yönlendirme.",
+                feat5Title: "🔑 Emanetsiz Oturum Anahtarları",
+                feat5Desc: "Sıkı limitler, süreler ve beyaz listeler dahilinde ajanlara geçici işlem imzalama yetkisi devredin.",
+                feat6Title: "🌉 Çoklu Zincir Yönlendirme & Swaps",
+                feat6Desc: "AP2 motoru, Jupiter/Uniswap sapma koruması ile zincirler arasında dinamik yönlendirme yapar.",
+                feat7Title: "🏦 Fiat & ACH Banka Köprüsü",
+                feat7Desc: "Stripe aracılığıyla geleneksel finansı bağlayın. Kredi kartı ödeme linkleri oluşturun veya ACH transferlerini tetikleyin.",
+                feat8Title: "🤖 LLM & Çerçeve Entegrasyonları",
+                feat8Desc: "Claude, Cursor, CrewAI, LangChain ve Model Context Protocol (MCP) ile yerel olarak uyumludur.",
+                docsTitle: "Belgeler",
+                installTitle: "1. Kurulum",
+                quickstartTitle: "2. Hızlı Başlangıç",
+                quickstartDesc: "3 satır kodla ilk işleminizi gönderin:"
+            },
+            fil: {
+                heroTitle: "Ang Pinansyal na Layer para sa<br>mga Autonomous na AI Agent",
+                heroSubtitle: "Mag-deploy ng mga matitibay na AI agent na bumibili, nagbebenta, at nag-aarkila. Ngayon may Autonomous Data Marketplace at Gasless Paymasters!",
+                btnStart: "Magsimulang Bumuo (v8.5)",
+                btnGithub: "Tingnan sa GitHub",
+                btnPypi: "📦 Tingnan sa PyPI",
+                btnDashboard: "📊 I-launch ang Dashboard",
+                headerDashboard: "📊 Dashboard",
+                feat1Title: "🌐 Autonomous x402 Marketplace",
+                feat1Desc: "Hinahanap ng mga agent ang pinakamahusay na API, nakikipagnegosasyon sa presyo, at awtomatikong nagbabayad gamit ang HTTP 402 protocol.",
+                feat2Title: "⛽ Gasless Paymasters",
+                feat2Desc: "Sinasponsoran ng mga negosyo ang gas fees. Hindi na kailangan ng mga AI agent ng native na ETH o SOL para gumana.",
+                feat3Title: "🏅 On-Chain KYA Identidad",
+                feat3Desc: "Ang mga nangungunang agent ay ginagawan ng Soulbound Identity NFTs para patunayan ang reputasyon sa anumang Web3 protocol.",
+                feat4Title: "🛡️ Zero-Custody AI Swaps",
+                feat4Desc: "Ligtas na intent-based cross-chain routing na pinoprotektahan ng mga mahigpit na anti-MEV private mempools.",
+                feat5Title: "🔑 Zero-Custody Session Keys",
+                feat5Desc: "Mag-delegate ng pansamantalang kapangyarihan sa pagpirma ng transaksyon sa mga agent na may mahigpit na limitasyon at whitelist.",
+                feat6Title: "🌉 Multi-Chain Routing & Swaps",
+                feat6Desc: "Ang AP2 engine ay dinamikong nagruruta sa mga chain, na may proteksyon sa slippage ng Jupiter/Uniswap.",
+                feat7Title: "🏦 Fiat & ACH Banking Bridge",
+                feat7Desc: "Ikonekta ang tradisyunal na pananalapi sa pamamagitan ng Stripe. Gumawa ng mga link sa pagbabayad ng credit card o mag-trigger ng ACH transfers.",
+                feat8Title: "🤖 LLM & Framework Integrations",
+                feat8Desc: "Katutubong katugma sa Claude, Cursor, CrewAI, LangChain, at Model Context Protocol (MCP).",
+                docsTitle: "Dokumentasyon",
+                installTitle: "1. Pag-install",
+                quickstartTitle: "2. Mabilis na Simula",
+                quickstartDesc: "Ipadala ang iyong unang transaksyon sa 3 linya ng code:"
+            },
+            ng: {
+                heroTitle: "The Financial Layer for<br>Autonomous AI Agents",
+                heroSubtitle: "Deploy beta-tested AI agents wey fit Buy, Sell, and Hire. Now with Autonomous Data Marketplace & Gasless Paymasters!",
+                btnStart: "Start to Build (v8.5)",
+                btnGithub: "Check am on GitHub",
+                btnPypi: "📦 View on PyPI",
+                btnDashboard: "📊 Open Dashboard",
+                headerDashboard: "📊 Dashboard",
+                feat1Title: "🌐 Autonomous x402 Marketplace",
+                feat1Desc: "Agents dey find beta APIs, negotiate price, and pay automatically with HTTP 402 protocol.",
+                feat2Title: "⛽ Gasless Paymasters",
+                feat2Desc: "Big companies sponsor transaction fees. AI agents no need native ETH or SOL to run again.",
+                feat3Title: "🏅 On-Chain KYA Identity",
+                feat3Desc: "We dey mint Soulbound Identity NFTs for top agents to show their clean record for Web3.",
+                feat4Title: "🛡️ Zero-Custody AI Swaps",
+                feat4Desc: "Safe cross-chain swaps wey private anti-MEV mempools dey guard securely.",
+                feat5Title: "🔑 Zero-Custody Session Keys",
+                feat5Desc: "Give agents temporary signing power with sharp limits, time limits, and whitelist rules.",
+                feat6Title: "🌉 Multi-Chain Routing & Swaps",
+                feat6Desc: "AP2 engine dey route payments across different chains with tight Jupiter/Uniswap protection.",
+                feat7Title: "🏦 Fiat & ACH Banking Bridge",
+                feat7Desc: "Link normal bank details via Stripe. Generate card payment links or do direct ACH transfers.",
+                feat8Title: "🤖 LLM & Framework Integrations",
+                feat8Desc: "Standard compatibility with Claude, Cursor, CrewAI, LangChain, and Model Context Protocol (MCP).",
+                docsTitle: "Documentation",
+                installTitle: "1. How to Install",
+                quickstartTitle: "2. Quick Start",
+                quickstartDesc: "Send your first payment with just 3 lines of code:"
             }
         };
 
@@ -584,6 +1082,15 @@
             document.getElementById('hero-subtitle').innerText = t.heroSubtitle;
             document.getElementById('btn-start').innerText = t.btnStart;
             document.getElementById('btn-github').innerText = t.btnGithub;
+            
+            const btnPypi = document.getElementById('btn-pypi');
+            if (btnPypi) btnPypi.innerText = t.btnPypi;
+
+            const btnDash = document.getElementById('btn-dashboard');
+            if (btnDash) btnDash.innerText = t.btnDashboard;
+            
+            const headDash = document.getElementById('header-dashboard');
+            if (headDash) headDash.innerText = t.headerDashboard;
 
             document.getElementById('feat1-title').innerText = t.feat1Title;
             document.getElementById('feat1-desc').innerText = t.feat1Desc;
@@ -592,10 +1099,82 @@
             document.getElementById('feat3-title').innerText = t.feat3Title;
             document.getElementById('feat3-desc').innerText = t.feat3Desc;
 
+            const feat4Title = document.getElementById('feat4-title');
+            if (feat4Title) feat4Title.innerText = t.feat4Title;
+            const feat4Desc = document.getElementById('feat4-desc');
+            if (feat4Desc) feat4Desc.innerText = t.feat4Desc;
+
+            const feat5Title = document.getElementById('feat5-title');
+            if (feat5Title) feat5Title.innerText = t.feat5Title;
+            const feat5Desc = document.getElementById('feat5-desc');
+            if (feat5Desc) feat5Desc.innerText = t.feat5Desc;
+
+            const feat6Title = document.getElementById('feat6-title');
+            if (feat6Title) feat6Title.innerText = t.feat6Title;
+            const feat6Desc = document.getElementById('feat6-desc');
+            if (feat6Desc) feat6Desc.innerText = t.feat6Desc;
+
+            const feat7Title = document.getElementById('feat7-title');
+            if (feat7Title) feat7Title.innerText = t.feat7Title;
+            const feat7Desc = document.getElementById('feat7-desc');
+            if (feat7Desc) feat7Desc.innerText = t.feat7Desc;
+
+            const feat8Title = document.getElementById('feat8-title');
+            if (feat8Title) feat8Title.innerText = t.feat8Title;
+            const feat8Desc = document.getElementById('feat8-desc');
+            if (feat8Desc) feat8Desc.innerText = t.feat8Desc;
+
+            const feat9Title = document.getElementById('feat9-title');
+            if (feat9Title) feat9Title.innerText = t.feat9Title;
+            const feat9Desc = document.getElementById('feat9-desc');
+            if (feat9Desc) feat9Desc.innerText = t.feat9Desc;
+
+            const feat10Title = document.getElementById('feat10-title');
+            if (feat10Title) feat10Title.innerText = t.feat10Title;
+            const feat10Desc = document.getElementById('feat10-desc');
+            if (feat10Desc) feat10Desc.innerText = t.feat10Desc;
+
+            const feat11Title = document.getElementById('feat11-title');
+            if (feat11Title) feat11Title.innerText = t.feat11Title;
+            const feat11Desc = document.getElementById('feat11-desc');
+            if (feat11Desc) feat11Desc.innerText = t.feat11Desc;
+
+            const feat12Title = document.getElementById('feat12-title');
+            if (feat12Title) feat12Title.innerText = t.feat12Title;
+            const feat12Desc = document.getElementById('feat12-desc');
+            if (feat12Desc) feat12Desc.innerText = t.feat12Desc;
+
             document.getElementById('docs-title').innerText = t.docsTitle;
             document.getElementById('install-title').innerText = t.installTitle;
             document.getElementById('quickstart-title').innerText = t.quickstartTitle;
             document.getElementById('quickstart-desc').innerText = t.quickstartDesc;
+
+            // Dynamically translate and update the PDF download button and Start docs button
+            let pdfText = "📥 Download Manual (PDF)";
+            if (lang === 'es') pdfText = "📥 Descargar Manual (PDF)";
+            else if (lang === 'zh') pdfText = "📥 下载手册 (PDF)";
+            else if (lang === 'hi') pdfText = "📥 मैनुअल डाउनलोड करें (PDF)";
+            else if (lang === 'ar') pdfText = "📥 تحميل الدليل (PDF)";
+            else if (lang === 'pt') pdfText = "📥 Baixar Manual (PDF)";
+            else if (lang === 'ru') pdfText = "📥 Скачать руководство (PDF)";
+            else if (lang === 'ja') pdfText = "📥 マニュアルをダウンロード (PDF)";
+            else if (lang === 'de') pdfText = "📥 Handbuch herunterladen (PDF)";
+            else if (lang === 'fr') pdfText = "📥 Télécharger le Manuel (PDF)";
+            else if (lang === 'tr') pdfText = "📥 Kılavuzu İndir (PDF)";
+            else if (lang === 'fil') pdfText = "📥 I-download ang Manual (PDF)";
+            else if (lang === 'ng') pdfText = "📥 Download Manual (PDF)";
+
+            const pdfBtn = document.getElementById('btn-download-pdf');
+            const manualLang = ['es', 'en', 'zh', 'hi', 'ar', 'pt', 'ru', 'ja', 'de', 'fr', 'tr', 'fil', 'ng'].includes(lang) ? lang : 'en';
+            if (pdfBtn) {
+                pdfBtn.innerText = pdfText;
+                pdfBtn.href = `docs/MANUAL_iAgentPay_v8_${manualLang}.pdf`;
+            }
+
+            const startBtn = document.getElementById('btn-start');
+            if (startBtn) {
+                startBtn.href = `manual.html?lang=${manualLang}`;
+            }
 
             // RTL support for Arabic
             if (lang === 'ar') {
@@ -605,8 +1184,7 @@
                 document.body.style.direction = 'ltr';
                 document.body.style.textAlign = 'left';
             }
-        }
-    </script>
+        }</script>
 </body>
 
 </html>

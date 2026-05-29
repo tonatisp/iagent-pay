@@ -1,0 +1,577 @@
+{
+  "timestamp": "2026-05-28 11:00:08",
+  "total": 81,
+  "pass": 78,
+  "fail": 3,
+  "duration_seconds": 77.84,
+  "success_rate": 96.3,
+  "results": [
+    {
+      "status": "PASS",
+      "section": "WALLET",
+      "name": "1.1-generacion-evm",
+      "msg": "Addr=0x32F46C2577...",
+      "elapsed": 0.7232000827789307
+    },
+    {
+      "status": "PASS",
+      "section": "WALLET",
+      "name": "1.2-generacion-solana",
+      "msg": "Addr=AG58XpwXHEt8...",
+      "elapsed": 0.39678072929382324
+    },
+    {
+      "status": "PASS",
+      "section": "WALLET",
+      "name": "1.3-keystore-save-load",
+      "msg": "OK addr=0x81277B6962...",
+      "elapsed": 1.053394079208374
+    },
+    {
+      "status": "PASS",
+      "section": "WALLET",
+      "name": "1.4-backup-cifrado",
+      "msg": "Archivo=test_backup_wallet.json",
+      "elapsed": 1.1212832927703857
+    },
+    {
+      "status": "PASS",
+      "section": "WALLET",
+      "name": "1.5-private-key-override",
+      "msg": "Addr=0x8fd3792468...",
+      "elapsed": 0.5068633556365967
+    },
+    {
+      "status": "PASS",
+      "section": "WALLET",
+      "name": "1.6-50-wallets-concurrentes",
+      "msg": "50/50 únicos",
+      "elapsed": 0.10788130760192871
+    },
+    {
+      "status": "PASS",
+      "section": "WALLET",
+      "name": "1.7-wrong-password",
+      "msg": "Excepcion lanzada correctamente",
+      "elapsed": 1.035431146621704
+    },
+    {
+      "status": "PASS",
+      "section": "PAGOS",
+      "name": "2.1-pago-basico-eth",
+      "msg": "Resultado=0x00000000000000000000000000000000000000",
+      "elapsed": 0.13352704048156738
+    },
+    {
+      "status": "PASS",
+      "section": "PAGOS",
+      "name": "2.2-pago-usdc",
+      "msg": "OK",
+      "elapsed": 1.1848175525665283
+    },
+    {
+      "status": "PASS",
+      "section": "PAGOS",
+      "name": "2.3-log-transaccion-db",
+      "msg": "Transacciones en DB: 4",
+      "elapsed": 0.0010690689086914062
+    },
+    {
+      "status": "PASS",
+      "section": "PAGOS",
+      "name": "2.4-pago-BASE",
+      "msg": "OK addr=0xD924d42E59...",
+      "elapsed": 0.5803816318511963
+    },
+    {
+      "status": "PASS",
+      "section": "PAGOS",
+      "name": "2.4-pago-POLYGON",
+      "msg": "OK addr=0xdDEf650905...",
+      "elapsed": 0.5759303569793701
+    },
+    {
+      "status": "PASS",
+      "section": "PAGOS",
+      "name": "2.4-pago-SEPOLIA",
+      "msg": "OK addr=0x77088B4328...",
+      "elapsed": 0.7213540077209473
+    },
+    {
+      "status": "PASS",
+      "section": "PAGOS",
+      "name": "2.5-limite-diario",
+      "msg": "Pago dentro de límite OK",
+      "elapsed": 0.7237210273742676
+    },
+    {
+      "status": "PASS",
+      "section": "PAGOS",
+      "name": "2.6-batch-10-pagos",
+      "msg": "10/10 OK",
+      "elapsed": 1.631563425064087
+    },
+    {
+      "status": "FAIL",
+      "section": "PAGOS",
+      "name": "2.7-30-pagos-concurrentes",
+      "msg": "Demasiados errores: 10",
+      "elapsed": null
+    },
+    {
+      "status": "PASS",
+      "section": "PAGOS",
+      "name": "2.8-pago-monto-cero",
+      "msg": "Excepcion lanzada correctamente (esperado)",
+      "elapsed": 0.7084367275238037
+    },
+    {
+      "status": "PASS",
+      "section": "PAGOS",
+      "name": "2.9-direccion-invalida",
+      "msg": "Excepcion lanzada correctamente",
+      "elapsed": 0.6066110134124756
+    },
+    {
+      "status": "PASS",
+      "section": "PAGOS",
+      "name": "2.10-pay-token-batch",
+      "msg": "Batch 5 OK: ['0x00000000000000000000000000",
+      "elapsed": 3.3221311569213867
+    },
+    {
+      "status": "PASS",
+      "section": "SAFETY",
+      "name": "3.1-pago-dentro-limites",
+      "msg": "OK sin excepcion",
+      "elapsed": 0.0025243759155273438
+    },
+    {
+      "status": "PASS",
+      "section": "SAFETY",
+      "name": "3.2-transaction-cap",
+      "msg": "Excepcion correcta",
+      "elapsed": 0.0020699501037597656
+    },
+    {
+      "status": "PASS",
+      "section": "SAFETY",
+      "name": "3.3-budget-guard-diario",
+      "msg": "BudgetExceeded=NO (manejado)",
+      "elapsed": 0.003934383392333984
+    },
+    {
+      "status": "PASS",
+      "section": "SAFETY",
+      "name": "3.4-recipient-whitelist",
+      "msg": "Whitelist funciona",
+      "elapsed": 0.0038399696350097656
+    },
+    {
+      "status": "PASS",
+      "section": "SAFETY",
+      "name": "3.5-multisig-proposal-only",
+      "msg": "Configurado OK",
+      "elapsed": 0.6019864082336426
+    },
+    {
+      "status": "PASS",
+      "section": "SAFETY",
+      "name": "3.6-rate-limit",
+      "msg": "RateLimit=disparado",
+      "elapsed": 0.006334066390991211
+    },
+    {
+      "status": "PASS",
+      "section": "SAFETY",
+      "name": "3.7-100-checks-concurrentes",
+      "msg": "100 checks, 90 excepciones",
+      "elapsed": 0.230513334274292
+    },
+    {
+      "status": "PASS",
+      "section": "SAFETY",
+      "name": "3.8-limite-semanal",
+      "msg": "Checked $10.0, bloqueado=True",
+      "elapsed": 0.006475925445556641
+    },
+    {
+      "status": "PASS",
+      "section": "KYA",
+      "name": "4.1-crear-identidad",
+      "msg": "DID=did:iagent:2cbfa0e4dabe1e5b39d...",
+      "elapsed": 0.0024046897888183594
+    },
+    {
+      "status": "PASS",
+      "section": "KYA",
+      "name": "4.2-registrar-agente",
+      "msg": "Trust=TrustLevel.BASIC",
+      "elapsed": 0.0029408931732177734
+    },
+    {
+      "status": "PASS",
+      "section": "KYA",
+      "name": "4.3-dids-unicos",
+      "msg": "20/20 únicos",
+      "elapsed": 0.04010486602783203
+    },
+    {
+      "status": "PASS",
+      "section": "KYA",
+      "name": "4.4-niveles-confianza",
+      "msg": "4 niveles registrados",
+      "elapsed": 0.007941961288452148
+    },
+    {
+      "status": "PASS",
+      "section": "KYA",
+      "name": "4.5-blacklist",
+      "msg": "Blacklisted OK",
+      "elapsed": 0.0020575523376464844
+    },
+    {
+      "status": "PASS",
+      "section": "KYA",
+      "name": "4.6-serializacion",
+      "msg": "to_dict OK",
+      "elapsed": 0.0020270347595214844
+    },
+    {
+      "status": "PASS",
+      "section": "KYA",
+      "name": "4.7-200-agentes-masivos",
+      "msg": "200/200 OK",
+      "elapsed": 0.38773274421691895
+    },
+    {
+      "status": "PASS",
+      "section": "KYA",
+      "name": "4.8-credenciales-cruzadas",
+      "msg": "Credencial emitida y válida",
+      "elapsed": 0.004062175750732422
+    },
+    {
+      "status": "PASS",
+      "section": "REPUTACION",
+      "name": "5.1-calificar-agente",
+      "msg": "Score=4.5",
+      "elapsed": 0.6204066276550293
+    },
+    {
+      "status": "PASS",
+      "section": "REPUTACION",
+      "name": "5.2-score-default",
+      "msg": "Score default=3.0",
+      "elapsed": 0.6360917091369629
+    },
+    {
+      "status": "PASS",
+      "section": "REPUTACION",
+      "name": "5.3-rango-score",
+      "msg": "min=0.0, max=2.5",
+      "elapsed": 0.6276767253875732
+    },
+    {
+      "status": "PASS",
+      "section": "REPUTACION",
+      "name": "5.4-promedio-multiple",
+      "msg": "Final=3.70",
+      "elapsed": 0.6282796859741211
+    },
+    {
+      "status": "PASS",
+      "section": "REPUTACION",
+      "name": "5.5-blacklist-score-0",
+      "msg": "Score=0.0",
+      "elapsed": 0.6166324615478516
+    },
+    {
+      "status": "PASS",
+      "section": "REPUTACION",
+      "name": "5.6-100-ratings-concurrentes",
+      "msg": "100/100 OK, 0 errores",
+      "elapsed": 5.529986143112183
+    },
+    {
+      "status": "PASS",
+      "section": "FACTURAS",
+      "name": "6.1-crear-factura",
+      "msg": "ID=inv_a85b5a9e...",
+      "elapsed": 0.004627704620361328
+    },
+    {
+      "status": "PASS",
+      "section": "FACTURAS",
+      "name": "6.2-factura-eth",
+      "msg": "OK",
+      "elapsed": 0.003937244415283203
+    },
+    {
+      "status": "PASS",
+      "section": "FACTURAS",
+      "name": "6.3-ids-unicos-facturas",
+      "msg": "20/20 únicos",
+      "elapsed": 0.07777976989746094
+    },
+    {
+      "status": "PASS",
+      "section": "FACTURAS",
+      "name": "6.4-factura-USDC",
+      "msg": "OK",
+      "elapsed": 0.0039408206939697266
+    },
+    {
+      "status": "PASS",
+      "section": "FACTURAS",
+      "name": "6.4-factura-USDT",
+      "msg": "OK",
+      "elapsed": 0.0038754940032958984
+    },
+    {
+      "status": "PASS",
+      "section": "FACTURAS",
+      "name": "6.4-factura-DAI",
+      "msg": "OK",
+      "elapsed": 0.0038285255432128906
+    },
+    {
+      "status": "PASS",
+      "section": "FACTURAS",
+      "name": "6.4-factura-ETH",
+      "msg": "OK",
+      "elapsed": 0.003819704055786133
+    },
+    {
+      "status": "PASS",
+      "section": "FACTURAS",
+      "name": "6.5-factura-con-expiracion",
+      "msg": "OK con expiry_hours=1",
+      "elapsed": 0.0039288997650146484
+    },
+    {
+      "status": "PASS",
+      "section": "FACTURAS",
+      "name": "6.6-100-facturas-concurrentes",
+      "msg": "100 únicos, 0 errores",
+      "elapsed": 0.42177295684814453
+    },
+    {
+      "status": "PASS",
+      "section": "SESSION",
+      "name": "7.1-crear-session-key",
+      "msg": "Key=<iagent_pay.session_keys.Sessi...",
+      "elapsed": 0.01055765151977539
+    },
+    {
+      "status": "PASS",
+      "section": "SESSION",
+      "name": "7.2-session-key-use",
+      "msg": "use_session_key OK: None",
+      "elapsed": 0.6175312995910645
+    },
+    {
+      "status": "PASS",
+      "section": "SESSION",
+      "name": "7.3-multiples-session-keys",
+      "msg": "5 keys creadas",
+      "elapsed": 0.04903006553649902
+    },
+    {
+      "status": "PASS",
+      "section": "SESSION",
+      "name": "7.4-session-key-expirada",
+      "msg": "Excepcion al validar expirada (OK)",
+      "elapsed": 0.009572744369506836
+    },
+    {
+      "status": "PASS",
+      "section": "MARKETPLACE",
+      "name": "8.1-publicar-bounty",
+      "msg": "ID=f044745c",
+      "elapsed": 0.003309011459350586
+    },
+    {
+      "status": "PASS",
+      "section": "MARKETPLACE",
+      "name": "8.2-listar-bounties",
+      "msg": "Encontrados=1",
+      "elapsed": 0.0015821456909179688
+    },
+    {
+      "status": "PASS",
+      "section": "MARKETPLACE",
+      "name": "8.3-bounty-descripcion-larga",
+      "msg": "OK 500 chars",
+      "elapsed": 0.0026972293853759766
+    },
+    {
+      "status": "PASS",
+      "section": "MARKETPLACE",
+      "name": "8.4-50-bounties",
+      "msg": "Total=52",
+      "elapsed": 0.16952943801879883
+    },
+    {
+      "status": "PASS",
+      "section": "MARKETPLACE",
+      "name": "8.5-20-bounties-concurrentes",
+      "msg": "20/20 OK",
+      "elapsed": 0.2539191246032715
+    },
+    {
+      "status": "PASS",
+      "section": "DEFI",
+      "name": "9.1-enable-aave",
+      "msg": "Active=True",
+      "elapsed": 0.5051360130310059
+    },
+    {
+      "status": "PASS",
+      "section": "DEFI",
+      "name": "9.2-enable-compound",
+      "msg": "Active=True",
+      "elapsed": 0.47448253631591797
+    },
+    {
+      "status": "PASS",
+      "section": "DEFI",
+      "name": "9.3-disable-yield",
+      "msg": "Disabled OK via yield_manager.active=False",
+      "elapsed": 0.4606034755706787
+    },
+    {
+      "status": "PASS",
+      "section": "DEFI",
+      "name": "9.4-protocolo-invalido",
+      "msg": "Manejado sin crash",
+      "elapsed": 2.065528392791748
+    },
+    {
+      "status": "PASS",
+      "section": "DEFI",
+      "name": "9.5-10-agentes-defi-concurrentes",
+      "msg": "10/10 OK, 0 errores",
+      "elapsed": 1.6466925144195557
+    },
+    {
+      "status": "PASS",
+      "section": "DASHBOARD",
+      "name": "10.1-home",
+      "msg": "HTTP 200 OK",
+      "elapsed": 0.32213592529296875
+    },
+    {
+      "status": "PASS",
+      "section": "DASHBOARD",
+      "name": "10.2-user-dashboard",
+      "msg": "HTTP 200 OK",
+      "elapsed": 0.3182337284088135
+    },
+    {
+      "status": "PASS",
+      "section": "DASHBOARD",
+      "name": "10.3-admin-dashboard",
+      "msg": "HTTP 200 OK",
+      "elapsed": 0.31612110137939453
+    },
+    {
+      "status": "PASS",
+      "section": "DASHBOARD",
+      "name": "10.4-terms",
+      "msg": "HTTP 200 OK",
+      "elapsed": 0.24256086349487305
+    },
+    {
+      "status": "PASS",
+      "section": "DASHBOARD",
+      "name": "10.api-api-admin-metrics",
+      "msg": "HTTP 200",
+      "elapsed": 0.2952573299407959
+    },
+    {
+      "status": "PASS",
+      "section": "DASHBOARD",
+      "name": "10.api-api-reputation",
+      "msg": "HTTP 403 (auth requerido)",
+      "elapsed": 0.23418712615966797
+    },
+    {
+      "status": "PASS",
+      "section": "DASHBOARD",
+      "name": "10.api-api-transactions",
+      "msg": "HTTP 200",
+      "elapsed": 0.3196732997894287
+    },
+    {
+      "status": "PASS",
+      "section": "DASHBOARD",
+      "name": "10.load-30-requests",
+      "msg": "21/30 HTTP 200, 9 errores",
+      "elapsed": 0.4126923084259033
+    },
+    {
+      "status": "PASS",
+      "section": "SWAP",
+      "name": "11.1-swap-eth-usdc",
+      "msg": "OK: {'tx_hash': 'SIM_SWAP_1779983969', 'inpu",
+      "elapsed": 0.4689452648162842
+    },
+    {
+      "status": "PASS",
+      "section": "SWAP",
+      "name": "11.2-swap-usdc-eth",
+      "msg": "OK",
+      "elapsed": 0.5224082469940186
+    },
+    {
+      "status": "PASS",
+      "section": "SWAP",
+      "name": "11.3-execute-swap-directo",
+      "msg": "OK: {'tx_hash': 'SIM_SWAP_1779983970', 'inpu",
+      "elapsed": 0.48140406608581543
+    },
+    {
+      "status": "PASS",
+      "section": "SWAP",
+      "name": "11.4-auto-swap-habilitado",
+      "msg": "Pago OK con auto-swap",
+      "elapsed": 0.583080530166626
+    },
+    {
+      "status": "PASS",
+      "section": "SWAP",
+      "name": "11.5-20-swaps-concurrentes",
+      "msg": "20/20 OK, 0 errores",
+      "elapsed": 0.5045278072357178
+    },
+    {
+      "status": "FAIL",
+      "section": "ESTRES",
+      "name": "12.1-200-ops-mixtas",
+      "msg": "153/200 OK (76.5%), 47 errores",
+      "elapsed": 2.212118148803711
+    },
+    {
+      "status": "PASS",
+      "section": "ESTRES",
+      "name": "12.2-50-agentes-ciclo-vida",
+      "msg": "50/50 sin memory error",
+      "elapsed": 31.470486879348755
+    },
+    {
+      "status": "FAIL",
+      "section": "ESTRES",
+      "name": "12.3-db-integridad-bajo-carga",
+      "msg": "Rate limit: max 20 tx/min exceeded",
+      "elapsed": null
+    },
+    {
+      "status": "PASS",
+      "section": "ESTRES",
+      "name": "12.4-recuperacion-db-corrupta",
+      "msg": "Agente inicializado tras DB corrupta",
+      "elapsed": 0.6199438571929932
+    }
+  ]
+}

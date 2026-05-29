@@ -173,8 +173,9 @@ class HumanApproval:
         )
         self._notify(pending)
 
-        # In console mode: prompt user directly
-        if self.config.allow_console_approval:
+        # In console mode: prompt user directly if attached to a terminal
+        import sys
+        if self.config.allow_console_approval and sys.stdin and sys.stdin.isatty():
             try:
                 answer = input(f"\n→ Approve payment {approval_id}? [y/N]: ").strip().lower()
                 if answer == "y":
@@ -184,6 +185,9 @@ class HumanApproval:
             except (EOFError, KeyboardInterrupt):
                 pending.reject()
         else:
+            if self.config.allow_console_approval and (not sys.stdin or not sys.stdin.isatty()):
+                logger.warning("[HITL] Console approval enabled but running in headless mode. Waiting for external webhook/API approval.")
+
             # Wait for external approval via approve()/reject() methods
             status = pending.wait(timeout=self.config.timeout_seconds)
             logger.info(f"[HITL] {approval_id} → {status.value}")

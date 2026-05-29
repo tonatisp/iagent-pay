@@ -1,0 +1,19 @@
+{
+  "name": "iagent-pay-contracts",
+  "version": "1.0.0",
+  "description": "Smart Contracts for iAgentPay Phase 7",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx hardhat test",
+    "compile": "npx hardhat compile"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.0",
+    "dotenv": "^17.4.2"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.20.0",
+    "solidity-coverage": "^0.8.17"
+  }
+}

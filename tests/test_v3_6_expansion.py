@@ -11,7 +11,7 @@ class TestV3_6Expansion(unittest.TestCase):
                 try: os.remove(db)
                 except: pass
         self.agent = AgentPay(chain_name="SEPOLIA")
-        self.trusted_peer = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+        self.trusted_peer = "0x999935Cc6634C0532925a3b844Bc454e4438f44e"
 
     def test_trust_based_discount(self):
         """
@@ -60,6 +60,8 @@ class TestV3_6Expansion(unittest.TestCase):
         # We simulate rest failure by breaking urllib.request.urlopen
         import urllib.request
         original_open = urllib.request.urlopen
+        original_w3 = self.agent.w3
+        self.agent.w3 = None
         
         def mock_open(url, timeout=None):
             raise Exception("Network Timeout (Simulated)")
@@ -74,6 +76,7 @@ class TestV3_6Expansion(unittest.TestCase):
         print(f"✅ Self-Healing Pricing Fallback used: {price} USD")
         
         urllib.request.urlopen = original_open
+        self.agent.w3 = original_w3
 
 if __name__ == "__main__":
     unittest.main()

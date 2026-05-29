@@ -4,19 +4,33 @@ services:
   agent-alpha:
     build: .
     container_name: agent-alpha
+    restart: unless-stopped
+    env_file:
+      - .env
     environment:
       - AGENT_NAME=Alpha
       - CHAIN=BASE
+      - IAGENT_PAY_TESTING=0
     volumes:
       - ./data:/app/data
+      - ./agent_history.db:/app/agent_history.db
+      - ./agent_reputation.db:/app/agent_reputation.db
+      - ./agent_marketplace.db:/app/agent_marketplace.db
 
   agent-beta:
     build: .
     container_name: agent-beta
+    restart: unless-stopped
+    env_file:
+      - .env
     environment:
       - AGENT_NAME=Beta
       - CHAIN=SOLANA
+      - IAGENT_PAY_TESTING=0
     volumes:
       - ./data:/app/data
+      - ./agent_history.db:/app/agent_history.db
+      - ./agent_reputation.db:/app/agent_reputation.db
+      - ./agent_marketplace.db:/app/agent_marketplace.db
     depends_on:
       - agent-alpha

@@ -51,7 +51,7 @@ class X402Client:
 
     Example:
         client = X402Client(
-            private_key=os.getenv("ETH_PRIVATE_KEY"),
+            private_key=WalletManager().get_or_create_wallet().key,
             network="BASE_SEPOLIA",
             max_amount_usdc=1.0,  # Never pay more than $1 per request
         )

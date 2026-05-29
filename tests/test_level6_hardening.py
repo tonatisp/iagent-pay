@@ -32,7 +32,15 @@ class TestLevel6Hardening(unittest.TestCase):
         self.assertTrue(os.path.exists(export_file))
         
         # 3. Create fresh agent and import
-        os.remove("agent_reputation.db") # Simulate loss
+        try:
+            os.remove("agent_reputation.db") # Simulate loss
+        except PermissionError:
+            import sqlite3
+            conn = sqlite3.connect("agent_reputation.db")
+            conn.execute("DELETE FROM peer_ratings")
+            conn.execute("DELETE FROM rating_log")
+            conn.commit()
+            conn.close()
         fresh_agent = AgentPay(chain_name="SEPOLIA")
         self.assertEqual(fresh_agent.get_trust_score("0xTEST"), 3.0) # Confirm loss (Neutral)
         

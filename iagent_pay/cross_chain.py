@@ -84,3 +84,40 @@ class CrossChainRouter:
             "to_address": to_address,
             "timestamp": time.time()
         }
+
+class IntentEngine:
+    """
+    Advanced Intent-Based Routing (Agent Payments Protocol / AP2).
+    Agents express 'what' they want, the engine figures out 'how' to route it.
+    """
+    def __init__(self, router: CrossChainRouter = None):
+        self.router = router or CrossChainRouter()
+        
+    def pay_intent(
+        self,
+        from_private_key: str,
+        from_network: str,
+        to_network: str,
+        to_address: str,
+        amount_usd: float,
+        max_fee_percent: float = 5.0
+    ) -> Dict[str, Any]:
+        """
+        Executes a payment based on intent. 
+        Automatically deducts fees or requests human approval if fees are too high.
+        """
+        logger.info(f"[IntentEngine] Intent Received: Deliver ${amount_usd} to {to_network} ({to_address})")
+        
+        # In a real system, this would query multiple DEXs/Bridges to find the cheapest route.
+        quote = self.router.quote(from_network, to_network, amount_usd)
+        fee_percent = (quote['bridge_fee_usd'] / amount_usd) * 100
+        
+        if fee_percent > max_fee_percent:
+            logger.warning(f"[IntentEngine] ⚠️ Route fee ({fee_percent:.2f}%) exceeds max ({max_fee_percent:.2f}%).")
+            # Usually we'd hook into HumanApproval here, but for now we pause the intent.
+            return {"status": "paused_for_approval", "reason": "High bridge fees", "quote": quote}
+            
+        logger.info(f"[IntentEngine] Route locked. Fee is {fee_percent:.2f}%. Executing...")
+        return self.router.pay_cross_chain(
+            from_private_key, from_network, to_network, to_address, amount_usd
+        )

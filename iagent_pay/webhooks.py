@@ -42,8 +42,26 @@ from typing import Optional, List, Dict, Any, Callable
 from dataclasses import dataclass, field
 
 import requests
+import urllib3.util.connection
 
 logger = logging.getLogger("iagentpay.webhooks")
+
+# Thread-local storage for DNS pinning
+_dns_pinning = threading.local()
+
+# Original urllib3 create_connection
+_orig_create_connection = urllib3.util.connection.create_connection
+
+def _patched_create_connection(address, *args, **kwargs):
+    # address is (host, port)
+    host, port = address
+    pinned_ip = getattr(_dns_pinning, 'pinned_ip', None)
+    pinned_host = getattr(_dns_pinning, 'pinned_host', None)
+    if pinned_ip and pinned_host == host:
+        return _orig_create_connection((pinned_ip, port), *args, **kwargs)
+    return _orig_create_connection(address, *args, **kwargs)
+
+urllib3.util.connection.create_connection = _patched_create_connection
 
 # All supported event types
 WEBHOOK_EVENTS = [
@@ -124,6 +142,31 @@ class WebhookManager:
         events: Optional[List[str]] = None,
     ) -> WebhookEndpoint:
         """Register a new webhook endpoint."""
+        # SSRF Mitigation: Validate URL and ensure it only resolves to public, non-local/non-private IPs.
+        import socket
+        import ipaddress
+        from urllib.parse import urlparse
+
+        try:
+            parsed_url = urlparse(url)
+            if not parsed_url.scheme or not parsed_url.netloc:
+                raise ValueError("Invalid URL structure.")
+            
+            host = parsed_url.hostname
+            if not host:
+                raise ValueError("Invalid hostname.")
+                
+            # Resolve all IPs for the hostname
+            addr_info = socket.getaddrinfo(host, None)
+            for addr in addr_info:
+                ip_str = addr[4][0]
+                ip = ipaddress.ip_address(ip_str)
+                # Check for loopback, private, link-local, multicast, etc.
+                if ip.is_loopback or ip.is_private or ip.is_link_local or ip.is_multicast or ip.is_reserved:
+                    raise ValueError(f"URL resolves to non-public/private IP: {ip_str}")
+        except Exception as e:
+            raise ValueError(f"Webhook URL validation failed: {e}")
+
         endpoint = WebhookEndpoint(
             url=url,
             secret=secret or self._default_secret,
@@ -251,6 +294,45 @@ class WebhookManager:
 
     def _deliver(self, event: WebhookEvent, endpoint: WebhookEndpoint):
         """Deliver a single event to one endpoint with retries."""
+        # Resolve, validate, and pin IP address to prevent SSRF and DNS Rebinding (TOCTOU)
+        from urllib.parse import urlparse
+        import socket
+        import ipaddress
+
+        try:
+            parsed_url = urlparse(endpoint.url)
+            host = parsed_url.hostname
+            if not host:
+                raise ValueError("Invalid URL structure.")
+            
+            # Resolve DNS
+            addr_info = socket.getaddrinfo(host, parsed_url.port or (443 if parsed_url.scheme == 'https' else 80))
+            if not addr_info:
+                raise ValueError("No DNS records found.")
+            
+            # Check all resolved IPs to ensure they are all public.
+            for addr in addr_info:
+                ip_str = addr[4][0]
+                ip = ipaddress.ip_address(ip_str)
+                if ip.is_loopback or ip.is_private or ip.is_link_local or ip.is_multicast or ip.is_reserved:
+                    raise ValueError(f"IP {ip_str} is private/reserved.")
+            
+            # Pin the first resolved IP
+            ip_str = addr_info[0][4][0]
+        except Exception as e:
+            logger.error(f"[Webhooks] SSRF/DNS Rebinding prevention: Webhook target URL resolution failed: {e}")
+            with self._lock:
+                self._delivery_log.append({
+                    "event_id":   event.event_id,
+                    "event_type": event.event_type,
+                    "url":        endpoint.url,
+                    "status":     "failed",
+                    "http_code":  400,
+                    "attempt":    1,
+                    "timestamp":  time.time(),
+                })
+            return
+
         payload_str = json.dumps(event.to_dict())
         ts          = str(int(event.timestamp))
         signature   = self.sign(payload_str, endpoint.secret, ts)
@@ -263,37 +345,48 @@ class WebhookManager:
             "User-Agent":           "iAgentPay-Webhooks/5.0.0",
         }
 
-        for attempt in range(1, endpoint.retry_count + 1):
-            try:
-                response = requests.post(
-                    endpoint.url,
-                    data=payload_str,
-                    headers=headers,
-                    timeout=endpoint.timeout,
-                )
-                status = "success" if response.status_code < 300 else "failed"
-                logger.info(
-                    f"[Webhooks] {event.event_type} → {endpoint.url} "
-                    f"({response.status_code}) attempt {attempt}"
-                )
-                with self._lock:
-                    self._delivery_log.append({
-                        "event_id":   event.event_id,
-                        "event_type": event.event_type,
-                        "url":        endpoint.url,
-                        "status":     status,
-                        "http_code":  response.status_code,
-                        "attempt":    attempt,
-                        "timestamp":  time.time(),
-                    })
-                if response.status_code < 300:
-                    return  # Success — no retry needed
-            except requests.RequestException as e:
-                logger.warning(
-                    f"[Webhooks] Delivery failed (attempt {attempt}/{endpoint.retry_count}): {e}"
-                )
-                if attempt < endpoint.retry_count:
-                    time.sleep(2 ** attempt)  # Exponential backoff: 2s, 4s, 8s
+        # Set the thread-local DNS pinning values
+        _dns_pinning.pinned_host = host
+        _dns_pinning.pinned_ip = ip_str
+
+        try:
+            for attempt in range(1, endpoint.retry_count + 1):
+                try:
+                    response = requests.post(
+                        endpoint.url,
+                        data=payload_str,
+                        headers=headers,
+                        timeout=endpoint.timeout,
+                    )
+                    status = "success" if response.status_code < 300 else "failed"
+                    logger.info(
+                        f"[Webhooks] {event.event_type} → {endpoint.url} "
+                        f"({response.status_code}) attempt {attempt}"
+                    )
+                    with self._lock:
+                        self._delivery_log.append({
+                            "event_id":   event.event_id,
+                            "event_type": event.event_type,
+                            "url":        endpoint.url,
+                            "status":     status,
+                            "http_code":  response.status_code,
+                            "attempt":    attempt,
+                            "timestamp":  time.time(),
+                        })
+                    if response.status_code < 300:
+                        return  # Success — no retry needed
+                except requests.RequestException as e:
+                    logger.warning(
+                        f"[Webhooks] Delivery failed (attempt {attempt}/{endpoint.retry_count}): {e}"
+                    )
+                    if attempt < endpoint.retry_count:
+                        time.sleep(2 ** attempt)  # Exponential backoff: 2s, 4s, 8s
+        finally:
+            # Clean up the thread-local cache
+            if hasattr(_dns_pinning, 'pinned_host'):
+                del _dns_pinning.pinned_host
+            if hasattr(_dns_pinning, 'pinned_ip'):
+                del _dns_pinning.pinned_ip
 
         logger.error(
             f"[Webhooks] All {endpoint.retry_count} attempts failed for "

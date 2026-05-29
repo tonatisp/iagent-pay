@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for contracts\AgentPaymaster.sol</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">contracts/</a> AgentPaymaster.sol
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">85.71% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>6/7</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">66.67% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>4/6</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">80% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>4/5</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">80% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>8/10</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+&nbsp;
+import "@openzeppelin/contracts/access/Ownable.sol";
+&nbsp;
+/**
+ * @title AgentPaymaster
+ * @dev A simplified gas sponsorship vault for AI Agents. 
+ * Enterprises deposit ETH here to sponsor their fleet of agents.
+ * Full EIP-4337 integration requires linking to the EntryPoint contract.
+ */
+contract AgentPaymaster is Ownable {
+    mapping(address =&gt; uint256) public sponsorBalances;
+    mapping(address =&gt; mapping(address =&gt; bool)) public authorizedAgents; // sponsor -&gt; agent -&gt; isAuthorized
+&nbsp;
+    event Deposited(address indexed sponsor, uint256 amount);
+    event AgentAuthorized(address indexed sponsor, address indexed agent);
+    event AgentRevoked(address indexed sponsor, address indexed agent);
+&nbsp;
+    constructor(address initialOwner) Ownable(initialOwner) {}
+&nbsp;
+    // 1. Enterprise deposits ETH to sponsor their agents
+    function deposit() public payable {
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(msg.value &gt; 0, "Must deposit ETH");
+        sponsorBalances[msg.sender] += msg.value;
+        emit Deposited(msg.sender, msg.value);
+    }
+&nbsp;
+    // 2. Enterprise authorizes a specific AI Agent address to use their gas
+    function authorizeAgent(address agent) public {
+        authorizedAgents[msg.sender][agent] = true;
+        emit AgentAuthorized(msg.sender, agent);
+    }
+&nbsp;
+    // 3. Enterprise revokes access
+<span class="fstat-no" title="function not covered" >    function revokeAgent(address agent) public {</span>
+        authorizedAgents[msg.sender][agent] = false;
+<span class="cstat-no" title="statement not covered" >        emit AgentRevoked(msg.sender, agent);</span>
+    }
+&nbsp;
+    // 4. EIP-4337 Validation (Mock function for Phase 7 MVP)
+    // In production, the EntryPoint contract calls validatePaymasterUserOp
+    function validatePaymasterUserOp(address sponsor, address agent, uint256 requiredGas) public view returns (bool) {
+        require(authorizedAgents[sponsor][agent], "Agent not authorized by sponsor");
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(sponsorBalances[sponsor] &gt;= requiredGas, "Sponsor has insufficient gas balance");
+        return true;
+    }
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Fri May 22 2026 21:45:42 GMT-0600 (hora estándar central)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

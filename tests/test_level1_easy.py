@@ -7,10 +7,12 @@ class TestLevel1Easy(unittest.TestCase):
     def setUpClass(cls):
         print(f"\nDEBUG: Importing AgentPay from {AgentPay.__module__}")
         print(f"DEBUG: Attributes: {[m for m in dir(AgentPay) if not m.startswith('__')]}")
-        # Clear existing DBs for clean test state
         for db in ["agent_reputation.db", "agent_history.db", "agent_marketplace.db"]:
             if os.path.exists(db):
-                os.remove(db)
+                try:
+                    os.remove(db)
+                except Exception:
+                    pass
         
         # We use SEPOLIA for EVM tests as it's a testnet
         cls.agent_evm = AgentPay(chain_name="SEPOLIA")

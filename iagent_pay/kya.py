@@ -251,22 +251,69 @@ class KYARegistry:
 
     def _mint_soulbound_token(self, did: str):
         """
-        Simulates minting an On-Chain Soulbound Token (NFT) to immortalize the agent's identity.
-        In production, this would call a Smart Contract on Base or Solana.
+        Mints a real On-Chain Soulbound Token (NFT) on Base Sepolia.
+        Falls back to simulation if RPC or Private Key is missing.
         """
         agent = self._agents.get(did)
         if not agent:
             return
             
+        # Optional web3 integration for Phase 7
+        try:
+            from web3 import Web3
+            import os
+            
+            rpc_url = os.environ.get("BASE_SEPOLIA_RPC", "")
+            contract_address = os.environ.get("SBT_CONTRACT_ADDRESS", "0x0000000000000000000000000000000000000000")
+            
+            if rpc_url and contract_address != "0x0000000000000000000000000000000000000000":
+                w3 = Web3(Web3.HTTPProvider(rpc_url))
+                from iagent_pay.wallet_manager import WalletManager
+                account = WalletManager().get_or_create_wallet()
+                private_key = account.key
+                
+                # Minimal ABI for mintIdentity(address,string)
+                abi = [{"inputs":[{"internalType":"address","name":"agent","type":"address"},{"internalType":"string","name":"reputationURI","type":"string"}],"name":"mintIdentity","outputs":[],"stateMutability":"nonpayable","type":"function"}]
+                contract = w3.eth.contract(address=contract_address, abi=abi)
+                
+                # Extract eth address from did if possible, or use a default
+                agent_addr = did.replace("did:iagent:", "")
+                if not w3.is_address(agent_addr):
+                    agent_addr = account.address # Fallback to owner if agent doesn't have an ETH address
+                    
+                tx = contract.functions.mintIdentity(
+                    agent_addr, 
+                    f"ipfs://reputation/{agent.name}"
+                ).build_transaction({
+                    'from': account.address,
+                    'nonce': w3.eth.get_transaction_count(account.address),
+                    'gas': 200000,
+                    'gasPrice': w3.eth.gas_price
+                })
+                
+                signed_tx = w3.eth.account.sign_transaction(tx, private_key)
+                tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
+                
+                logger.info(f"[KYA-OnChain] 🏆 Real Soulbound NFT Minted for {agent.name}!")
+                logger.info(f"[KYA-OnChain] Network: Base Sepolia | TxHash: {tx_hash.hex()}")
+                
+                self.issue_credential(
+                    did, 
+                    credential_type="OnChainIdentitySBT", 
+                    claims={"tx_hash": tx_hash.hex(), "network": "BASE_SEPOLIA", "contract": contract_address}
+                )
+                return
+        except Exception as e:
+            logger.warning(f"[KYA-OnChain] Web3 minting failed, falling back to local claim: {e}")
+            
+        # Fallback to local simulation if no web3/keys
         tx_hash = f"0x_sbt_mint_{secrets.token_hex(16)}"
-        logger.info(f"[KYA-OnChain] 🏆 Minting Soulbound Identity NFT for {agent.name}")
-        logger.info(f"[KYA-OnChain] Transaction Hash: {tx_hash}")
+        logger.info(f"[KYA-OnChain] 🏆 Minting Local Soulbound Claim for {agent.name}")
         
-        # We attach the claim to their credentials
         self.issue_credential(
             did, 
             credential_type="OnChainIdentitySBT", 
-            claims={"tx_hash": tx_hash, "network": "BASE_MAINNET"}
+            claims={"tx_hash": tx_hash, "network": "LOCAL_SIMULATION"}
         )
 
     def blacklist(self, did: str, reason: str = ""):

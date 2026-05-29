@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name="iagent-pay",
     version="6.0.0",
-    description="The Universal AI Agent Banking Layer: x402, USDC, Safety Kernel, MCP, Multi-Chain",
+    description="Universal AI Agent Banking Layer: 25 modules, 6 chains, x402, Safety Kernel, MCP, CrewAI, LangChain, Fiat Bridge",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     author="iAgent Team",
@@ -45,5 +45,5 @@ setup(
         "Topic :: Office/Business :: Financial",
     ],
     python_requires='>=3.9',
-    keywords="ai agents payments x402 usdc solana xrp langchain crewai mcp blockchain",
+    keywords="ai agents payments x402 usdc solana xrp ethereum polygon arbitrum bnb langchain crewai mcp blockchain fiat stripe webhooks safety-kernel reputation multi-chain autonomous",
 )

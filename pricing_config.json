@@ -1,10 +1,11 @@
 {
-    "trial_days": 100,
-    "subscription_price_eth": 0.01,
-    "pay_per_use_price_eth": 0.00004,
-    "active": true,
-    "treasury": {
-        "EVM": "0xF29E7b5BC7fdd6C4d9B4DE9f68De31739FBB1526",
-        "SOLANA": "4jjCQEbrLgthZ9Q8yGrvK7EKq8bydGuefPP7nzQGg12j"
-    }
+  "trial_days": 730,
+  "fee_rate_percent": 0.1,
+  "fee_rate_decimal": 0.001,
+  "active": true,
+  "use_oracles_primary": true,
+  "treasury": {
+    "EVM": "0xF29E7b5BC7fdd6C4d9B4DE9f68De31739FBB1526",
+    "SOLANA": "4jjCQEbrLgthZ9Q8yGrvK7EKq8bydGuefPP7nzQGg12j"
+  }
 }

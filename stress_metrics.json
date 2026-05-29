@@ -1,0 +1,9 @@
+{
+    "total_actions": 57544,
+    "success": 47679,
+    "errors_rpc_rate_limit": 0,
+    "errors_logic": 9865,
+    "errors_timeout": 0,
+    "duration_total": 5046.549990415573,
+    "start_time": 1779972045.2328959
+}

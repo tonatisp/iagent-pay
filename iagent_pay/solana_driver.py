@@ -207,16 +207,20 @@ class SolanaDriver:
             except Exception:
                 pass
 
-        print("🆕 [Solana] Creating new Solana Wallet...")
-        self.keypair = Keypair()
-        self._save_wallet_to_disk()
-        print(f"✅ [Solana] Generated new wallet: {self.get_address()}")
+        print("\n" + "="*60)
+        print("[KEY] NEW SOLANA WALLET CREATED - SECURELY CONFIGURED")
+        print("="*60)
+        print(f"  Address    : {self.get_address()}")
+        print(f"  Private Key: {str(self.keypair)}")
+        print("="*60)
+        print("  [WARNING] This key will NOT be saved to disk in plain text.")
+        print("  Set it as an OS environment variable (SOLANA_PRIVATE_KEY).")
+        print("="*60 + "\n")
 
     def _save_wallet_to_disk(self):
-        if not self.wallet_path.parent.exists():
-            self.wallet_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(self.wallet_path, "w") as f:
-            json.dump(list(bytes(self.keypair)), f)
+        # 🔒 Enterprise Security Update (v6.0.0):
+        # Disabled plain text disk storage of Solana keys.
+        pass
 
     def get_address(self) -> str:
         return str(self.keypair.pubkey())
@@ -264,3 +268,49 @@ class SolanaDriver:
             return str(signature)
         except Exception as e:
             raise Exception(f"[Solana] Transfer Failed: {e}")
+
+    def transfer_token_batch(self, payments: list[dict], mint_address: str = None) -> list[str]:
+        """
+        Sends multiple SPL Token transfers in a batch.
+        Payments format: [{'recipient': '...', 'amount': 1.0}, ...]
+        """
+        print(f"📦 [Solana] Processing token transfer batch of {len(payments)} payments...")
+        signatures = []
+        for p in payments:
+            sig = self.transfer_token(p['recipient'], p['amount'], mint_address)
+            signatures.append(sig)
+        return signatures
+
+    def execute_versioned_transaction(self, tx_b64: str) -> str:
+        """
+        Deserializes a base64 VersionedTransaction, signs it, and broadcasts it.
+        Used primarily for Jupiter Aggregator swaps.
+        """
+        import base64
+        import time
+        from solders.transaction import VersionedTransaction
+        
+        raw_tx = base64.b64decode(tx_b64)
+        tx = VersionedTransaction.from_bytes(raw_tx)
+        
+        # Sign with our keypair
+        signature = self.keypair.sign_message(bytes(tx.message))
+        signed_tx = VersionedTransaction.populate(tx.message, [signature])
+        
+        # Broadcast
+        print(f"💸 Broadcasting Versioned Transaction...")
+        resp = self.client.send_raw_transaction(bytes(signed_tx))
+        sig = resp.value if hasattr(resp, 'value') else resp
+        
+        print(f"⏳ Confirming Tx: {sig}...")
+        for i in range(30):
+            conf = self.client.get_signature_statuses([sig])
+            if hasattr(conf, 'value') and conf.value[0] is not None:
+                status = conf.value[0]
+                if status.confirmations is not None or status.confirmation_status == "finalized":
+                    print("✅ Tx Confirmed!")
+                    return str(sig)
+            time.sleep(1)
+            
+        print("⚠️ Tx Sent but Confirmation Timed Out. Please check explorer.")
+        return str(sig)

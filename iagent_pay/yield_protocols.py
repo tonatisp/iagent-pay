@@ -156,3 +156,22 @@ class YieldManager:
                 print(f"🏦 [YieldManager] Current Aave Treasury: {balance:.6f} USDC")
         except Exception as e:
             print(f"⚠️ [YieldManager] Harvest failed: {e}")
+
+    def auto_invest(self, token_symbol: str, idle_balance: float, buffer_usd: float = 50.0):
+        """
+        Autonomous Treasury: Automatically invests idle funds into DeFi protocols.
+        Leaves a 'buffer_usd' amount liquid for immediate agent expenses.
+        """
+        if not self.active:
+            return
+            
+        if idle_balance <= buffer_usd:
+            print(f"🏦 [Autonomous Treasury] Idle balance ({idle_balance:.2f} {token_symbol}) is below buffer ({buffer_usd:.2f} {token_symbol}). Skipping invest.")
+            return
+            
+        invest_amount = idle_balance - buffer_usd
+        print(f"🏦 [Autonomous Treasury] Detected {invest_amount:.2f} {token_symbol} in idle funds. Routing to {self.protocol.upper()} for yield...")
+        
+        # Call the existing deposit function
+        self.deposit(token_symbol, invest_amount)
+        print(f"🏦 [Autonomous Treasury] Successfully staked {invest_amount:.2f} {token_symbol}. Generating passive income.")

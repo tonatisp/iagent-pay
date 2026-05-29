@@ -10,11 +10,17 @@ class TestLevel2Medium(unittest.TestCase):
 
     def test_gas_guardrail(self):
         print("\n[Level 2] Testing Gas Guardrail...")
-        # Set a ridiculously low gas price limit (0.01 Gwei)
-        with self.assertRaises(ValueError) as cm:
-            self.agent.pay_agent("0x742d35Cc6634C0532925a3b844Bc454e4438f44e", 0.0001, max_gas_gwei=0.01)
-        self.assertIn("exceeds limit", str(cm.exception))
-        print("✅ Gas Guardrail Blocked Underpriced Tx")
+        # Mock smart gas price to 10 Gwei (10,000,000,000 Wei)
+        original_get_smart_gas_price = self.agent._get_smart_gas_price
+        self.agent._get_smart_gas_price = lambda: 10000000000
+        try:
+            # Set a ridiculously low gas price limit (0.01 Gwei)
+            with self.assertRaises(ValueError) as cm:
+                self.agent.pay_agent("0x742d35Cc6634C0532925a3b844Bc454e4438f44e", 0.0001, max_gas_gwei=0.01)
+            self.assertIn("exceeds limit", str(cm.exception))
+            print("✅ Gas Guardrail Blocked Underpriced Tx")
+        finally:
+            self.agent._get_smart_gas_price = original_get_smart_gas_price
 
     def test_daily_limit_native(self):
         print("\n[Level 2] Testing Daily Limit (Circuit Breaker)...")

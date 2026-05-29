@@ -1,10 +1,4 @@
 import time
-from xrpl.clients import JsonRpcClient
-from xrpl.wallet import Wallet
-from xrpl.models.requests import AccountInfo
-from xrpl.models.transactions import Payment
-from xrpl.transaction import submit_and_wait
-from xrpl.utils import xrp_to_drops, drops_to_xrp
 from typing import Optional
 
 class XRPLDriver:
@@ -13,12 +7,24 @@ class XRPLDriver:
     Supports balance checks and native XRP transfers.
     """
     def __init__(self, endpoint: str = "https://s.altnet.rippletest.net:51234"):
-        self.client = JsonRpcClient(endpoint)
         self.endpoint = endpoint
-        self.wallet: Optional[Wallet] = None
+        self._client = None
+        self.wallet = None
+
+    @property
+    def client(self):
+        if self._client is None:
+            from xrpl.clients import JsonRpcClient
+            self._client = JsonRpcClient(self.endpoint)
+        return self._client
+
+    @client.setter
+    def client(self, value):
+        self._client = value
 
     def load_wallet(self, seed: str):
         """Loads an XRPL wallet from a secret seed."""
+        from xrpl.wallet import Wallet
         self.wallet = Wallet.from_seed(seed)
         return self.wallet.address
 
@@ -32,6 +38,8 @@ class XRPLDriver:
         if not self.wallet:
             raise ValueError("XRPL Wallet not loaded.")
         
+        from xrpl.models.requests import AccountInfo
+        from xrpl.utils import drops_to_xrp
         try:
             acct_info = AccountInfo(account=self.wallet.address, ledger_index="validated")
             response = self.client.request(acct_info)
@@ -54,6 +62,10 @@ class XRPLDriver:
             raise ValueError("XRPL Wallet not loaded.")
 
         from decimal import Decimal
+        from xrpl.models.transactions import Payment
+        from xrpl.transaction import submit_and_wait
+        from xrpl.utils import xrp_to_drops
+
         # Prepare Payment Transaction
         payment = Payment(
             account=self.wallet.address,
@@ -72,3 +84,4 @@ class XRPLDriver:
         except Exception as e:
             print(f"❌ XRPL Transfer Failed: {e}")
             raise e
+

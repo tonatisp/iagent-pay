@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aviso Legal y Privacidad | iAgent-Pay</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+    
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-500 to-cyan-400 flex items-center justify-center shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+                <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300">
+                    iAgent-Pay
+                </h1>
+            </div>
+            <a href="index.html" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm transition-colors border border-slate-700">
+                &larr; Volver al Dashboard
+            </a>
+        </div>
+
+        <div class="glass-panel p-8 space-y-8">
+            <div class="text-center pb-6 border-b border-slate-700">
+                <h2 class="text-3xl font-bold text-white mb-2">Términos de Uso y Aviso de Privacidad</h2>
+                <p class="text-slate-400">Última actualización: Mayo 2026</p>
+            </div>
+
+            <section class="space-y-4">
+                <h3 class="text-xl font-semibold text-blue-400">1. Naturaleza Descentralizada y No Custodial</h3>
+                <p class="text-slate-300 leading-relaxed">
+                    <strong>iAgent-Pay</strong> es un protocolo de software de código abierto y un proveedor de infraestructura (SDK) que facilita la automatización de transacciones en redes blockchain mediante Inteligencia Artificial. <br><br>
+                    <strong>iAgent-Pay NO ES una entidad financiera, banco, fondo de inversión ni custodio de fondos.</strong> Nosotros <strong>no tenemos acceso, control, ni poseemos las llaves privadas (private keys)</strong> de los usuarios. Todas las operaciones y transacciones se ejecutan directamente en la cadena de bloques (on-chain) de manera descentralizada y no permisionada.
+                </p>
+            </section>
+
+            <section class="space-y-4">
+                <h3 class="text-xl font-semibold text-blue-400">2. Exclusión de Responsabilidad (Descargo de Riesgo)</h3>
+                <p class="text-slate-300 leading-relaxed">
+                    El uso de esta plataforma, el SDK y las herramientas proporcionadas conlleva riesgos inherentes al ecosistema de criptomonedas y contratos inteligentes. 
+                    Al utilizar iAgent-Pay, usted acepta que:
+                </p>
+                <ul class="list-disc list-inside text-slate-300 space-y-2 ml-4">
+                    <li>Los desarrolladores y administradores de iAgent-Pay <strong>no se hacen responsables</strong> de ninguna pérdida de fondos, hackeos, errores de software (bugs) o ataques maliciosos.</li>
+                    <li>Las transacciones en blockchain son irreversibles. Es su responsabilidad verificar las direcciones de los destinatarios.</li>
+                    <li>No garantizamos que el software esté libre de interrupciones o errores. Usted utiliza el software "tal cual" (AS-IS).</li>
+                </ul>
+            </section>
+
+            <section class="space-y-4">
+                <h3 class="text-xl font-semibold text-red-400">3. Prevención de Uso Indebido e Ilícito</h3>
+                <p class="text-slate-300 leading-relaxed">
+                    Queda estrictamente prohibido el uso del protocolo iAgent-Pay para cualquier actividad ilegal, incluyendo pero no limitado a:
+                </p>
+                <ul class="list-disc list-inside text-slate-300 space-y-2 ml-4">
+                    <li>Lavado de dinero (AML) y financiamiento al terrorismo.</li>
+                    <li>Fraudes, estafas (scams), esquemas Ponzi o phishing.</li>
+                    <li>Evasión fiscal, comercio de bienes ilegales, o violación de sanciones internacionales.</li>
+                </ul>
+                <div class="p-4 bg-red-500/10 border border-red-500/30 rounded-lg mt-4 text-red-200 text-sm">
+                    ⚠️ <strong>AVISO LEGAL:</strong> iAgent-Pay se reserva el derecho de reportar, bloquear interfaces y cooperar plenamente con las autoridades competentes si se detecta que las herramientas se están utilizando para fines ilícitos o en contravención a las leyes locales e internacionales aplicables. El usuario es el único responsable legal por las operaciones que su(s) agente(s) autónomo(s) ejecute(n).
+                </div>
+            </section>
+
+            <section class="space-y-4">
+                <h3 class="text-xl font-semibold text-blue-400">4. Aviso de Privacidad</h3>
+                <p class="text-slate-300 leading-relaxed">
+                    Debido a la naturaleza descentralizada de la blockchain, las transacciones que realice utilizando iAgent-Pay (incluyendo direcciones de billeteras y montos) son registros públicos e inmutables. <br><br>
+                    <strong>Datos que No Recopilamos:</strong> No almacenamos nombres, identificaciones gubernamentales, direcciones físicas ni llaves privadas de los usuarios. <br>
+                    <strong>Datos de Telemetría:</strong> El Dashboard público recopila únicamente datos agregados, metadatos de transacciones públicas en la blockchain (Hashes, Montos, Estatus) y configuraciones generales del SDK con el exclusivo propósito de brindar visibilidad (auditoría on-chain) y cobro de tarifas de red, sin ligarlos a la identidad real de una persona.
+                </p>
+            </section>
+
+            <section class="space-y-4">
+                <h3 class="text-xl font-semibold text-blue-400">5. Aceptación de los Términos</h3>
+                <p class="text-slate-300 leading-relaxed">
+                    Al integrar el SDK, utilizar el Dashboard o interactuar con cualquier contrato inteligente relacionado con iAgent-Pay, usted declara haber leído, comprendido y aceptado incondicionalmente todos los puntos establecidos en este Aviso Legal y Términos de Uso.
+                </p>
+            </section>
+
+        </div>
+        
+        <div class="text-center mt-8 text-slate-500 text-sm">
+            &copy; 2026 iAgent-Pay. Todos los derechos reservados.
+        </div>
+    </div>
+
+</body>
+</html>

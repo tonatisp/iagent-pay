@@ -8,6 +8,9 @@ env/
 venv/
 .env
 
+# Node
+node_modules/
+
 # Distribution
 build/
 dist/
@@ -31,6 +34,13 @@ test_export.json
 *.pem
 *.key
 
+# Security - iAgentPay runtime data (contains sensitive tx data)
+x402_receipts.db
+agent_reputation.db
+agent_marketplace.db
+reputation_snapshot.json
+*.snapshot.json
+
 # Large marketing assets
 *.webp
 *.png
@@ -40,3 +50,25 @@ capital_guard_terminal.png
 # Debug/temp files
 debug_*.py
 migrate_to_keystore.py
+*.log
+*.txt
+*.pdf
+*.bak
+*.exe
+admin_config.json
+test_*.py
+check_*.py
+run_*.py
+live_*.py
+inject_*.py
+setup_*.py
+fix_*.py
+patch_*.py
+deploy_*.py
+upload_*.py
+start_*.py
+pentest_*.py
+conftest.py
+passwords_temp.html
+receipts/
+scratch/

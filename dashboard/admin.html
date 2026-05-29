@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iAgent-Pay | Panel del Operador (Administración)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Ethers.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --bg-image: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.05) 0%, transparent 60%);
+            --panel-bg: rgba(17, 24, 39, 0.75);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --panel-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.6);
+            --text-color: #f3f4f6;
+            --text-muted: #9ca3af;
+            --accent-primary: #3b82f6; /* Blue-500 */
+            --accent-hover: #2563eb;
+            --accent-danger: #ef4444; /* Red-500 */
+            --accent-success: #10b981; /* Emerald-500 */
+        }
+
+        * {
+            font-family: 'Outfit', sans-serif;
+            box-sizing: border-box;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--bg-image);
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .glass-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--panel-border);
+            box-shadow: var(--panel-shadow);
+            border-radius: 1rem;
+        }
+
+        .glow-red {
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .glow-blue {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .font-mono-code {
+            font-family: 'Fira Code', monospace;
+        }
+
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.02); }
+        }
+
+        .kill-switch-active {
+            animation: pulse-slow 2s infinite;
+            border-color: rgba(239, 68, 68, 0.6) !important;
+        }
+    </style>
+</head>
+
+<body class="p-6">
+    <div class="max-w-7xl mx-auto space-y-8">
+        
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-800 pb-6">
+            <div>
+                <div class="flex items-center gap-3">
+                    <span class="text-3xl">🛡️</span>
+                    <h1 class="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                        iAgent-Pay Master Operator
+                    </h1>
+                </div>
+                <p class="text-sm text-gray-400 mt-1">Panel de control del protocolo, control de riesgos e identidades KYA</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-sm font-semibold rounded-lg flex items-center gap-2 border border-gray-700">
+                    <span>👤</span> Ir al Dashboard Usuario
+                </a>
+                <button id="refreshBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-sm font-semibold rounded-lg flex items-center gap-2">
+                    <span>🔄</span> Refrescar Datos
+                </button>
+            </div>
+        </header>
+
+        <!-- System Alert Banner for Kill Switch -->
+        <div id="systemAlertBanner" class="hidden p-4 bg-red-950/40 border border-red-800 text-red-300 rounded-xl flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl animate-bounce">⚠️</span>
+                <div>
+                    <h4 class="font-bold">SISTEMA EN PAUSA GLOBAL</h4>
+                    <p class="text-xs text-red-400">El switch de emergencia está activo. Todas las transacciones del SDK a nivel global están suspendidas.</p>
+                </div>
+            </div>
+            <button id="alertDisableBtn" class="px-3 py-1 bg-red-900/60 hover:bg-red-800 text-xs font-semibold rounded border border-red-700">
+                Reactivar Sistema
+            </button>
+        </div>
+
+        <!-- Glassmorphic Tabs Navigation -->
+        <nav class="flex border-b border-gray-800 gap-2 overflow-x-auto pb-px">
+            <button id="tabBtnAnalytics" onclick="switchTab('analytics')" class="px-6 py-3.5 border-b-2 border-blue-500 font-bold text-white text-sm tracking-wide transition-all focus:outline-none flex items-center gap-2">
+                📊 Analíticas y Métricas
+            </button>
+            <button id="tabBtnReputation" onclick="switchTab('reputation')" class="px-6 py-3.5 border-b-2 border-transparent font-medium text-gray-400 hover:text-white text-sm tracking-wide transition-all focus:outline-none flex items-center gap-2">
+                ⚖️ Registro KYA y Reputación
+            </button>
+            <button id="tabBtnOperations" onclick="switchTab('operations')" class="px-6 py-3.5 border-b-2 border-transparent font-medium text-gray-400 hover:text-white text-sm tracking-wide transition-all focus:outline-none flex items-center gap-2">
+                💸 Historial Operaciones
+            </button>
+            <button id="tabBtnLicenses" onclick="switchTab('licenses')" class="px-6 py-3.5 border-b-2 border-transparent font-medium text-gray-400 hover:text-white text-sm tracking-wide transition-all focus:outline-none flex items-center gap-2">
+                🔑 Licencias y Tesorería
+            </button>
+            <button id="tabBtnEmergency" onclick="switchTab('emergency')" class="px-6 py-3.5 border-b-2 border-transparent font-medium text-gray-400 hover:text-white text-sm tracking-wide transition-all focus:outline-none flex items-center gap-2">
+                🚨 Control de Emergencia (Kill Switch)
+            </button>
+            <button id="tabBtnConfig" onclick="switchTab('config')" class="px-6 py-3.5 border-b-2 border-transparent font-medium text-gray-400 hover:text-white text-sm tracking-wide transition-all focus:outline-none flex items-center gap-2">
+                ⚙️ Configuración
+            </button>
+            <button id="tabBtnEscrow" onclick="switchTab('escrow')" class="px-6 py-3.5 border-b-2 border-transparent font-medium text-gray-400 hover:text-white text-sm tracking-wide transition-all focus:outline-none flex items-center gap-2">
+                🔐 Escrow Anti-Alucinación
+            </button>
+            <button id="tabBtnForensics" onclick="switchTab('forensics')" class="px-6 py-3.5 border-b-2 border-transparent font-medium text-gray-400 hover:text-white text-sm tracking-wide transition-all focus:outline-none flex items-center gap-2">
+                🕵️ Recibos Forenses
+            </button>
+            <button id="tabBtnAdvancedReports" onclick="switchTab('advancedReports')" class="px-6 py-3.5 border-b-2 border-transparent font-medium text-emerald-400 hover:text-emerald-300 text-sm tracking-wide transition-all focus:outline-none flex items-center gap-2">
+                📈 Reportes Avanzados
+            </button>
+            <button id="tabBtnErrors" onclick="switchTab('errors')" class="px-6 py-3.5 border-b-2 border-transparent font-medium text-red-400 hover:text-red-300 text-sm tracking-wide transition-all focus:outline-none flex items-center gap-2">
+                ⚠️ Registro de Errores
+            </button>
+        </nav>
+
+        <!-- Segment 1: Analytics & Metrics (Active by default) -->
+        <div id="tabContentAnalytics" class="space-y-8">
+            <!-- Global Metrics Cards -->
+            <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Metric 1 -->
+                <div class="glass-panel p-6 flex flex-col justify-between">
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Volumen Global Procesado</span>
+                    <span id="metricVolume" class="text-2xl font-bold mt-2 text-white">$0.00 USD</span>
+                    <span class="text-xs text-gray-500 mt-1">Suma total procesada en la red</span>
+                </div>
+                <!-- Metric 2 -->
+                <div class="glass-panel p-6 flex flex-col justify-between">
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Transacciones Totales</span>
+                    <span id="metricTransactions" class="text-2xl font-bold mt-2 text-white">0</span>
+                    <span class="text-xs text-emerald-400 mt-1">100% liquidadas exitosamente</span>
+                </div>
+                <!-- Metric 3 -->
+                <div class="glass-panel p-6 flex flex-col justify-between">
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Agentes Registrados (KYA)</span>
+                    <span id="metricAgents" class="text-2xl font-bold mt-2 text-white">0</span>
+                    <span id="metricAgentsSub" class="text-xs text-gray-500 mt-1">0 Pruebas | 0 Activos</span>
+                </div>
+                <!-- Metric 4 -->
+                <div class="glass-panel p-6 flex flex-col justify-between">
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Comisiones Ahorradas (Gracia)</span>
+                    <span id="metricSavedCommissions" class="text-2xl font-bold mt-2 text-emerald-400">$0.00 USD</span>
+                    <span class="text-xs text-emerald-500 mt-1">Acumulado en periodo de gracia</span>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="glass-panel p-6 border border-gray-800">
+                <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                    📈 Analíticas y Gráficas de Rendimiento
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Chart 1 -->
+                    <div class="bg-gray-950/40 p-4 rounded-xl border border-gray-900 flex flex-col justify-between h-[300px]">
+                        <span class="text-xs font-semibold text-gray-400 mb-2 block uppercase tracking-wider">Historial de Volumen (USD)</span>
+                        <div class="flex-1 relative min-h-0">
+                            <canvas id="volumeChart"></canvas>
+                        </div>
+                    </div>
+                    <!-- Chart 2 -->
+                    <div class="bg-gray-950/40 p-4 rounded-xl border border-gray-900 flex flex-col justify-between h-[300px]">
+                        <span class="text-xs font-semibold text-gray-400 mb-2 block uppercase tracking-wider">Distribución de Clientes</span>
+                        <div class="flex-1 relative min-h-0">
+                            <canvas id="agentsChart"></canvas>
+                        </div>
+                    </div>
+                    <!-- Chart 3 -->
+                    <div class="bg-gray-950/40 p-4 rounded-xl border border-gray-900 flex flex-col justify-between h-[300px]">
+                        <span class="text-xs font-semibold text-gray-400 mb-2 block uppercase tracking-wider">Comisiones: Cobradas vs Ahorradas</span>
+                        <div class="flex-1 relative min-h-0">
+                            <canvas id="feesChart"></canvas>
+                        </div>
+                    </div>
+                    <!-- Chart 4 (New) -->
+                    <div class="bg-gray-950/40 p-4 rounded-xl border border-gray-900 flex flex-col justify-between h-[300px]">
+                        <span class="text-xs font-semibold text-gray-400 mb-2 block uppercase tracking-wider">Estado Global de Escrows</span>
+                        <div class="flex-1 relative min-h-0">
+                            <canvas id="escrowChart"></canvas>
+                        </div>
+                    </div>
+                    <!-- Chart 5 (New) -->
+                    <div class="bg-gray-950/40 p-4 rounded-xl border border-gray-900 flex flex-col justify-between h-[300px]">
+                        <span class="text-xs font-semibold text-gray-400 mb-2 block uppercase tracking-wider">Reputación KYA Global</span>
+                        <div class="flex-1 relative min-h-0">
+                            <canvas id="reputationChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Live Transactions Table Section -->
+            <section class="glass-panel p-6 border border-gray-800 mt-6">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                            ⚡ Últimas Operaciones en Vivo
+                        </h2>
+                        <p class="text-xs text-gray-400 mt-1">Monitoreo en tiempo real de transacciones procesadas por los agentes.</p>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="border-b border-gray-800 text-gray-500 uppercase tracking-wider">
+                                <th class="py-3 px-4 font-medium">Fecha y Hora</th>
+                                <th class="py-3 px-4 font-medium">Emisor</th>
+                                <th class="py-3 px-4 font-medium">Receptor (Destino)</th>
+                                <th class="py-3 px-4 font-medium">Volumen</th>
+                                <th class="py-3 px-4 font-medium">Firma (Tx Hash)</th>
+                                <th class="py-3 px-4 font-medium text-center">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="liveTransactionsBody" class="divide-y divide-gray-900 text-gray-300">
+                            <!-- Transactions will be injected here dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- Segment 2: Operations History (Hidden by default) -->
+        <div id="tabContentOperations" class="hidden space-y-6">
+            <div class="glass-panel p-6 border border-gray-800">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                            🧾 Historial Avanzado de Operaciones
+                        </h2>
+                        <p class="text-xs text-gray-400 mt-1">Busca, filtra y audita transacciones completas del protocolo.</p>
+                    </div>
+                    
+                    <div class="flex flex-wrap items-center gap-3">
+                        <input id="opStartDate" type="date" class="bg-gray-950 border border-gray-800 text-xs p-2 rounded text-gray-300 focus:border-blue-500 outline-none">
+                        <span class="text-gray-500 text-xs">hasta</span>
+                        <input id="opEndDate" type="date" class="bg-gray-950 border border-gray-800 text-xs p-2 rounded text-gray-300 focus:border-blue-500 outline-none">
+                        
+                        <select id="opStatusFilter" class="bg-gray-950 border border-gray-800 text-xs p-2 rounded text-gray-300 focus:border-blue-500 outline-none">
+                            <option value="ALL">Todos los Estados</option>
+                            <option value="CONFIRMED">Confirmado / Exitoso</option>
+                            <option value="PENDING">Pendiente</option>
+                            <option value="FAILED">Fallido</option>
+                            <option value="SANCTIONED_AML">Bloqueado por AML</option>
+                        </select>
+                        
+                        <button id="opSearchBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded text-xs transition-colors">
+                            🔍 Filtrar
+                        </button>
+                        <button id="opPrintBtn" class="px-3 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white font-bold rounded text-xs transition-colors" title="Imprimir PDF">
+                            🖨️ Imprimir
+                        </button>
+                        <button id="opExportCsvBtn" class="px-3 py-2 bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/30 text-emerald-400 font-bold rounded text-xs transition-colors" title="Exportar a CSV">
+                            📊 CSV
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto print-area">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="border-b border-gray-800 text-gray-400 font-semibold uppercase tracking-wider">
+                                <th class="py-3 px-4">Fecha y Hora</th>
+                                <th class="py-3 px-4">Agente Emisor</th>
+                                <th class="py-3 px-4">Destinatario</th>
+                                <th class="py-3 px-4">Monto</th>
+                                <th class="py-3 px-4 text-center">Estado</th>
+                                <th class="py-3 px-4 text-center print-hide">Detalles</th>
+                            </tr>
+                        </thead>
+                        <tbody id="operationsTableBody" class="divide-y divide-gray-900 text-gray-300">
+                            <!-- Injected dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination Controls -->
+                <div class="flex justify-between items-center mt-6 pt-4 border-t border-gray-800 print-hide">
+                    <span id="opPaginationInfo" class="text-xs text-gray-400">Mostrando 0 resultados</span>
+                    <div class="flex items-center gap-2">
+                        <button id="opPrevBtn" class="px-3 py-1 bg-gray-800 hover:bg-gray-700 text-white rounded text-xs transition-colors">&lt; Anterior</button>
+                        <span id="opPageDisplay" class="text-xs text-white font-bold px-2">Pág. 1</span>
+                        <button id="opNextBtn" class="px-3 py-1 bg-gray-800 hover:bg-gray-700 text-white rounded text-xs transition-colors">Siguiente &gt;</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Segment 3: KYA Reputation Register (Hidden by default) -->
+        <div id="tabContentReputation" class="hidden space-y-6">
+            <div class="glass-panel p-6 border border-gray-800">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            ⚖️ Registro KYA y Reputación de Agentes
+                        </h2>
+                        <p class="text-xs text-gray-400 mt-1">Billeteras e identidades verificadas registradas en el ecosistema.</p>
+                    </div>
+                    <div class="w-full sm:w-64">
+                        <input id="agentSearch" type="text" placeholder="Buscar por billetera..." class="w-full bg-gray-950 border border-gray-800 text-xs p-2.5 rounded-lg text-white font-mono-code focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+
+                <!-- Reputation Entry Form -->
+                <form id="reputationForm" class="bg-gray-950/40 p-4 rounded-xl border border-gray-900 mb-6 flex flex-col sm:flex-row items-end gap-4">
+                    <div class="flex-1 w-full">
+                        <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Registrar / Sancionar Agente</label>
+                        <input id="repWallet" type="text" placeholder="Wallet Address (0x...)" class="w-full bg-gray-950 border border-gray-800 text-xs p-3 rounded-lg text-white font-mono-code focus:outline-none focus:border-blue-500" required>
+                    </div>
+                    <div class="w-full sm:w-44">
+                        <label class="block text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Reputación KYA (0.0 - 5.0)</label>
+                        <select id="repScore" class="w-full bg-gray-950 border border-gray-800 text-xs p-3 rounded-lg text-white focus:outline-none focus:border-blue-500">
+                            <option value="5.0">5.0 - Excelente (Elite)</option>
+                            <option value="3.0">3.0 - Neutral (Básico)</option>
+                            <option value="1.0">1.0 - Sospechoso (Advertencia)</option>
+                            <option value="0.0">0.0 - LISTA NEGRA (Denegar)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full sm:w-auto px-5 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg text-xs tracking-wider uppercase">
+                        Guardar
+                    </button>
+                </form>
+
+                <!-- Table -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="border-b border-gray-800 text-gray-400 font-semibold uppercase tracking-wider">
+                                <th class="py-3 px-4">Dirección de Billetera</th>
+                                <th class="py-3 px-4">Rango / Trust Level</th>
+                                <th class="py-3 px-4">Calificación (ART)</th>
+                                <th class="py-3 px-4 text-center">Firma de Tx</th>
+                                <th class="py-3 px-4 text-right">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="agentTableBody" class="divide-y divide-gray-900 text-gray-300">
+                            <tr>
+                                <td colspan="5" class="py-8 text-center text-gray-500">Cargando identidades de la red...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Segment 3: VIP License Creator & Treasury Configuration (Hidden by default) -->
+        <div id="tabContentLicenses" class="hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Card 1: License Form -->
+                <div class="glass-panel p-6 border border-gray-800 flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2 mb-4">
+                            🔑 Emisor de Licencias VIP Especiales
+                        </h2>
+                        <p class="text-xs text-gray-400 mb-6">Genera perfiles de configuración personalizados y anula comisiones o extiende periodos de gracia para agentes específicos.</p>
+                    </div>
+                    
+                    <form id="licenseForm" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">Dirección de Billetera</label>
+                            <input id="licenseWallet" type="text" placeholder="0x..." class="w-full bg-gray-950 border border-gray-800 text-sm p-3 rounded-lg text-white font-mono-code focus:outline-none focus:border-blue-500" required>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-400 mb-1">Período de Gracia (Días)</label>
+                                <input id="licenseGraceInput" type="number" placeholder="Ej. 730" min="0" value="730" class="w-full bg-gray-950 border border-gray-800 text-sm p-3 rounded-lg text-white focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-400 mb-1">Comisión Personalizada (%)</label>
+                                <input id="licenseFeeInput" type="number" step="0.01" placeholder="Ej. 0.10" min="0" max="100" value="0.10" class="w-full bg-gray-950 border border-gray-800 text-sm p-3 rounded-lg text-white focus:outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg text-sm mt-4">
+                            Registrar Licencia Especial
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Card 2: Treasury Form -->
+                <div class="glass-panel p-6 border border-gray-800 flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2 mb-4">
+                            💰 Destino de Comisiones (Tesorería)
+                        </h2>
+                        <p class="text-xs text-gray-400 mb-6">Configura las direcciones a nivel de protocolo donde el SDK enviará las comisiones acumuladas.</p>
+                    </div>
+                    
+                    <form id="treasuryForm" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">Billetera EVM (Ethereum / Base / Polygon)</label>
+                            <input id="treasuryEvm" type="text" placeholder="0x..." class="w-full bg-gray-950 border border-gray-800 text-sm p-3 rounded-lg text-white font-mono-code focus:outline-none focus:border-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">Billetera Solana (SOL)</label>
+                            <input id="treasurySolana" type="text" placeholder="SOL Address..." class="w-full bg-gray-950 border border-gray-800 text-sm p-3 rounded-lg text-white font-mono-code focus:outline-none focus:border-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">Billetera XRPL (Ripple)</label>
+                            <input id="treasuryXrpl" type="text" placeholder="rAddress..." class="w-full bg-gray-950 border border-gray-800 text-sm p-3 rounded-lg text-white font-mono-code focus:outline-none focus:border-blue-500" required>
+                        </div>
+                        <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-sm mt-4">
+                            Actualizar Billeteras de Tesorería
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Segment X: Configuración (Hidden by default) -->
+        <div id="tabContentConfig" class="hidden space-y-6">
+            
+            <!-- Card 1: Backups Section (Moved from Licenses) -->
+            <div class="glass-panel p-6 border border-gray-800">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2 mb-2">
+                            🗄️ Copias de Seguridad Encriptadas (AES-256)
+                        </h2>
+                        <p class="text-xs text-gray-400">Respalda o restaura todo el ecosistema (KYA, reputación, licencias, tesorería e historial) usando cifrado de grado militar.</p>
+                    </div>
+                    
+                    <div class="w-full md:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                        <div class="flex-1 sm:flex-initial">
+                            <input id="backupPassword" type="password" placeholder="Contraseña de Respaldo" class="w-full sm:w-64 bg-gray-950 border border-gray-800 text-sm p-3 rounded-lg text-white focus:outline-none focus:border-blue-500">
+                        </div>
+                        <button id="exportBackupBtn" class="px-5 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg text-sm flex items-center justify-center gap-2 whitespace-nowrap">
+                            📥 Exportar Respaldo
+                        </button>
+                        <button id="importBackupBtn" class="px-5 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg text-sm flex items-center justify-center gap-2 whitespace-nowrap">
+                            📤 Importar Respaldo
+                        </button>
+                        <!-- Hidden file input for importing -->
+                        <input id="backupFileInput" type="file" accept=".enc" class="hidden">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 1.5: Executive Summary -->
+            <div class="glass-panel p-6 border border-gray-800 mt-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2 mb-2">
+                            📊 Resumen Ejecutivo y Registros Contables
+                        </h2>
+                        <p class="text-xs text-gray-400">Exporta las métricas financieras (capital procesado, ahorros, transacciones y agentes) en formatos de nivel corporativo.</p>
+                    </div>
+                    
+                    <div class="w-full md:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                        <button id="exportPdfBtn" class="px-5 py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-lg text-sm flex items-center justify-center gap-2 whitespace-nowrap">
+                            📄 Exportar PDF
+                        </button>
+                        <button id="exportExcelBtn" class="px-5 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-sm flex items-center justify-center gap-2 whitespace-nowrap">
+                            📊 Exportar Excel
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: Danger Zone (Reset DB) -->
+            <div class="glass-panel p-6 border border-red-900/50 bg-red-950/10 mt-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-red-500 flex items-center gap-2 mb-2">
+                            ⚠️ Zona de Peligro: Restablecimiento del Sistema
+                        </h2>
+                        <p class="text-xs text-gray-400">Esta acción es <strong class="text-red-400">destructiva e irreversible</strong>. Borrará todo el historial de operaciones, agentes registrados y restablecerá el ecosistema a cero.</p>
+                    </div>
+                    
+                    <button id="resetDbBtn" class="px-5 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg text-sm flex items-center justify-center gap-2 whitespace-nowrap border border-red-500 transition-colors shadow-[0_0_15px_rgba(220,38,38,0.3)] hover:shadow-[0_0_20px_rgba(220,38,38,0.6)]">
+                        🗑️ Eliminar Base de Datos
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Segment 4: Emergency Controls & Health (Hidden by default) -->
+        <div id="tabContentEmergency" class="hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Emergency Kill Switch Panel -->
+                <div id="killSwitchPanel" class="glass-panel p-6 border border-gray-800 flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2 mb-4">
+                            <span class="text-red-500">🛑</span> Switch de Emergencia Global
+                        </h2>
+                        <p class="text-xs text-gray-400 mb-6">
+                            Pausa de manera inmediata todas las transferencias firmadas a través de la integración del SDK. Usar solo en caso de hackeo detectado en contratos del pool o incidentes de liquidez mayor.
+                        </p>
+                    </div>
+                    <div class="flex flex-col items-center justify-center p-8 bg-gray-950/50 rounded-xl border border-gray-900">
+                        <span id="switchStatusText" class="text-sm font-semibold tracking-wider uppercase text-emerald-400 mb-4">
+                            SISTEMA ACTIVO (ONLINE)
+                        </span>
+                        <!-- Custom Toggle Switch -->
+                        <button id="toggleKillSwitchBtn" class="w-16 h-10 bg-gray-700 rounded-full p-1 transition-all duration-300 relative">
+                            <div id="toggleIndicator" class="w-8 h-8 bg-white rounded-full transition-all duration-300 absolute left-1 top-1"></div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- RPC Nodes Health Status -->
+                <div class="glass-panel p-6 border border-gray-800">
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2 mb-4">
+                        <span class="text-emerald-500">⚡</span> Estado de Nodos RPC Integrados
+                    </h2>
+                    <p class="text-xs text-gray-400 mb-4">Monitoreo de latencia y estado operacional de redes asociadas al protocolo.</p>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center bg-gray-950/40 p-3 rounded-lg border border-gray-900">
+                            <span class="text-sm font-semibold text-white">EVM Node (Base Sepolia)</span>
+                            <span class="text-xs px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full font-bold">14ms | Online</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-gray-950/40 p-3 rounded-lg border border-gray-900">
+                            <span class="text-sm font-semibold text-white">Solana Node (Devnet)</span>
+                            <span class="text-xs px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full font-bold">28ms | Online</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-gray-950/40 p-3 rounded-lg border border-gray-900">
+                            <span class="text-sm font-semibold text-white">XRPL Node (Mainnet)</span>
+                            <span class="text-xs px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full font-bold">35ms | Online</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Segment 6: Advanced Reports (Hidden by default) -->
+        <div id="tabContentAdvancedReports" class="hidden space-y-6">
+            
+            <!-- Controls Panel -->
+            <div class="glass-panel p-6 border border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex-1 w-full">
+                    <h2 class="text-xl font-bold text-white mb-1">Panel de Reportes Avanzados</h2>
+                    <p class="text-xs text-gray-400">Analítica temporal interactiva de flujos y crecimiento.</p>
+                </div>
+                
+                <div class="flex flex-wrap gap-3 items-end">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1">Desde</label>
+                        <input type="date" id="repStartDate" class="bg-gray-900 border border-gray-800 text-white text-sm rounded p-2 focus:border-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1">Hasta</label>
+                        <input type="date" id="repEndDate" class="bg-gray-900 border border-gray-800 text-white text-sm rounded p-2 focus:border-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-500 mb-1">Agrupación</label>
+                        <select id="repHorizon" class="bg-gray-900 border border-gray-800 text-white text-sm rounded p-2 focus:border-blue-500 outline-none">
+                            <option value="daily">Diario</option>
+                            <option value="weekly">Semanal</option>
+                            <option value="monthly" selected>Mensual</option>
+                            <option value="yearly">Anual</option>
+                        </select>
+                    </div>
+                    <button id="btnLoadAdvReports" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded text-sm font-bold h-[38px] transition-colors">
+                        Generar Reporte
+                    </button>
+                </div>
+            </div>
+
+            <!-- Charts Container -->
+            <div id="advReportsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6 opacity-50 pointer-events-none transition-opacity duration-300">
+                
+                <div class="glass-panel p-5 border border-gray-800 col-span-1 md:col-span-2">
+                    <h3 class="text-sm font-bold text-gray-300 mb-4">Crecimiento de Capital Procesado (USD)</h3>
+                    <div class="relative h-64 w-full">
+                        <canvas id="chartAdvVolume"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-5 border border-gray-800">
+                    <h3 class="text-sm font-bold text-gray-300 mb-4">Nuevos Usuarios / Agentes (DIDs)</h3>
+                    <div class="relative h-64 w-full">
+                        <canvas id="chartAdvAgents"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-5 border border-gray-800">
+                    <h3 class="text-sm font-bold text-gray-300 mb-4">Comisiones Recaudadas (USD)</h3>
+                    <div class="relative h-64 w-full">
+                        <canvas id="chartAdvFees"></canvas>
+                    </div>
+                </div>
+
+            </div>
+            
+            <!-- Export Buttons -->
+            <div class="flex justify-end gap-4 mt-6">
+                <button id="btnAdvExportExcel" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-lg text-sm font-bold transition-colors shadow-lg">
+                    📊 Exportar a Excel
+                </button>
+                <button id="btnAdvExportPdf" class="bg-red-600 hover:bg-red-500 text-white px-6 py-3 rounded-lg text-sm font-bold transition-colors shadow-lg">
+                    📄 Exportar a PDF Avanzado
+                </button>
+            </div>
+            
+        </div>
+
+    </div>
+
+    <!-- Web3 Cryptographic Login Overlay -->
+    <div id="loginOverlay" class="fixed inset-0 bg-[#0b0f19]/95 backdrop-blur-md flex items-center justify-center z-50 p-4">
+        <div class="glass-panel max-w-md w-full p-8 border border-gray-800 space-y-6 text-center shadow-2xl">
+            <div class="w-20 h-20 bg-blue-500/10 border border-blue-500/20 text-blue-400 rounded-full flex items-center justify-center text-4xl mx-auto animate-pulse">
+                🔑
+            </div>
+            
+            <div class="space-y-2">
+                <h2 id="loginTitle" class="text-2xl font-extrabold text-white">iAgent-Pay Secure Access</h2>
+                <p id="loginSubtitle" class="text-sm text-gray-400">Verificando firma de seguridad criptográfica...</p>
+                <script>
+                    window.onerror = function(msg, url, line, col, error) {
+                        var el = document.getElementById('loginSubtitle');
+                        if(el) el.innerText = "ERROR LÍNEA " + line + ": " + msg;
+                        return false;
+                    };
+                    window.onunhandledrejection = function(event) {
+                        var el = document.getElementById('loginSubtitle');
+                        if(el) el.innerText = "ERROR PROMESA: " + (event.reason ? event.reason.message || event.reason : "Unknown");
+                    };
+                </script>
+            </div>
+            
+            <!-- Setup Flow: Choose Wallet Address to register -->
+            <div id="setupView" class="hidden space-y-4">
+                <div class="p-4 bg-yellow-950/20 border border-yellow-800/30 text-yellow-300 text-xs rounded-lg text-left">
+                    <strong>⚠️ Configuración Inicial:</strong> No se ha registrado ninguna dirección de administrador en este servidor. Conecta tu billetera para registrarla como la Billetera del Administrador Maestro.
+                </div>
+                <button id="registerAdminBtn" class="w-full py-3.5 bg-yellow-600 hover:bg-yellow-500 text-white font-bold rounded-lg text-sm transition-all flex items-center justify-center gap-2">
+                    <span>🔌</span> Registrar Billetera Administradora
+                </button>
+            </div>
+
+            <!-- Login Flow: Connect & Sign challenge -->
+            <div id="loginView" class="hidden space-y-4">
+                <div id="adminWalletDisplay" class="p-3 bg-gray-950 border border-gray-900 text-xs rounded-lg text-gray-400 font-mono-code break-all">
+                    Master Admin: Cargando...
+                </div>
+                <button id="connectSignBtn" class="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg text-sm transition-all flex items-center justify-center gap-2">
+                    <span>🔌</span> Conectar y Firmar Desafío
+                </button>
+            </div>
+
+            <!-- Status Indicator -->
+            <div id="loginStatus" class="hidden text-xs text-red-400 font-semibold mt-2"></div>
+        </div>
+    </div>
+
+    <!-- Transaction Details Modal -->
+    <div id="txDetailModal" class="fixed inset-0 bg-[#0b0f19]/90 backdrop-blur-sm hidden items-center justify-center z-50 p-4 transition-opacity print-hide">
+        <div class="glass-panel max-w-lg w-full p-6 border border-gray-800 shadow-2xl relative">
+            <button id="closeTxModalBtn" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors text-xl">&times;</button>
+            <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                📄 Detalles de Operación
+            </h3>
+            <div class="space-y-4 text-sm">
+                <div class="bg-gray-950 p-4 rounded-lg border border-gray-800">
+                    <p class="text-xs text-gray-500 mb-1 uppercase tracking-wider font-semibold">Tx Hash</p>
+                    <p id="modalTxHash" class="text-white font-mono-code text-xs break-all"></p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-gray-950 p-4 rounded-lg border border-gray-800">
+                        <p class="text-xs text-gray-500 mb-1 uppercase tracking-wider font-semibold">Fecha Exacta</p>
+                        <p id="modalTxDate" class="text-white"></p>
+                    </div>
+                    <div class="bg-gray-950 p-4 rounded-lg border border-gray-800">
+                        <p class="text-xs text-gray-500 mb-1 uppercase tracking-wider font-semibold">Estado</p>
+                        <p id="modalTxStatus" class="font-bold"></p>
+                    </div>
+                </div>
+                <div class="bg-gray-950 p-4 rounded-lg border border-gray-800">
+                    <p class="text-xs text-gray-500 mb-1 uppercase tracking-wider font-semibold">Destinatario / Contrato</p>
+                    <p id="modalTxRecipient" class="text-white font-mono-code text-xs break-all"></p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-gray-950 p-4 rounded-lg border border-gray-800">
+                        <p class="text-xs text-gray-500 mb-1 uppercase tracking-wider font-semibold">Monto Transferido</p>
+                        <p id="modalTxAmount" class="text-emerald-400 font-bold text-lg"></p>
+                    </div>
+                    <div class="bg-gray-950 p-4 rounded-lg border border-gray-800">
+                        <p class="text-xs text-gray-500 mb-1 uppercase tracking-wider font-semibold">Protocol Fee</p>
+                        <p id="modalTxFee" class="text-gray-300"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button id="modalPrintBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded transition-colors">
+                    🖨️ Imprimir Recibo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- ESCROW ANTI-ALUCINACIÓN TAB                        -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div id="tabContentEscrow" class="hidden space-y-6">
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="glass-panel p-4 border border-gray-800 rounded-xl">
+                <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold">Total Escrows</p>
+                <span id="escrowTotal" class="text-2xl font-bold mt-2 text-white block">0</span>
+            </div>
+            <div class="glass-panel p-4 border border-yellow-900/40 rounded-xl">
+                <p class="text-xs text-yellow-500 uppercase tracking-wider font-semibold">🔐 Bloqueados</p>
+                <span id="escrowLocked" class="text-2xl font-bold mt-2 text-yellow-400 block">0</span>
+            </div>
+            <div class="glass-panel p-4 border border-emerald-900/40 rounded-xl">
+                <p class="text-xs text-emerald-500 uppercase tracking-wider font-semibold">✅ Liberados</p>
+                <span id="escrowReleased" class="text-2xl font-bold mt-2 text-emerald-400 block">0</span>
+            </div>
+            <div class="glass-panel p-4 border border-red-900/40 rounded-xl">
+                <p class="text-xs text-red-500 uppercase tracking-wider font-semibold">🔴 Reembolsados</p>
+                <span id="escrowRefunded" class="text-2xl font-bold mt-2 text-red-400 block">0</span>
+            </div>
+        </div>
+        <!-- Filters -->
+        <div class="glass-panel p-4 border border-gray-800 rounded-xl flex flex-wrap gap-3 items-center">
+            <select id="escrowStatusFilter" class="bg-gray-950 border border-gray-800 text-xs p-2 rounded text-gray-300 focus:border-blue-500 outline-none">
+                <option value="ALL">Todos los estados</option>
+                <option value="LOCKED">🔐 LOCKED</option>
+                <option value="RELEASED">✅ RELEASED</option>
+                <option value="REFUNDED">🔴 REFUNDED</option>
+            </select>
+            <button id="escrowRefreshBtn" onclick="loadEscrows()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded text-xs transition-colors">🔄 Actualizar</button>
+        </div>
+        <!-- Table -->
+        <div class="glass-panel border border-gray-800 rounded-xl overflow-x-auto">
+            <table class="w-full text-xs">
+                <thead class="border-b border-gray-800">
+                    <tr class="text-gray-500 uppercase tracking-wider text-left">
+                        <th class="px-4 py-3">ID Escrow</th>
+                        <th class="px-4 py-3">Tarea</th>
+                        <th class="px-4 py-3">Destinatario</th>
+                        <th class="px-4 py-3">Monto USD</th>
+                        <th class="px-4 py-3">Estado</th>
+                        <th class="px-4 py-3">Creado</th>
+                    </tr>
+                </thead>
+                <tbody id="escrowTableBody" class="divide-y divide-gray-900 text-gray-300">
+                    <tr><td colspan="6" class="text-center text-gray-600 py-8">Cargando escrows...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- RECIBOS FORENSES (PROOF-OF-REASONING) TAB          -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div id="tabContentForensics" class="hidden space-y-6">
+        <!-- Info Banner -->
+        <div class="p-4 bg-indigo-950/40 border border-indigo-800/40 rounded-xl text-indigo-300 text-sm flex items-start gap-3">
+            <span class="text-xl">🕵️</span>
+            <div>
+                <p class="font-bold text-white">Proof-of-Reasoning — Auditoría Forense</p>
+                <p class="text-xs text-indigo-400 mt-1">Cada pago con razonamiento adjunto genera un hash SHA-256 inmutable. Si alguien altera el texto del recibo, el hash no coincidirá. Haz clic en cualquier fila para ver el razonamiento completo del Agente de IA.</p>
+            </div>
+        </div>
+        <!-- Search -->
+        <div class="glass-panel p-4 border border-gray-800 rounded-xl flex flex-wrap gap-3 items-center">
+            <input id="forensicsTxSearch" type="text" placeholder="Buscar por TX Hash..." class="flex-1 bg-gray-950 border border-gray-800 text-xs p-2.5 rounded-lg text-white font-mono focus:outline-none focus:border-indigo-500" />
+            <button onclick="loadForensics()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded text-xs transition-colors">🔍 Buscar Recibo</button>
+            <button onclick="loadForensics()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded text-xs transition-colors">🔄 Ver Todos</button>
+        </div>
+        <!-- Table -->
+        <div class="glass-panel border border-gray-800 rounded-xl overflow-x-auto">
+            <table class="w-full text-xs">
+                <thead class="border-b border-gray-800">
+                    <tr class="text-gray-500 uppercase tracking-wider text-left">
+                        <th class="px-4 py-3">TX Hash</th>
+                        <th class="px-4 py-3">Monto</th>
+                        <th class="px-4 py-3">Token</th>
+                        <th class="px-4 py-3">Razonamiento (resumen)</th>
+                        <th class="px-4 py-3">Hash SHA-256</th>
+                        <th class="px-4 py-3">Fecha</th>
+                        <th class="px-4 py-3">Ver</th>
+                    </tr>
+                </thead>
+                <tbody id="forensicsTableBody" class="divide-y divide-gray-900 text-gray-300">
+                    <tr><td colspan="7" class="text-center text-gray-600 py-8">Cargando recibos forenses...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- REGISTRO DE ERRORES (HELP DESK)                    -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div id="tabContentErrors" class="hidden space-y-6">
+        <!-- Info Banner -->
+        <div class="p-4 bg-red-950/40 border border-red-800/40 rounded-xl text-red-300 text-sm flex items-start gap-3">
+            <span class="text-xl">⚠️</span>
+            <div>
+                <p class="font-bold text-white">Centro de Reportes de Errores (Help Desk)</p>
+                <p class="text-xs text-red-400 mt-1">Este panel captura automáticamente cualquier error o excepción que experimenten los usuarios y clientes en la interfaz web o mediante la API. Al marcar un error como resuelto, quedará archivado.</p>
+            </div>
+        </div>
+        <!-- Search and Action -->
+        <div class="glass-panel p-4 border border-gray-800 rounded-xl flex flex-wrap gap-3 items-center">
+            <button onclick="loadErrors()" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white font-bold rounded text-xs transition-colors">🔄 Actualizar Registro</button>
+        </div>
+        <!-- Table -->
+        <div class="glass-panel border border-gray-800 rounded-xl overflow-x-auto">
+            <table class="w-full text-xs">
+                <thead class="border-b border-gray-800">
+                    <tr class="text-gray-500 uppercase tracking-wider text-left">
+                        <th class="px-4 py-3">ID</th>
+                        <th class="px-4 py-3">Fecha</th>
+                        <th class="px-4 py-3">Usuario (IP/Address)</th>
+                        <th class="px-4 py-3">Mensaje de Error</th>
+                        <th class="px-4 py-3">Estado</th>
+                        <th class="px-4 py-3">Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="errorsTableBody" class="divide-y divide-gray-900 text-gray-300">
+                    <tr><td colspan="6" class="text-center text-gray-600 py-8">Cargando errores...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Forensic Receipt Detail Modal -->
+    <div id="forensicModal" class="fixed inset-0 bg-[#0b0f19]/90 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="glass-panel max-w-2xl w-full p-6 border border-indigo-800/50 shadow-2xl relative">
+            <button onclick="document.getElementById('forensicModal').classList.add('hidden');document.getElementById('forensicModal').classList.remove('flex');" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">×</button>
+            <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">🕵️ Recibo Forense Completo</h3>
+            <div class="space-y-4 text-sm">
+                <div class="bg-gray-950 p-4 rounded-lg border border-gray-800">
+                    <p class="text-xs text-gray-500 uppercase mb-1">TX Hash</p>
+                    <p id="fModalTxHash" class="text-white font-mono text-xs break-all"></p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-gray-950 p-4 rounded-lg border border-gray-800">
+                        <p class="text-xs text-gray-500 uppercase mb-1">Monto</p>
+                        <p id="fModalAmount" class="text-emerald-400 font-bold"></p>
+                    </div>
+                    <div class="bg-gray-950 p-4 rounded-lg border border-gray-800">
+                        <p class="text-xs text-gray-500 uppercase mb-1">Timestamp</p>
+                        <p id="fModalTimestamp" class="text-white"></p>
+                    </div>
+                </div>
+                <div class="bg-indigo-950/30 p-4 rounded-lg border border-indigo-800/50">
+                    <p class="text-xs text-indigo-400 uppercase mb-2 font-semibold">🧠 Razonamiento Completo del Agente de IA</p>
+                    <p id="fModalReasoning" class="text-white text-xs leading-relaxed whitespace-pre-wrap break-words"></p>
+                </div>
+                <div class="bg-gray-950 p-4 rounded-lg border border-gray-800">
+                    <p class="text-xs text-gray-500 uppercase mb-1">🔒 Hash SHA-256 (Inmutable)</p>
+                    <p id="fModalHash" class="text-yellow-400 font-mono text-xs break-all"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin JS Link -->
+    <script src="admin.js?v=2"></script>
+</body>
+
+</html>

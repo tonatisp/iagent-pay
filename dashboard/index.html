@@ -1,55 +1,159 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iAgentPay | Dashboard</title>
+    <title data-i18n="pageTitle">iAgent-Pay | Panel de Control Corporativo</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Scripts (Moved to bottom for performance) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-    <script src="app.js"></script>
-
-    <script>
-        // Simple Debugger
-        window.onload = function () {
-            if (typeof ethers === 'undefined') {
-                alert("⚠️ Error: Ethers.js failed to load even locally. Check file presence.");
-            } else {
-                console.log("Dashboard Loaded Successfully (Local Mode)");
-            }
-        };
-    </script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <style>
+        :root {
+            /* Corporate Slate / Indigo Dark Mode */
+            --bg-color: #0f172a;
+            --bg-image: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 50%);
+            --panel-bg: rgba(30, 41, 59, 0.7);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --panel-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            --text-color: #f1f5f9;
+            --text-muted: #94a3b8; /* slate-400 */
+            --text-muted-xs: #64748b; /* slate-500 */
+            --terminal-bg: #020617; /* deep slate-950 */
+            --terminal-text: #38bdf8; /* sky-400 */
+            --table-header-bg: rgba(15, 23, 42, 0.6);
+            --input-bg: #020617;
+            --accent-primary: #6366f1; /* Indigo-500 */
+            --accent-hover: #4f46e5;
+            --accent-success: #10b981; /* Emerald-500 */
+        }
+
+        body.light-mode {
+            /* Corporate Pastel Light Mode */
+            --bg-color: #f8fafc;
+            --bg-image: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.05) 0%, transparent 50%);
+            --panel-bg: #ffffff;
+            --panel-border: #e2e8f0; /* slate-200 */
+            --panel-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.08);
+            --text-color: #0f172a; /* slate-900 */
+            --text-muted: #475569; /* slate-600 */
+            --text-muted-xs: #64748b; /* slate-500 */
+            --terminal-bg: #f1f5f9; /* slate-100 */
+            --terminal-text: #0369a1; /* sky-700 */
+            --table-header-bg: #f1f5f9;
+            --input-bg: #ffffff;
+            --accent-primary: #2563eb; /* Blue-600 */
+            --accent-hover: #1d4ed8;
+            --accent-success: #059669; /* Emerald-600 */
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            background-image: var(--bg-image);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .glass-panel {
-            background: rgba(17, 24, 39, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            box-shadow: var(--panel-shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-1px);
+        }
+
+        .glow-pulse {
+            animation: pulse-badge 2s infinite alternate;
+        }
+
+        @keyframes pulse-badge {
+            0% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--panel-border);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-primary);
+        }
+        
+        /* Semantics */
+        .text-main { color: var(--text-color); }
+        .text-muted-val { color: var(--text-muted); }
+        .text-muted-xs-val { color: var(--text-muted-xs); }
+        .bg-terminal { 
+            background-color: var(--terminal-bg); 
+            color: var(--terminal-text);
+        }
+        .bg-table-hdr { background-color: var(--table-header-bg); }
+        .bg-input-custom { 
+            background-color: var(--input-bg);
+            border: 1px solid var(--panel-border);
+            color: var(--text-color);
         }
     </style>
 </head>
 
-<body class="bg-gray-900 text-white min-h-screen">
+<body class="min-h-screen">
+
+    <!-- Glowing Top Border -->
+    <div class="h-1 w-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
 
     <!-- Navbar -->
-    <nav class="border-b border-gray-800 bg-gray-900/50 backdrop-blur fixed w-full z-10">
+    <nav class="border-b border-[var(--panel-border)] bg-[var(--panel-bg)] backdrop-blur fixed w-full z-20 transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <div class="flex items-center">
-                    <span
-                        class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-                        iAgentPay <span class="text-xs text-gray-400 font-mono">DASHBOARD</span>
+                <div class="flex items-center gap-3">
+                    <img src="../logo.svg" alt="iAgent-Pay Logo" class="h-7 filter brightness-90">
+                    <span class="text-lg font-bold tracking-tight text-main" data-i18n="navbarTitle">
+                        iAgent-Pay | Consola Corporativa v8.5
                     </span>
                 </div>
-                <div>
-                    <a href="../index.html" class="text-gray-400 hover:text-white text-sm">Back to Home</a>
+                <div class="flex items-center gap-4">
+                    <!-- Language Selector -->
+                    <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-white/5 border border-[var(--panel-border)] rounded-lg text-xs text-main p-1.5 outline-none font-mono cursor-pointer hover:bg-white/10 transition-all">
+                        <option value="en" class="bg-[#0f172a] text-white">🇺🇸 English</option>
+                        <option value="es" class="bg-[#0f172a] text-white">🇪🇸 Español</option>
+                        <option value="zh" class="bg-[#0f172a] text-white">🇨🇳 中文</option>
+                        <option value="hi" class="bg-[#0f172a] text-white">🇮🇳 हिन्दी</option>
+                        <option value="ar" class="bg-[#0f172a] text-white">🇦🇪 العربية</option>
+                        <option value="pt" class="bg-[#0f172a] text-white">🇧🇷 Português</option>
+                        <option value="ru" class="bg-[#0f172a] text-white">🇷🇺 Русский</option>
+                        <option value="ja" class="bg-[#0f172a] text-white">🇯🇵 日本語</option>
+                        <option value="de" class="bg-[#0f172a] text-white">🇩🇪 Deutsch</option>
+                        <option value="fr" class="bg-[#0f172a] text-white">🇫🇷 Français</option>
+                    </select>
+
+                    <!-- Theme Toggle Button -->
+                    <button onclick="toggleLightMode()" id="themeToggleBtn" data-i18n="themeLight" class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[var(--panel-border)] bg-white/5 hover:bg-white/10 transition-all text-xs font-mono">
+                        ☀️ Modo Claro
+                    </button>
+
+                    <div class="flex items-center gap-2">
+                        <span class="h-2 w-2 rounded-full bg-emerald-500 glow-pulse"></span>
+                        <span class="text-xs text-muted-val font-mono" data-i18n="nodeActive">NODE_ACTIVE</span>
+                    </div>
+                    <a href="../index.html" class="text-muted-val hover:text-main text-sm transition-colors" data-i18n="backHome">← Inicio</a>
                 </div>
             </div>
         </div>
@@ -58,112 +162,530 @@
     <!-- Main Content -->
     <main class="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
 
-        <!-- Search Agent -->
-        <div class="text-center mb-12">
-            <h1 class="text-3xl font-bold mb-4">Agent Inspector 🕵️‍♂️</h1>
-            <p class="text-gray-400 mb-6">Enter your Agent's Wallet Address to audit spending and license status.</p>
+        <!-- Search / Inspection Section -->
+        <div class="text-center mb-10">
+            <h1 class="text-3xl font-bold mb-3 tracking-tight text-main" id="heroTitle" data-i18n="heroTitle">
+                Auditoría & Inspección de Agentes
+            </h1>
+            <p class="text-muted-val mb-8 max-w-2xl mx-auto text-sm" data-i18n="heroSub">
+                Consulte los balances de gas nativo, stablecoins en custodia y el estado de la licencia de cualquier dirección corporativa de forma transparente.
+            </p>
 
-            <div class="max-w-xl mx-auto flex gap-2">
-                <input type="text" id="agentAddress" placeholder="0x..."
-                    class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 font-mono">
-                <button onclick="inspectAgent()"
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
-                    Search
+            <div class="max-w-2xl mx-auto flex flex-col sm:flex-row gap-3">
+                <input type="text" id="agentAddress" data-i18n-placeholder="inputPlaceholder" placeholder="Dirección del agente o dominio ENS (0x...)" value="0xF29E7b5BC7fdd6C4d9B4DE9f68De31739FBB1526"
+                    class="flex-1 bg-input-custom rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[var(--accent-primary)] font-mono text-sm shadow-inner transition-colors">
+                <button onclick="inspectAgent()" data-i18n="btnSearch"
+                    class="bg-[var(--accent-primary)] hover:bg-[var(--accent-hover)] text-white px-8 py-3 rounded-xl font-semibold transition-all">
+                    Buscar Agente
                 </button>
             </div>
-
+            
             <div class="mt-4">
-                <!--
-                <button onclick="loadTreasury()"
-                    class="text-xs text-gray-500 hover:text-blue-400 underline decoration-dotted">
-                    👮‍♂️ Admin: Audit Treasury
+                <button onclick="loadTreasury()" data-i18n="btnTreasury"
+                    class="text-xs text-indigo-500 hover:text-indigo-400 font-mono underline decoration-dotted transition-colors">
+                    🤖 Cargar Billetera de Prueba (Treasury)
                 </button>
-                -->
             </div>
         </div>
 
-        <!-- Dashboard Grid (Hidden by default) -->
+        <!-- Dashboard View (Hidden by default) -->
         <div id="dashboardView" class="hidden space-y-6">
 
-            <!-- Network Selector -->
-            <div class="flex justify-center gap-4 mb-8">
-                <button onclick="switchChain('BASE')"
-                    class="chain-btn px-4 py-2 rounded-full bg-blue-900/30 text-blue-400 border border-blue-500/50">Base</button>
-                <button onclick="switchChain('POLYGON')"
-                    class="chain-btn px-4 py-2 rounded-full bg-gray-800 text-gray-400 border border-gray-700 hover:border-gray-500">Polygon</button>
-                <button onclick="switchChain('BNB')"
-                    class="chain-btn px-4 py-2 rounded-full bg-gray-800 text-gray-400 border border-gray-700 hover:border-gray-500">BNB
-                    Chain</button>
-                <button onclick="switchChain('ETH')"
-                    class="chain-btn px-4 py-2 rounded-full bg-gray-800 text-gray-400 border border-gray-700 hover:border-gray-500">Ethereum</button>
+            <!-- Navigation Tabs -->
+            <div class="flex border-b border-[var(--panel-border)] mb-8 justify-center sm:justify-start gap-4">
+                <button onclick="showTab('client')" id="tab-client" data-i18n="tabProduction" class="px-6 py-3 text-sm font-semibold border-b-2 border-[var(--accent-primary)] text-main transition-all flex items-center gap-2">
+                    📊 Panel de Producción
+                </button>
+                <button onclick="showTab('simulations')" id="tab-simulations" data-i18n="tabSandbox" class="px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-muted-val hover:text-main transition-all flex items-center gap-2">
+                    🧪 Sandbox de Simulaciones (Completo)
+                </button>
             </div>
 
-            <!-- ... (Stats Row omitted for brevity) ... -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- License Status -->
-                <div class="glass-panel p-6 rounded-xl">
-                    <h3 class="text-gray-400 text-sm font-medium uppercase tracking-wider">License Status</h3>
-                    <div class="mt-2 flex items-center">
-                        <div id="licenseIndicator" class="h-3 w-3 rounded-full bg-green-500 mr-2"></div>
-                        <span id="licenseText" class="text-2xl font-bold">Active (Trial)</span>
-                    </div>
-                    <p id="licenseSub" class="text-xs text-gray-500 mt-1">Next payment due in 12 days</p>
+            <!-- TAB 1: CLIENT PRODUCTION VIEW -->
+            <div id="clientTabContent" class="space-y-6">
+                <!-- Chain Switcher Selector (Production) -->
+                <div class="flex flex-wrap justify-center sm:justify-start gap-3 mb-6">
+                    <button onclick="switchChain('BASE')" id="btn-BASE"
+                        class="chain-btn px-5 py-2 rounded-full text-xs font-semibold transition-all duration-300 bg-blue-500/10 text-blue-500 border border-blue-500/20">Base</button>
+                    <button onclick="switchChain('POLYGON')" id="btn-POLYGON"
+                        class="chain-btn px-5 py-2 rounded-full text-xs font-semibold transition-all duration-300 bg-white/5 text-gray-400 border border-white/5 hover:border-gray-500">Polygon</button>
+                    <button onclick="switchChain('BNB')" id="btn-BNB"
+                        class="chain-btn px-5 py-2 rounded-full text-xs font-semibold transition-all duration-300 bg-white/5 text-gray-400 border border-white/5 hover:border-gray-500">BNB Chain</button>
+                    <button onclick="switchChain('ETH')" id="btn-ETH"
+                        class="chain-btn px-5 py-2 rounded-full text-xs font-semibold transition-all duration-300 bg-white/5 text-gray-400 border border-white/5 hover:border-gray-500">Ethereum</button>
                 </div>
 
-                <!-- Native Balance -->
-                <div class="glass-panel p-6 rounded-xl">
-                    <h3 class="text-gray-400 text-sm font-medium uppercase tracking-wider">Native Balance</h3>
-                    <div class="mt-2 text-2xl font-bold font-mono">
-                        <span id="nativeBalance">0.000</span> <span id="nativeSymbol"
-                            class="text-sm text-gray-500">ETH</span>
+                <!-- Core Metrics -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <!-- License Status -->
+                    <div class="glass-panel p-6 rounded-xl relative overflow-hidden">
+                        <h3 class="text-muted-val text-xs font-semibold uppercase tracking-wider" data-i18n="licenseTitle">Estado de Licencia</h3>
+                        <div class="mt-3 flex items-center justify-between">
+                            <span id="licenseText" data-i18n="licenseActive" class="text-xl font-bold tracking-tight text-main font-sans">Activo (Plan Trial)</span>
+                            <span id="licenseBadge" data-i18n="licenseNoFees" class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">Sin Comisiones</span>
+                        </div>
+                        <p id="licenseSub" data-i18n="licenseSub" class="text-xs text-muted-xs-val mt-2 font-mono">Firma criptográfica válida (ERC-8004)</p>
+                        <div id="licenseDetails" class="mt-3 pt-3 border-t border-white/5 text-[11px] font-mono text-muted-xs-val space-y-1">
+                            <div><span data-i18n="licenseActivated">Activado el:</span> <span id="licenseActivationDate" class="text-main font-semibold">19/05/2026</span></div>
+                            <div><span data-i18n="licenseSaved">Comisiones Ahorradas:</span> <span id="licenseSavedFees" class="text-emerald-400 font-bold">$0.00 USD</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Native Balance -->
+                    <div class="glass-panel p-6 rounded-xl">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-muted-val text-xs font-semibold uppercase tracking-wider" data-i18n="gasTitle">Balance Gas Nativo</h3>
+                            <span id="gasWatcherBadge" data-i18n="gasSufficient" class="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">🟢 Suficiente</span>
+                        </div>
+                        <div class="mt-3 text-2xl font-bold code-font text-main">
+                            <span id="nativeBalance">0.0000</span> <span id="nativeSymbol" class="text-xs text-muted-xs-val font-mono">ETH</span>
+                        </div>
+                        <p class="text-xs text-muted-xs-val mt-2 font-mono" data-i18n="gasSub">Comisiones de red estimadas</p>
+                    </div>
+
+                    <!-- Stablecoin Balance -->
+                    <div class="glass-panel p-6 rounded-xl">
+                        <h3 class="text-muted-val text-xs font-semibold uppercase tracking-wider" data-i18n="usdcTitle">USDC Balance</h3>
+                        <div class="mt-3 text-2xl font-bold code-font text-emerald-500">
+                            $<span id="usdcBalance">0.00</span> <span class="text-xs text-emerald-600 font-mono">USDC</span>
+                        </div>
+                        <p class="text-xs text-muted-xs-val mt-2 font-mono" data-i18n="usdcSub">Capital de trabajo disponible</p>
+                    </div>
+
+                    <!-- Treasury DeFi Yield -->
+                    <div class="glass-panel p-6 rounded-xl border-l-4 border-emerald-500">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-muted-val text-xs font-semibold uppercase tracking-wider">Tesorería DeFi (Comisiones)</h3>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="chkTreasuryYield" class="sr-only peer" onchange="toggleTreasuryYield(this.checked)">
+                                <div class="w-8 h-4 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-500"></div>
+                            </label>
+                        </div>
+                        <div class="mt-3 text-2xl font-bold code-font text-emerald-400">
+                            $<span id="treasuryBalance">0.00</span> <span class="text-[10px] text-emerald-600 font-mono">AAVE-USDC</span>
+                        </div>
+                        <div class="mt-2 flex justify-between text-[11px] font-mono text-muted-xs-val">
+                            <span>Auto-Inversión:</span>
+                            <span id="treasuryStatus" class="text-red-400 font-bold">INACTIVA</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Stablecoin Balance -->
+                <!-- Telemetry & Safety -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- RPC Status (Production Mode - Read Only) -->
+                    <div class="glass-panel p-6 rounded-xl">
+                        <h3 class="text-muted-val text-xs font-semibold uppercase tracking-wider" data-i18n="rpcTitle">Nodo de Consulta (RPC de Producción)</h3>
+                        <div class="mt-3 flex items-center justify-between">
+                            <span class="text-sm font-semibold text-blue-500 font-mono" id="activeRpcNode">Mainnet Base RPC</span>
+                            <span class="text-[10px] bg-blue-500/10 text-blue-600 px-2 py-0.5 rounded font-mono" id="rpcLatency">12ms <span data-i18n="rpcLatency">latencia</span></span>
+                        </div>
+                        <div class="mt-4 text-xs text-muted-val font-mono flex items-center justify-between">
+                            <span><span data-i18n="connectionStatus">Estado de Conexión:</span> <span class="text-emerald-500 font-bold" data-i18n="connectionStatusConnected">🟢 Conectado</span></span>
+                            <span><span data-i18n="rpcType">Tipo:</span> <strong class="text-main font-bold" data-i18n="rpcTypeRead">Lectura Estricta</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Safety Kernel Guardrails -->
+                    <div class="glass-panel p-6 rounded-xl">
+                        <h3 class="text-muted-val text-xs font-semibold uppercase tracking-wider" data-i18n="kernelTitle">Políticas del Safety Kernel</h3>
+                        <div class="mt-3 grid grid-cols-2 gap-2 text-xs font-mono">
+                            <div><span data-i18n="kernelDailyLimit">Límite Diario:</span> <strong class="text-main" id="dailyLimit">$1,000</strong></div>
+                            <div><span data-i18n="kernelTxLimit">Límite Tx:</span> <strong class="text-main" id="maxTxLimit">$150</strong></div>
+                            <div class="col-span-2 mt-1"><span data-i18n="kernelWhiteList">Lista Blanca:</span> <span class="text-emerald-500 font-bold" data-i18n="kernelWhiteListEnabled">Habilitada (2 direcciones)</span></div>
+                        </div>
+                        <p class="text-[10px] text-muted-xs-val mt-2 font-mono" data-i18n="kernelSub">Control de riesgos preventivo a nivel de contrato</p>
+                    </div>
+                </div>
+
+                <!-- Catalog of Premium Inactive Features -->
                 <div class="glass-panel p-6 rounded-xl">
-                    <h3 class="text-gray-400 text-sm font-medium uppercase tracking-wider">USDC Balance</h3>
-                    <div class="mt-2 text-2xl font-bold font-mono text-green-400">
-                        $<span id="usdcBalance">0.00</span>
+                    <div class="border-b border-[var(--panel-border)] pb-3 mb-6">
+                        <h3 class="font-bold text-lg text-main font-sans" data-i18n="catalogTitle">Catálogo de Características Premium & Servicios Adicionales</h3>
+                        <p class="text-xs text-muted-val mt-1" data-i18n="catalogSub">Estas características avanzadas están actualmente inactivas en esta billetera de agente. Contáctenos para solicitar su activación.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Auto-Swap -->
+                        <div class="p-4 rounded-lg border border-[var(--panel-border)] border-dashed bg-white/5 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-xs font-bold text-main" data-i18n="catalogAutoSwapTitle">🔄 Auto-Swap Fallback (DEX)</h4>
+                                <span class="text-[9px] bg-amber-500/10 text-amber-500 px-2 py-0.5 rounded font-mono font-bold" data-i18n="inactiveLabel">Inactivo</span>
+                            </div>
+                            <p class="text-xs text-muted-val" data-i18n="catalogAutoSwapDesc">Permite realizar intercambios automáticos de Gas nativo a stablecoin usando Uniswap en caso de liquidez insuficiente para pagos.</p>
+                        </div>
+
+                        <!-- Auto-Rotation RPC -->
+                        <div class="p-4 rounded-lg border border-[var(--panel-border)] border-dashed bg-white/5 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-xs font-bold text-main" data-i18n="catalogRpcRotTitle">⚡ RPC Auto-Rotación</h4>
+                                <span class="text-[9px] bg-amber-500/10 text-amber-500 px-2 py-0.5 rounded font-mono font-bold" data-i18n="inactiveLabel">Inactivo</span>
+                            </div>
+                            <p class="text-xs text-muted-val" data-i18n="catalogRpcRotDesc">Conmutación inteligente ante límites de velocidad (HTTP 429) o latencia elevada a nodos de respaldo de alta velocidad.</p>
+                        </div>
+
+                        <!-- Gasless Paymaster -->
+                        <div class="p-4 rounded-lg border border-[var(--panel-border)] border-dashed bg-white/5 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-xs font-bold text-main" data-i18n="catalogPaymasterTitle">⛽ Paymasters (Gasless)</h4>
+                                <span class="text-[9px] bg-amber-500/10 text-amber-500 px-2 py-0.5 rounded font-mono font-bold" data-i18n="inactiveLabel">Inactivo</span>
+                            </div>
+                            <p class="text-xs text-muted-val" data-i18n="catalogPaymasterDesc">El patrocinador asume la tarifa de red (gas) de las transacciones del agente. No requiere ETH o SOL para operar.</p>
+                        </div>
+
+                        <!-- Webhooks HMAC -->
+                        <div class="p-4 rounded-lg border border-[var(--panel-border)] border-dashed bg-white/5 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-xs font-bold text-main" data-i18n="catalogWebhookTitle">🔗 Webhooks HMAC-SHA256</h4>
+                                <span class="text-[9px] bg-amber-500/10 text-amber-500 px-2 py-0.5 rounded font-mono font-bold" data-i18n="inactiveLabel">Inactivo</span>
+                            </div>
+                            <p class="text-xs text-muted-val" data-i18n="catalogWebhookDesc">Envío automático de cargas útiles de eventos a sus servidores firmadas criptográficamente para notificaciones instantáneas.</p>
+                        </div>
+
+                        <!-- Fleet Coordinator -->
+                        <div class="p-4 rounded-lg border border-[var(--panel-border)] border-dashed bg-white/5 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-xs font-bold text-main" data-i18n="catalogFleetTitle">👥 Fleet Coordinator</h4>
+                                <span class="text-[9px] bg-amber-500/10 text-amber-500 px-2 py-0.5 rounded font-mono font-bold" data-i18n="inactiveLabel">Inactivo</span>
+                            </div>
+                            <p class="text-xs text-muted-val" data-i18n="catalogFleetDesc">Gestión y aprovisionamiento de fondos limitados a sub-agentes coordinados mediante marcos CrewAI o LangChain.</p>
+                        </div>
+
+                        <!-- DeFi Yield Management -->
+                        <div class="p-4 rounded-lg border border-[var(--panel-border)] border-dashed bg-white/5 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-xs font-bold text-main" data-i18n="catalogDeFiTitle">📈 Rendimientos DeFi Activos</h4>
+                                <span class="text-[9px] bg-amber-500/10 text-amber-500 px-2 py-0.5 rounded font-mono font-bold" data-i18n="inactiveLabel">Inactivo</span>
+                            </div>
+                            <p class="text-xs text-muted-val" data-i18n="catalogDeFiDesc">Colocación automática de stablecoins no utilizadas en protocolos como Aave v3 para maximizar la generación de interés.</p>
+                        </div>
+
+                        <!-- Zero-Custody Swaps -->
+                        <div class="p-4 rounded-lg border border-[var(--panel-border)] border-dashed bg-white/5 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-xs font-bold text-main" data-i18n="catalogZeroCustodyTitle">🛡️ Zero-Custody AI Swaps</h4>
+                                <span class="text-[9px] bg-amber-500/10 text-amber-500 px-2 py-0.5 rounded font-mono font-bold" data-i18n="inactiveLabel">Inactivo</span>
+                            </div>
+                            <p class="text-xs text-muted-val" data-i18n="catalogZeroCustodyDesc">Secure, intent-based cross-chain routing protected by strict session keys and anti-MEV private mempools.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transaction History Ledger (Production Only) -->
+                <div class="glass-panel rounded-xl overflow-hidden font-mono">
+                    <div class="px-6 py-4 border-b border-[var(--panel-border)] flex flex-col sm:flex-row items-center justify-between gap-3">
+                        <h3 class="font-bold tracking-tight text-main font-sans" data-i18n="productionHistoryTitle">Historial Reciente de Producción</h3>
+                        <div class="flex items-center gap-3">
+                            <button onclick="downloadReport()" data-i18n="btnDownloadReport" class="bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 border border-blue-500/20 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all">
+                                📥 Descargar Reporte de Auditoría (JSON)
+                            </button>
+                            <span class="text-xs text-muted-xs-val" id="txCountBadge">1 <span data-i18n="txCountLabel">Transacciones</span></span>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left font-sans">
+                            <thead class="bg-table-hdr text-xs text-muted-val uppercase font-mono">
+                                <tr>
+                                    <th class="px-6 py-3.5" data-i18n="tableHash">Hash de Tx</th>
+                                    <th class="px-6 py-3.5" data-i18n="tableType">Tipo</th>
+                                    <th class="px-6 py-3.5" data-i18n="tableRecipient">Destinatario</th>
+                                    <th class="px-6 py-3.5" data-i18n="tableAmount">Monto</th>
+                                    <th class="px-6 py-3.5" data-i18n="tableDate">Fecha</th>
+                                    <th class="px-6 py-3.5" data-i18n="tableStatus">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="txTableBody" class="divide-y divide-[var(--panel-border)] text-sm text-muted-val font-mono">
+                                <!-- Rows injected dynamically by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Python SDK Quickstart Widget -->
+                <div class="glass-panel p-6 rounded-xl space-y-4">
+                    <div class="border-b border-white/5 pb-3">
+                        <h3 class="font-bold text-lg text-main font-sans flex items-center gap-2" data-i18n="quickstartTitle">
+                            🐍 iAgent-Pay Python SDK Quickstart
+                        </h3>
+                        <p class="text-xs text-muted-val mt-1" data-i18n="quickstartDesc">Guía rápida de integración para desarrolladores. Copia este snippet para iniciar transacciones autónomas de forma gratuita durante los primeros 2 años.</p>
+                    </div>
+                    <div class="relative bg-black/40 rounded-lg p-4 font-mono text-xs overflow-x-auto border border-white/5 text-gray-300">
+                        <span class="absolute top-2 right-2 text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded uppercase font-bold font-sans" data-i18n="freePromo">2 Años Gratis</span>
+                        <pre><code class="language-python"><span class="text-sky-400">from</span> iagent_pay.agent_pay <span class="text-sky-400">import</span> AgentPay
+
+<span class="text-gray-500"># 1. Inicializa el SDK en la red deseada (ej. BASE, POLYGON)</span>
+agent = AgentPay(chain_name=<span class="text-amber-400">"BASE"</span>)
+
+<span class="text-gray-500"># 2. Tu agente ejecuta pagos de forma autónoma (Sin comisiones por 2 años)</span>
+tx_hash = agent.transfer(
+    recipient_address=<span class="text-amber-400">"0xF29E7b5BC7fdd6C4d9B4DE9f68De31739FBB1526"</span>,
+    amount_eth=0.005
+)
+
+<span class="text-emerald-400">print</span>(f<span class="text-amber-400">"Transacción enviada exitosamente: {tx_hash}"</span>)</code></pre>
                     </div>
                 </div>
             </div>
 
-            <!-- Transaction History -->
-            <div class="glass-panel rounded-xl overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-800">
-                    <h3 class="font-semibold">Recent Transactions</h3>
+            <!-- TAB 2: SIMULATIONS SANDBOX -->
+            <div id="simulationsTabContent" class="hidden space-y-6">
+                <!-- Sandbox Introduction Alert -->
+                <div class="p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs text-muted-val flex justify-between items-center">
+                    <span data-i18n="sandboxIntro">🧪 **Entorno de Sandbox Interactivo**: Active o desactive características, seleccione el modo de operación y ejecute eventos autónomos para ver cómo opera el Safety Kernel de iAgent-Pay en tiempo real.</span>
                 </div>
-                <!-- ... table ... -->
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-gray-800/50 text-xs text-gray-400 uppercase">
-                            <tr>
-                                <th class="px-6 py-3">Hash</th>
-                                <th class="px-6 py-3">Type</th>
-                                <th class="px-6 py-3">Amount</th>
-                                <th class="px-6 py-3">Date</th>
-                                <th class="px-6 py-3">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="txTableBody" class="divide-y divide-gray-800 text-sm text-gray-300">
-                            <!-- Rows injected by JS -->
-                            <tr>
-                                <td class="px-6 py-4 font-mono text-blue-400">0x12..ef</td>
-                                <td class="px-6 py-4">Subscription</td>
-                                <td class="px-6 py-4">0.008 ETH</td>
-                                <td class="px-6 py-4">2 mins ago</td>
-                                <td class="px-6 py-4 text-green-400">Confirmed</td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                <!-- Simulation Advanced Telemetry Metrics -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- RPC Failover & Node Status -->
+                    <div class="glass-panel p-6 rounded-xl">
+                        <h3 class="text-muted-val text-xs font-semibold uppercase tracking-wider" data-i18n="simRpcTitle">Simulador RPC Telemetry</h3>
+                        <div class="mt-3 flex items-center justify-between">
+                            <span class="text-sm font-semibold text-blue-500 font-mono" id="simActiveRpcNode">Base Mainnet RPC</span>
+                            <span class="text-[10px] bg-blue-500/10 text-blue-600 px-2 py-0.5 rounded font-mono" id="simRpcLatency">12ms <span data-i18n="rpcLatency">latencia</span></span>
+                        </div>
+                        <div class="mt-2 text-xs text-muted-val font-mono flex items-center justify-between">
+                            <span><span data-i18n="simRotations">Auto-Rotaciones:</span> <strong id="rpcRotations" class="text-main font-bold">0</strong></span>
+                            <span class="text-emerald-500 font-bold" id="rpcStatusText" data-i18n="simStatusHealthy">🟢 Saludable</span>
+                        </div>
+                    </div>
+
+                    <!-- Capital Simulado Disponible -->
+                    <div class="glass-panel p-6 rounded-xl flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-muted-val text-xs font-semibold uppercase tracking-wider" data-i18n="simCapitalTitle">Capital Simulado (Sandbox)</h3>
+                            <div class="mt-3 text-2xl font-bold font-mono text-emerald-500" id="simCapitalValue">$10,000.00 USDC</div>
+                        </div>
+                        <button onclick="resetSandbox()" data-i18n="btnResetSandbox"
+                            class="w-full mt-3 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 font-semibold py-1.5 px-3 rounded-lg text-xs transition-all flex items-center justify-center gap-1">
+                            🔄 Reiniciar Capital ($10K) y Logs
+                        </button>
+                        <button onclick="runStressTest()" data-i18n="btnStressTest"
+                            class="w-full mt-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/20 font-semibold py-1.5 px-3 rounded-lg text-xs transition-all flex items-center justify-center gap-1">
+                            🧪 Ejecutar Test de Estrés (100 Ops)
+                        </button>
+                    </div>
+
+                    <!-- Auto-Swap Fallback & Volume Fee -->
+                    <div class="glass-panel p-6 rounded-xl">
+                        <h3 class="text-muted-val text-xs font-semibold uppercase tracking-wider" data-i18n="simOpModeTitle">Modo de Operación & Volumen</h3>
+                        <div class="mt-2 flex items-center justify-between text-xs font-mono">
+                            <span data-i18n="simOpModeLabel">Modo de Operación:</span>
+                            <select id="simOpMode" class="bg-white/5 border border-[var(--panel-border)] rounded text-xs text-main p-1 outline-none font-mono">
+                                <option value="single" data-i18n="optSingle">Una Transacción (Single)</option>
+                                <option value="loop" data-i18n="optLoop">Bucle (5 Operaciones)</option>
+                            </select>
+                        </div>
+                        <div class="mt-3">
+                            <div class="flex justify-between text-[10px] text-muted-val font-mono mb-1">
+                                <span data-i18n="simVolumeLabel">Volumen Simulado Facturado:</span>
+                                <span id="volumeProgressText">$0.00 / $1000.00</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                                <div class="bg-gradient-to-r from-blue-500 to-indigo-500 h-1.5 rounded-full transition-all duration-500" id="volumeProgressBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation Settings (Toggles) & Actions Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Configuración de Características (Toggles) -->
+                    <div class="glass-panel p-6 rounded-xl lg:col-span-1 space-y-4">
+                        <h3 class="text-indigo-500 text-sm font-semibold uppercase tracking-wider" data-i18n="simConfigTitle">Configuración del Agente</h3>
+                        <p class="text-xs text-muted-val" data-i18n="simConfigDesc">Active o desactive las políticas del Safety Kernel y complementos para alterar la simulación:</p>
+                        
+                        <div class="space-y-3 pt-2">
+                            <!-- Toggle Safety Kernel -->
+                            <div class="flex items-center justify-between p-3 rounded-lg border border-[var(--panel-border)] bg-white/5">
+                                <div class="space-y-0.5">
+                                    <span class="text-xs font-bold text-main block" data-i18n="toggleSafetyLabel">🛡️ Safety Kernel</span>
+                                    <span class="text-[10px] text-muted-val font-mono block" data-i18n="toggleSafetyDesc">Protección de límites diarios</span>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="toggleSafetyKernel" class="sr-only peer" checked>
+                                    <div class="w-9 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                                </label>
+                            </div>
+
+                            <!-- Toggle Auto-Swap Fallback -->
+                            <div class="flex items-center justify-between p-3 rounded-lg border border-[var(--panel-border)] bg-white/5">
+                                <div class="space-y-0.5">
+                                    <span class="text-xs font-bold text-main block" data-i18n="toggleAutoSwapLabel">🔄 Auto-Swap Fallback</span>
+                                    <span class="text-[10px] text-muted-val font-mono block" data-i18n="toggleAutoSwapDesc">DEX Swap de ETH a USDC</span>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="toggleAutoSwap" class="sr-only peer" checked>
+                                    <div class="w-9 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                                </label>
+                            </div>
+
+                            <!-- Toggle RPC Failover -->
+                            <div class="flex items-center justify-between p-3 rounded-lg border border-[var(--panel-border)] bg-white/5">
+                                <div class="space-y-0.5">
+                                    <span class="text-xs font-bold text-main block" data-i18n="toggleRpcLabel">🚨 RPC Failover</span>
+                                    <span class="text-[10px] text-muted-val font-mono block" data-i18n="toggleRpcDesc">Rotación automática de nodos</span>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="toggleRpcFailover" class="sr-only peer" checked>
+                                    <div class="w-9 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                                </label>
+                            </div>
+
+                            <!-- Toggle Gasless Sponsor -->
+                            <div class="flex items-center justify-between p-3 rounded-lg border border-[var(--panel-border)] bg-white/5">
+                                <div class="space-y-0.5">
+                                    <span class="text-xs font-bold text-main block" data-i18n="toggleGaslessLabel">⛽ Gasless Paymasters</span>
+                                    <span class="text-[10px] text-muted-val font-mono block" data-i18n="toggleGaslessDesc">Patrocinio de gas ERC-4337</span>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="toggleGasless" class="sr-only peer" checked>
+                                    <div class="w-9 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                                </label>
+                            </div>
+
+                            <!-- Toggle Human-in-the-Loop -->
+                            <div class="flex items-center justify-between p-3 rounded-lg border border-[var(--panel-border)] bg-white/5">
+                                <div class="space-y-0.5">
+                                    <span class="text-xs font-bold text-main block" data-i18n="toggleHumanLabel">👤 Human-in-the-Loop</span>
+                                    <span class="text-[10px] text-muted-val font-mono block" data-i18n="toggleHumanDesc">Validación y firma de propietario</span>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="toggleHumanLoop" class="sr-only peer" checked>
+                                    <div class="w-9 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Simulator Controls (14 buttons) -->
+                    <div class="glass-panel p-6 rounded-xl lg:col-span-2 space-y-4">
+                        <h3 class="text-indigo-500 text-sm font-semibold uppercase tracking-wider" data-i18n="simActionsTitle">Simulador de Acciones (Catálogo Completo)</h3>
+                        <p class="text-xs text-muted-val" data-i18n="simActionsDesc">Haga clic en un botón para ejecutar la simulación de esa característica:</p>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                            <button onclick="triggerSimulation(simPipelinedBatch)"
+                                class="bg-white/5 hover:bg-white/10 border border-[var(--panel-border)] px-3 py-2.5 rounded-xl text-[11px] font-semibold transition-colors flex items-center justify-between text-main">
+                                <span data-i18n="btnBatch">📦 Lotes Concurrentes</span>
+                                <span class="text-[9px] bg-purple-500/10 text-purple-600 px-1.5 py-0.5 rounded font-mono">v8.5</span>
+                            </button>
+                            <button onclick="triggerSimulation(simRpc429Rotation)"
+                                class="bg-white/5 hover:bg-white/10 border border-[var(--panel-border)] px-3 py-2.5 rounded-xl text-[11px] font-semibold transition-colors flex items-center justify-between text-main">
+                                <span data-i18n="btnRpc429">🚨 RPC Failover 429</span>
+                                <span class="text-[9px] bg-blue-500/10 text-blue-600 px-1.5 py-0.5 rounded font-mono">v8.5</span>
+                            </button>
+                            <button onclick="triggerSimulation(simAutoSwapLiquidity)"
+                                class="bg-white/5 hover:bg-white/10 border border-[var(--panel-border)] px-3 py-2.5 rounded-xl text-[11px] font-semibold transition-colors flex items-center justify-between text-main">
+                                <span data-i18n="btnAutoSwap">🔄 Auto-Swap DEX</span>
+                                <span class="text-[9px] bg-emerald-500/10 text-emerald-600 px-1.5 py-0.5 rounded font-mono">v8.2</span>
+                            </button>
+                            <button onclick="triggerSimulation(simSafetyLimitBypass)"
+                                class="bg-white/5 hover:bg-white/10 border border-[var(--panel-border)] px-3 py-2.5 rounded-xl text-[11px] font-semibold transition-colors flex items-center justify-between text-main">
+                                <span data-i18n="btnKernelLimits">🛡️ Limites Kernel</span>
+                                <span class="text-[9px] bg-red-500/10 text-red-600 px-1.5 py-0.5 rounded font-mono">Risk</span>
+                            </button>
+                            <button onclick="triggerSimulation(simGaslessPaymaster)"
+                                class="bg-white/5 hover:bg-white/10 border border-[var(--panel-border)] px-3 py-2.5 rounded-xl text-[11px] font-semibold transition-colors flex items-center justify-between text-main">
+                                <span data-i18n="btnGasless">Gasless Paymaster</span>
+                                <span class="text-[9px] bg-amber-500/10 text-amber-600 px-1.5 py-0.5 rounded font-mono">v8.4</span>
+                            </button>
+                            <button onclick="triggerSimulation(simHmacWebhook)"
+                                class="bg-white/5 hover:bg-white/10 border border-[var(--panel-border)] px-3 py-2.5 rounded-xl text-[11px] font-semibold transition-colors flex items-center justify-between text-main">
+                                <span data-i18n="btnWebhook">🔗 Webhooks HMAC</span>
+                                <span class="text-[9px] bg-purple-500/10 text-purple-600 px-1.5 py-0.5 rounded font-mono">API</span>
+                            </button>
+                            <button onclick="triggerSimulation(simDeFiAave)"
+                                class="bg-white/5 hover:bg-white/10 border border-[var(--panel-border)] px-3 py-2.5 rounded-xl text-[11px] font-semibold transition-colors flex items-center justify-between text-main">
+                                <span data-i18n="btnYield">📈 Yield Aave v3</span>
+                                <span class="text-[9px] bg-indigo-500/10 text-indigo-600 px-1.5 py-0.5 rounded font-mono">DeFi</span>
+                            </button>
+                            <button onclick="triggerSimulation(simFleetDispatch)"
+                                class="bg-white/5 hover:bg-white/10 border border-[var(--panel-border)] px-3 py-2.5 rounded-xl text-[11px] font-semibold transition-colors flex items-center justify-between text-main">
+                                <span data-i18n="btnFleet">👥 Flotas Sub-Agent</span>
+                                <span class="text-[9px] bg-pink-500/10 text-pink-600 px-1.5 py-0.5 rounded font-mono">Fleet</span>
+                            </button>
+                            <button onclick="triggerSimulation(simHumanLoopApproval)"
+                                class="bg-white/5 hover:bg-white/10 border border-[var(--panel-border)] px-3 py-2.5 rounded-xl text-[11px] font-semibold transition-colors flex items-center justify-between text-main">
+                                <span data-i18n="btnHuman">👤 Human-in-the-Loop</span>
+                                <span class="text-[9px] bg-sky-500/10 text-sky-600 px-1.5 py-0.5 rounded font-mono">KYA</span>
+                            </button>
+                            <button onclick="triggerSimulation(simReputationScore)"
+                                class="bg-white/5 hover:bg-white/10 border border-[var(--panel-border)] px-3 py-2.5 rounded-xl text-[11px] font-semibold transition-colors flex items-center justify-between text-main">
+                                <span data-i18n="btnReputation">🏆 Reputation Score</span>
+                                <span class="text-[9px] bg-yellow-500/10 text-yellow-600 px-1.5 py-0.5 rounded font-mono">Trust</span>
+                            </button>
+                            <button onclick="triggerSimulation(simHttp402Paywall)"
+                                class="bg-white/5 hover:bg-white/10 border border-[var(--panel-border)] px-3 py-2.5 rounded-xl text-[11px] font-semibold transition-colors flex items-center justify-between text-main">
+                                <span data-i18n="btnPaywall">🔑 Paywall HTTP 402</span>
+                                <span class="text-[9px] bg-teal-500/10 text-teal-600 px-1.5 py-0.5 rounded font-mono">x402</span>
+                            </button>
+                            <button onclick="triggerSimulation(simFiatOffRamp)"
+                                class="bg-white/5 hover:bg-white/10 border border-[var(--panel-border)] px-3 py-2.5 rounded-xl text-[11px] font-semibold transition-colors flex items-center justify-between text-main">
+                                <span data-i18n="btnOffRamp">🏦 Off-Ramp Fiat</span>
+                                <span class="text-[9px] bg-orange-500/10 text-orange-600 px-1.5 py-0.5 rounded font-mono">Bridge</span>
+                            </button>
+                            <button onclick="triggerSimulation(simSocialResolver)"
+                                class="bg-white/5 hover:bg-white/10 border border-[var(--panel-border)] px-3 py-2.5 rounded-xl text-[11px] font-semibold transition-colors flex items-center justify-between text-main">
+                                <span data-i18n="btnSocial">🐦 Social Resolver</span>
+                                <span class="text-[9px] bg-cyan-500/10 text-cyan-600 px-1.5 py-0.5 rounded font-mono">X/Tw</span>
+                            </button>
+                            <button onclick="triggerSimulation(simCrossChainBridge)"
+                                class="bg-white/5 hover:bg-white/10 border border-[var(--panel-border)] px-3 py-2.5 rounded-xl text-[11px] font-semibold transition-colors flex items-center justify-between text-main">
+                                <span data-i18n="btnCrossChain">🌉 Cross-Chain Swap</span>
+                                <span class="text-[9px] bg-rose-500/10 text-rose-600 px-1.5 py-0.5 rounded font-mono">LiFi</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Server Console Logs -->
+                <div class="glass-panel p-6 rounded-xl flex flex-col h-[280px]">
+                    <div class="flex items-center justify-between pb-3 border-b border-[var(--panel-border)] mb-3">
+                        <h3 class="text-indigo-500 text-xs font-semibold uppercase tracking-wider font-mono" data-i18n="consoleTitle">Visor de Eventos del Servidor (Logs de Simulación)</h3>
+                        <button onclick="clearConsole()" data-i18n="btnClearConsole" class="text-xs text-muted-xs-val hover:text-main underline font-mono">Limpiar</button>
+                    </div>
+                    <div class="flex-1 bg-terminal rounded-xl p-4 font-mono text-[11px] border border-[var(--panel-border)] overflow-y-auto" id="terminalConsole">
+                        <span class="text-gray-500">// Sandbox listo. Seleccione una simulación para comenzar...</span><br>
+                    </div>
+                </div>
+
+                <!-- Simulation Transaction Ledger -->
+                <div class="glass-panel rounded-xl overflow-hidden font-mono">
+                    <div class="px-6 py-4 border-b border-[var(--panel-border)] flex items-center justify-between">
+                        <h3 class="font-bold tracking-tight text-main font-sans" data-i18n="simLedgerTitle">Ledger de Transacciones Simuladas</h3>
+                        <span class="text-xs text-muted-xs-val" id="simTxCountBadge">0 <span data-i18n="simLedgerCount">Transacciones Simuladas</span></span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left font-sans">
+                            <thead class="bg-table-hdr text-xs text-muted-val uppercase font-mono">
+                                <tr>
+                                    <th class="px-6 py-3.5" data-i18n="simLedgerColHash">Hash de Tx</th>
+                                    <th class="px-6 py-3.5" data-i18n="simLedgerColType">Tipo de Simulación</th>
+                                    <th class="px-6 py-3.5" data-i18n="simLedgerColRecipient">Destinatario / Canal</th>
+                                    <th class="px-6 py-3.5" data-i18n="simLedgerColDetail">Detalle / Valor</th>
+                                    <th class="px-6 py-3.5" data-i18n="simLedgerColStatus">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="simTxTableBody" class="divide-y divide-[var(--panel-border)] text-sm text-muted-val font-mono">
+                                <tr>
+                                    <td colspan="5" class="px-6 py-8 text-center text-muted-xs-val font-mono" data-i18n="simLedgerNoTx">Ninguna simulación ejecutada todavía. Utilice los controles de arriba.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
         </div>
     </main>
 
+    <footer class="text-center py-8 text-xs text-muted-xs-val border-t border-[var(--panel-border)] mt-12 font-mono">
+        <p data-i18n="footerText">&copy; 2026 iAgent-Pay Inc. Panel de Monitoreo de Transacciones y Límites del Safety Kernel.</p>
+        <p class="mt-2"><a href="terms.html" class="text-indigo-400 hover:text-indigo-300 underline transition-colors" data-i18n="privacyPolicy">Aviso de Privacidad y Términos de Uso</a></p>
+    </footer>
+
     <!-- Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script src="ethers.umd.min.js"></script>
+    <script src="translations.js"></script>
     <script src="app.js"></script>
 </body>
 

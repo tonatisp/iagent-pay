@@ -13,14 +13,14 @@ class ChainConfig:
 
     ETH = {
         "name": "Ethereum Mainnet",
-        "rpc": [os.getenv("ETH_RPC_URL", "https://eth.llamarpc.com"), "https://1rpc.io/eth", "https://rpc.ankr.com/eth"],
+        "rpc": [os.getenv("ETH_RPC_URL", "https://cloudflare-eth.com"), "https://rpc.ankr.com/eth"],
         "chain_id": 1,
         "symbol": "ETH"
     }
     
     SEPOLIA = {
         "name": "Sepolia Testnet",
-        "rpc": ["https://1rpc.io/sepolia", "https://rpc.ankr.com/eth_sepolia", "https://eth-sepolia.public.blastapi.io"],
+        "rpc": ["https://ethereum-sepolia-rpc.publicnode.com", "https://sepolia.drpc.org"],
         "chain_id": 11155111,
         "symbol": "SepoliaETH"
     }
@@ -32,9 +32,16 @@ class ChainConfig:
         "symbol": "ETH"
     }
     
+    BNB = {
+        "name": "BNB Smart Chain",
+        "rpc": ["https://bsc-dataseed.binance.org", "https://bsc-dataseed1.defibit.io"],
+        "chain_id": 56,
+        "symbol": "BNB"
+    }
+    
     POLYGON = {
         "name": "Polygon PoS",
-        "rpc": ["https://polygon-rpc.com", "https://polygon.llamarpc.com", "https://1rpc.io/polygon"],
+        "rpc": ["https://polygon.drpc.org", "https://rpc.ankr.com/polygon"],
         "chain_id": 137,
         "symbol": "MATIC"
     }

@@ -416,27 +416,43 @@ def test_stress_kya():
     stats2 = reg2.get_registry_stats()
     assert stats2['total_agents'] == 50
 
-run_test("Stress: 100 Rapid Safety Checks", test_stress_safety)
-run_test("Stress: 50 Webhook Signatures", test_stress_webhooks)
-run_test("Stress: 100 SubAgents Created", test_stress_subagents)
-run_test("Stress: 300 Observability Events", test_stress_observability)
-run_test("Stress: 50 KYA Agents with Reputation", test_stress_kya)
+# Only run when executed directly, not during pytest collection
+if __name__ == "__main__":
+    print("Starting iAgentPay v5.0 Comprehensive Tests...")
+    
+    # --- SAFETY KERNEL TESTS ---
+    run_test("SafetyKernel: Core functionality", test_safety_kernel)
+    run_test("KYA: Identity and Trust", test_kya)
+    run_test("Webhooks: Signatures and Delivery", test_webhooks)
+    run_test("SubAgents: Fleet Management", test_sub_agents)
+    run_test("Observability: Metrics and Anomalies", test_observability)
+    run_test("x402 Server: Middleware Basics", test_x402_server)
+    run_test("x402 Client: Initialization", test_x402_client)
+    run_test("USDC Driver: Network config", test_usdc_driver)
+    run_test("MCP Server: Tool Handling", test_mcp_server)
+    run_test("Fiat Bridge: Routing and Config", test_fiat_bridge)
+    run_test("HumanLoop: HITL basics", test_human_loop)
+    run_test("Integration: Kernel + Webhooks + Observability", test_integration)
+    run_test("Stress: 100 Rapid Safety Checks", test_stress_safety)
+    run_test("Stress: 50 Webhook Signatures", test_stress_webhooks)
+    run_test("Stress: 100 SubAgents Created", test_stress_subagents)
+    run_test("Stress: 300 Observability Events", test_stress_observability)
+    run_test("Stress: 50 KYA Agents with Reputation", test_stress_kya)
 
+    # --- PRINT RESULTS ---
+    print("\n" + "="*60)
+    print(f"  iAgentPay v5.0 TEST SUITE RESULTS")
+    print("="*60)
+    for r in results:
+        icon = '[PASS]' if r.startswith('PASS') else '[FAIL]'
+        print(f"  {icon} {r[5:]}")  # Remove the prefix and add our own
+    print("="*60)
+    print(f"  TOTAL:  {passed + failed} tests")
+    print(f"  PASSED: {passed}")
+    print(f"  FAILED: {failed}")
+    print("="*60)
 
-# --- PRINT RESULTS ---
-print("\n" + "="*60)
-print(f"  iAgentPay v5.0 TEST SUITE RESULTS")
-print("="*60)
-for r in results:
-    icon = '[PASS]' if r.startswith('PASS') else '[FAIL]'
-    print(f"  {icon} {r[5:]}")  # Remove the prefix and add our own
-print("="*60)
-print(f"  TOTAL:  {passed + failed} tests")
-print(f"  PASSED: {passed}")
-print(f"  FAILED: {failed}")
-print("="*60)
-
-if failed > 0:
-    sys.exit(1)
-else:
-    sys.exit(0)
+    if failed > 0:
+        sys.exit(1)
+    else:
+        sys.exit(0)
